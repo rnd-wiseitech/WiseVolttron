@@ -1,0 +1,35 @@
+li#user-param-btn.button {
+    bottom: 3px;
+    height: 30px;
+    border-radius: 50px;
+    border: 1px solid #f0f1f7;
+    background: #fafafa;
+    min-width: 32px;
+}
+
+li#user-param-btn.button>div>a>span {
+    display: block;
+    color: #3751ff;
+    font-weight: 600;
+    position: relative;
+    padding-left: 24px;
+    line-height: 30px;
+    padding-right: 10px;
+    font-size: 1.2rem;
+    line-height: 28px;
+}
+
+li#user-param-btn.button>div>a>span:before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("assets/images/ico-added-on@3x.png") no-repeat;
+    background-size: contain;
+    vertical-align: middle;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    margin: auto;
+}

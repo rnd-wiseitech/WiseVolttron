@@ -1,0 +1,100 @@
+<div id="wp-analytic-result-popup" class="modal on">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <div class="tit">
+        {{'WPP_WORKFLOW.COMPONENT.POPUP.popup74' | translate }}
+      </div>
+      <div class="tab">
+        <ul class="page-tab-ui">
+          <li rel="tabDataResult_1" class="on">
+            <span>{{hModelType}}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="modal-body full">
+      <div id="tabDataResult" class="tab-component">
+        <div class="tabDataResult_1 tab-content on">
+          <div class="component-chart">
+            <div class="row scrollbar">
+              <div class="column">
+                <!-- <canvas id="tblBarResultChart" class="tblBarResultChart"></canvas> -->
+                <ng-container *ngIf="hModelType!='Clustering' && hModelType!='Language'">
+                  <dx-chart id="chart" [dataSource]="oChartData">
+                    <dxi-series argumentField="argNm" valueField="accuracy" name="accuracy" type="bar" color="#3751FF">
+                    </dxi-series>
+                    <dxo-legend [visible]="false"></dxo-legend>
+                    <dxo-label [visible]="true"></dxo-label>
+                  </dx-chart>
+                </ng-container>
+                <ng-container *ngIf="hModelType=='Clustering'">
+                  <dx-chart id="chart" [dataSource]="oChartData">
+                  <dxi-series argumentField="argNm" valueField="silhouette_coef" name="silhouette_coef" type="bar" color="#3751FF">
+                  </dxi-series>
+                    <dxo-legend [visible]="false"></dxo-legend>
+                    <dxo-label [visible]="true"></dxo-label>
+                  </dx-chart>
+                </ng-container>
+                <ng-container *ngIf="hModelType=='Language'">
+                  <dx-chart id="chart" [dataSource]="oChartData">
+                  <dxi-series argumentField="argNm" valueField="train_loss" name="train_loss" type="bar" color="#3751FF">
+                  </dxi-series>
+                    <dxo-legend [visible]="false"></dxo-legend>
+                    <dxo-label [visible]="true"></dxo-label>
+                  </dx-chart>
+                </ng-container>
+              </div>
+              <div class="column graph-legend result el-table">
+                <div class="el-cell">
+                  <ng-container *ngFor="let sResult of hGridData">
+                    <div class="tit">{{sResult.argNm}}</div>
+                    <ng-container *ngIf="hModelType!='Clustering' && hModelType!='Language'">
+                      <ul class="list-legend">
+                        <li>
+                          <span class="vaid">{{sResult.accuracy}}</span> accuracy
+                        </li>
+                      </ul>
+                    </ng-container>
+                    <ng-container *ngIf="hModelType=='Clustering'">
+                      <ul class="list-legend">
+                        <li>
+                          <span class="vaid">{{sResult.silhouette_coef}}</span> silhouette_coef
+                        </li>
+                      </ul>
+                    </ng-container>
+                    <ng-container *ngIf="hModelType=='Language'">
+                      <ul class="list-legend">
+                        <li>
+                          <span class="vaid">{{sResult.train_loss}}</span> train_loss
+                        </li>
+                      </ul>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="component-table scrollbar" *ngIf="hModelType!='Language'">
+            <lib-wp-grid [iGridData]="hGridData" [iColInfo]="hGridCol"></lib-wp-grid>
+          </div>
+          <div class="component-table" *ngIf="hModelType=='Language'">
+            <wp-chat [langModelData]="oLangModelData"></wp-chat>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <div class="modal-footer">
+        <div class="grid-div">
+          <div class="right">
+            <a (click)="onNoClick()" class="btn sm">OK</a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-controller">
+        <a (click)="onNoClick()" class="ico close modalClose">닫기</a>
+      </div>
+  </div>
+  <!-- <div class="modal-dim"></div> -->
+</div>

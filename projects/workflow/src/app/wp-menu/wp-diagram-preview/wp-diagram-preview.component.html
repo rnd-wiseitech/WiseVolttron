@@ -1,0 +1,20 @@
+<div class="panel-head">
+    <div class="tab">
+        <ul>
+            <li><span>{{hTitle}}</span></li>
+        </ul>
+    </div>
+</div>
+<div *ngIf="oPreviewFlag" [id]="'wp-diagram-preview-'+ iDiagramPreviewType" [style]="iStyle">
+    <lib-wp-grid [iGridData]="oGridData" [iColInfo]="oGridCol"></lib-wp-grid>
+</div>
+<div *ngIf="!oPreviewFlag" class="component-table">
+    <div class="nodata">
+        <div class="el-table">
+            <div class="el-cell">
+                <img src="assets/images/img-null.png" alt="">
+                <p>No data to display</p>
+            </div>
+        </div>
+    </div>
+</div>

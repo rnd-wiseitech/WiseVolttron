@@ -1,0 +1,32 @@
+.input-group {
+    display: block;
+}
+
+::ng-deep #COL_NAME_column_names span {
+    word-break: break-word
+}
+
+::ng-deep dx-select-box > div > div > div.dx-texteditor-input-container > input {
+    border:none
+}
+
+::ng-deep dx-select-box {
+    background-color: #fcfdfe;
+    border: 1px solid #f0f1f7;
+    border-radius: 6px;
+}
+
+::ng-deep dx-tag-box {
+    background-color: #fcfdfe;
+    border: 1px solid #f0f1f7;
+    border-radius: 6px;
+}
+
+.ico {
+    text-indent: -999rem;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    vertical-align: middle;
+}

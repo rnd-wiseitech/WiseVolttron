@@ -1,0 +1,41 @@
+{
+    "BASIC_FORMAT": {
+        "yyyy-mm-dd": "%Y-%m-%d",
+        "yyyy년 mm월 dd일": "%Y년 %m월 %d일",
+        "yyyy年 mm月 dd日": "%Y年 %m月 %d日",
+        "yy-mm-dd": "%y-%m-%d",
+        "yyyy/mm/dd": "%Y/%m/%d",
+        "yyyy.mm.dd": "%Y.%m.%d",
+        "yyyy mmm dd": "%Y %b %d",
+        "yyyy mmmm dd": "%Y %B %d",
+        "yyyy-mm-dd ddd": "%Y-%m-%d %a",
+        "yyyy-mm-dd dddd": "%Y-%m-%d %A",
+        "yyyy-mm-dd HH:MM:ss": "%Y-%m-%d  %H:%M:%S",
+        "yyyy-mm-dd hh:MM:ss": "%Y-%m-%d  %I:%M:%S",
+        "yyyy-mm-dd hh:MM TT": "%Y-%m-%d  %I:%M %p",
+        "yyyy년 mm월 dd일 HH시 MM분 ss초": "%Y년 %m월 %d일 %H시 %M분 %S초"
+    },
+    "DATE_FORMAT": {
+        "yyyy": "%Y",
+        "yy": "%y",
+        "mm": "%m",
+        "dd": "%d",
+        "mmm": "%b",
+        "mmmm": "%B",
+        "ddd": "%a",
+        "dddd": "%A"
+    },
+    "TIME_FORMAT": {
+        "hh": "%I",
+        "HH": "%H",
+        "mm": "%M",
+        "ss": "%S",
+        "TT": "%p"
+    },
+    "BASIC_FORMAT_MIN": {
+        "yyyy-mm-dd": "%Y-%m-%d",
+        "yyyymmdd": "%Y%m%d",
+        "yyyymmddHHMMss": "%Y%m%d%H%M%S",
+        "yyyy-mm-dd HH:MM:ss": "%Y-%m-%d %H:%M:%S"
+    }
+}

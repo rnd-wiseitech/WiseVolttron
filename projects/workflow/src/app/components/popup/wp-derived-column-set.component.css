@@ -1,0 +1,20 @@
+::ng-deep #wp-derived-component-set-popup.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:100%;
+}
+
+#wp-derived-component-set-popup .scroll-wrapper > .scroll-content {
+    height: auto;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    max-height: 300px;
+}
+/* .modal-body .row .column {
+    width: 100%;
+} */
+::ng-deep #wp-derived-component-set-popup .tbl table tr:last-child td .tooltip-info {
+    top: unset;
+    bottom: 0;
+}

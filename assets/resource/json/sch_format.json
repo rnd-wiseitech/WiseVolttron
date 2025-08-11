@@ -1,0 +1,44 @@
+{
+    "SECOND" : {
+        "FVALUE": {
+            "ko": ["매초", "5초 간격", "10초 간격", "20초 간격", "30초 간격", "40초 간격", "50초 간격", "60초 간격", "0초", "5초", "10초", "15초", "20초", "25초", "30초", "35초", "40초", "45초", "50초", "55초"],
+            "en": ["every second", "every 5 seconds", "every 10 seconds", "every 20 seconds", "every 30 seconds", "every 40 seconds", "every 50 seconds", "every 60 seconds", "at 0 second", "at 5 seconds", "at 10 seconds", "at 15 seconds", "at 20 seconds", "at 25 seconds", "at 30 seconds", "at 35 seconds", "at 40 seconds", "at 45 seconds", "at 50 seconds", "at 55 seconds"]
+        },
+        "VALUE": ["*", "*/5", "*/10", "*/20", "*/30", "*/40", "*/50", "*/60", "0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
+    },
+    "MINUTE" : {
+        "FVALUE": {
+            "ko": ["매분", "5분 간격", "10분 간격", "20분 간격", "30분 간격", "40분 간격", "50분 간격", "0분", "5분", "10분", "15분", "20분", "25분", "30분", "35분", "40분", "45분", "50분", "55분"],
+            "en": ["every minute", "every 5 minutes", "every 10 minutes", "every 20 minutes", "every 30 minutes", "every 40 minutes", "every 50 minutes", "at 0 minute", "at 5 minutes", "at 10 minutes", "at 15 minutes", "at 20 minutes", "at 25 minutes", "at 30 minutes", "at 35 minutes", "at 40 minutes", "at 45 minutes", "at 50 minutes", "at 55 minutes"]
+        },
+        "VALUE": ["*", "*/5", "*/10", "*/20", "*/30", "*/40", "*/50", "0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
+    },
+    "HOUR" : {
+        "FVALUE": {
+            "ko": ["매시", "2시간 간격", "3시간 간격", "0시", "1시", "2시", "3시", "4시", "5시", "6시", "7시", "8시", "9시", "10시", "11시", "12시", "13시", "14시", "15시", "16시", "17시", "18시", "19시", "20시", "21시", "22시", "23시"],
+            "en": ["every hour", "every 2 hours", "every 3 hours", "at midnight", "1am", "2am", "3am", "4am", "5am", "6am", "7am", "8am", "9am", "10am", "11am", "at noon", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"]
+        },
+        "VALUE": ["*", "*/2", "*/3", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]
+    },
+    "DAY" : {
+        "FVALUE":{
+            "ko": ["매일", "1일", "2일", "3일", "4일", "5일", "6일", "7일", "8일", "9일", "10일", "11일", "12일", "13일", "14일", "15일", "16일", "17일", "18일", "19일", "20일", "21일", "22일", "23일", "24일", "25일", "26일", "27일", "28일", "29일", "30일", "31일"],
+            "en": ["every day", "1st of each month", "2nd of each month", "3rd of each month", "4th of each month", "5th of each month", "6th of each month", "7th of each month", "8th of each month", "9th of each month", "10th of each month", "11th of each month", "12th of each month", "13th of each month", "14th of each month", "15th of each month", "16th of each month", "17th of each month", "18th of each month", "19th of each month", "20th of each month", "21th of each month", "22th of each month", "23th of each month", "24th of each month", "25th of each month", "26th of each month", "27th of each month", "28th of each month", "29th of each month", "30th of each month", "31th of each month"]
+        },
+        "VALUE": ["*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+    },
+    "MONTH" : {
+        "FVALUE":{
+            "ko": ["매월", "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+            "en": ["every month", "every January", "every February", "every March", "every April", "every May", "every June", "every July", "every August", "every September", "every October", "every November", "every December"]
+        },
+        "VALUE": ["*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+    },
+    "WEEK" : {
+        "FVALUE":{
+            "ko": ["매요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"],
+            "en": ["every day", "every monday", "every tuesday", "every wednesday", "every thursday", "every friday", "every saturday", "every sunday"]
+        },
+        "VALUE": ["*", "1", "2", "3", "4", "5", "6", "7"]
+    }
+}

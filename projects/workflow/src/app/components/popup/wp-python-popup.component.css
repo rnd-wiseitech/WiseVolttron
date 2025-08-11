@@ -1,0 +1,21 @@
+::ng-deep #wp-python-popup.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:100%;
+}
+::ng-deep #wp-python-popup .row > .column {
+    word-break: break-all;
+    padding: 10px;
+}
+
+
+::ng-deep#modal-layer .modal-body .scrollbar {
+    max-height: 200px;
+    height: 100%;
+}
+
+::ng-deep#modal-layer .scroll-wrapper .scrollbar {
+    max-height: 200px;
+    height: 100%;
+}

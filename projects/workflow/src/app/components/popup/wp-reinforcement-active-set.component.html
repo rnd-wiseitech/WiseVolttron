@@ -1,0 +1,38 @@
+<div id="wpReinforcementActiveSetPopup" class="modal on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                행동변수 설정
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="modal-filter">
+                <div class="scrollbar">
+                    <div class="input-item">
+                        <lib-wp-grid *ngIf="oGridData" 
+                        (callBack)="onGridCallback($event)" 
+                        [iColInfo]="oGridCol"
+                        [iSelection]='h_selection' 
+                        [iGridData]="oGridData" 
+                        [iSelectedList] = "h_selectionList"
+                        [iRowEvt]="true"></lib-wp-grid>
+                    </div>
+
+                </div>
+            </div>
+            <lib-wp-loading [iName]="'wppopupspin'" [iFullScreen]="false"></lib-wp-loading>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="onComplete($event)" class="btn sm">Ok</a>
+                    <a (click)="onClose()" class="btn sm natural modalClose">Cancel</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

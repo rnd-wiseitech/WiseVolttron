@@ -1,0 +1,19 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { WpAppConfig } from 'projects/wp-lib/src/lib/wp-lib-config/wp-lib-config';
+import { WpSeriveImple } from 'projects/wp-lib/src/lib/wp-meta/service-imple';
+
+@Injectable({ providedIn: 'root' })
+export class WpHdfsService extends WpSeriveImple {
+    constructor(
+        private cHttp: HttpClient,
+        private cAppConfig:WpAppConfig) { 
+            super(cAppConfig);
+        }
+    oUrl = this.cAppConfig.getServerPath("NODE");
+    getTestList(){
+        return this.cHttp.get(this.oUrl + '/jobexcute/select').toPromise().then(p=>{        
+            return p;
+        });      
+    }
+}

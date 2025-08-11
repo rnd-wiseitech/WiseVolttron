@@ -1,0 +1,976 @@
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
+import { WpHdfsComponent } from './data/wp-hdfs/wp-hdfs.component';
+import { WpDataSourceComponent } from './data/wp-data-source/wp-data-source.component';
+import { WpTypeComponent } from './conversion/wp-type/wp-type.component';
+import { WpSplitComponent } from './conversion/wp-split/wp-split.component';
+import { WpColumnSelectorComponent } from './conversion/wp-column-selector/wp-column-selector.component';
+import { WpAggregateComponent } from './conversion/wp-aggregate/wp-aggregate.component';
+import { WpDateComponent } from './conversion/wp-date/wp-date.component';
+import { WpMathComponent } from './conversion/wp-math/wp-math.component';
+import { WpMergeComponent } from './conversion/wp-merge/wp-merge.component';
+import { WpJoinComponent } from './conversion/wp-join/wp-join.component';
+import { WpSortComponent } from './conversion/wp-sort/wp-sort.component';
+import { WpComponentViewerService } from './wp-component-viewer.service';
+import { WorkflowAppService } from '../app.service';
+import { WpNullComponent } from './conversion/wp-null/wp-null.component';
+import { WpSamplingComponent } from './conversion/wp-sampling/wp-sampling.component';
+import { WpAnomalyComponent } from './conversion/wp-anomaly/wp-anomaly.component';
+import { WpGroupingComponent } from './conversion/wp-grouping/wp-grouping.component';
+import { WpDerivedColumnComponent } from './conversion/wp-derived-column/wp-derived-column.component';
+import { MatDialog } from '@angular/material/dialog';
+
+import { WpWindowComponent } from './conversion/wp-window/wp-window.component';
+import { WpODataSourceComponent } from './data/wp-data-source/wp-odata-source.component';
+import { WpSliceComponent } from './conversion/wp-slice/wp-slice.component';
+import { WpDiagramService } from '../wp-diagram/wp-diagram.service';
+import { Subscription } from 'rxjs';
+import { WpStreamingService } from './data/wp-streaming/wp-streaming.service';
+import { WpVolttronService } from './data/wp-volttron/wp-volttron.service';
+import { WpComponentService } from './wp-component.service';
+import { WpDiagramPreviewService } from '../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
+import { WpResultViewerComponent } from './resultview/wp-result-viewer.component';
+import { WpStreamingComponent } from './data/wp-streaming/wp-streaming.component';
+import { WpTrainModelComponent } from './analytic-model/wp-train-model/wp-train-model.component';
+import { WpDerivedConditionalComponent } from './conversion/wp-derived-conditional/wp-derived-conditional.component';
+import { WpOdbcComponent } from './data/wp-odbc/wp-odbc.component';
+import { WpOOdbcComponent } from './data/wp-odbc/wp-oodbc.component';
+import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
+import { map } from 'rxjs/operators';
+import { WpFtpComponent } from './data/wp-ftp/wp-ftp.component';
+import { HiveQueryService } from 'projects/data-manager/src/app/hive-query/hive-query.service';
+import { WpColumnNameComponent } from './conversion/wp-column-name/wp-column-name.component';
+import { WpPropertiesWrap } from '../wp-menu/wp-component-properties/wp-component-properties-wrap';
+import { WpPythonComponent } from './conversion/wp-python/wp-python.component';
+import dxSelectBox from 'devextreme/ui/select_box';
+import { WpSocket } from 'projects/wp-lib/src/lib/wp-socket/wp-socket';
+import { WpTrainModelService } from './analytic-model/wp-train-model/wp-train-model.service';
+import { WpCompareModelComponent } from './analytic-model/wp-compare-model/wp-compare-model.component';
+import { WpCompareModelService } from './analytic-model/wp-compare-model/wp-compare-model.service';
+import { WpDiagramToolbarService } from '../wp-menu/wp-diagram-toolbar/wp-diagram-toolbar.service';
+import { WpFilterModelComponent } from './analytic-model/wp-filter-model/wp-filter-model.component';
+import { COM_FILTER_MODEL_ATT, JOB_DATA_ATT } from 'projects/wp-server/wp-type/WP_COM_ATT';
+import { DS_MSTR_ATT } from 'projects/wp-server/metadb/model/DS_MSTR';
+import { WpTrainUserModelComponent } from './analytic-model/wp-train-model/wp-train-user-model.component';
+import { WpIWorkflowComponent } from './data/wp-workflow/wp-iworkflow.component';
+import { WpFeatureImportanceComponent } from './analytic-model/wp-feature-importance/wp-feature-importance.component';
+import { WpStorageComponent } from './data/wp-storage/wp-storage.component';
+import { WpImageStorageComponent } from './data/wp-image/wp-image-storage.component';
+import { WpImageLabelComponent } from './conversion/wp-image-label/wp-image-label.component';
+// import { WpImageResizeComponent } from './conversion/wp-image-resize/wp-image-resize.component';
+import { WpImageDataSourceComponent } from './data/wp-image/wp-image-data-source.component';
+import { WpImageODataSourceComponent } from './data/wp-image/wp-image-odata-source.component';
+import { WpEnsembleModelComponent } from './analytic-model/wp-ensemble-model/wp-ensemble-model.component';
+import { WpTrainReinforcementModelComponent } from './analytic-model/wp-train-model/wp-train-reinforcement-model.component';
+import { WpAppConfig } from 'projects/wp-lib/src/lib/wp-lib-config/wp-lib-config';
+import { WpPredictModelComponenet } from './analytic-model/wp-predict-model/wp-predict-model.component';
+import { MainAppService } from 'projects/main/src/app/app.service';
+// import { WpResouceDiagramService } from 'projects/resource-manager/src/app/resource-diagram/resource-diagram.service';
+// import { WpDeployModelComponenet } from './analytic-model/wp-deploy-model/wp-deploy-model.component';
+// import { WpDynamicPromptComponent } from './analytic-model/wp-dynamic-prompt/wp-dynamic-prompt.component';
+// import { WpDynamicPromptService } from './analytic-model/wp-dynamic-prompt/wp-dynamic-prompt.service';
+import { WpInfoPopupComponent } from './popup/wp-info-popup.component';
+import { WpApiComponent } from './data/wp-api/wp-api.component';
+import { WpApiService } from './data/wp-api/wp-api.service';
+import { TranslateService } from '@ngx-translate/core';
+import { DB_SUPPORT_TYPE,getEnumValues } from 'projects/wp-lib/src/lib/wise-type/wise.connect';
+import { WpTransferModelComponent } from './analytic-model/wp-transfer-model/wp-transfer-model.component';
+import { WpTransferModelService } from './analytic-model/wp-transfer-model/wp-transfer-model.service';
+import { COM_ID, getCOM_IDListByPrefix, setCOM_ID } from 'projects/wp-lib/src/lib/wp-meta/com-id';
+import { WpVolttronComponent } from './data/wp-volttron/wp-volttron.component';
+
+@Component({
+  selector: 'wp-component-viewer',
+  templateUrl: './wp-component-viewer.component.html',
+  styleUrls: ['./wp-component-viewer.component.css']
+})
+export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy {
+
+  @Input() iWpComponentData: any;
+  @Input() iComponentType: string;
+  COM_ID: Record<string, number> = COM_ID;
+  oDisplay = false;
+  oComponentData: any;
+  oComponent: any;
+  oSelectComId: string;
+  oTrainModelComIdList: number[] = [];
+  h_EditFlag: boolean = true;
+  oFormData: WpPropertiesWrap[] = []; // 컴포넌트 속성 Configuation Form
+  oInfoFormData: WpPropertiesWrap[] = []; // 컴포넌트 속성 Info Form
+  oType: number;
+  oParentCnt: number;
+  oSubs: Subscription[] = [];
+  oComNameMap: { [index: string]: string };
+  h_Message = { "msg": "", "id": "WpComViewerModal", "flag": false };
+  h_ModalId = 'WpComViewerModal';
+  h_tapId = 'Configuation';
+  h_componentTabData: any; // h_listKey에 따라 form이 tab 형태일때 form 데이터는 이 변수를 참조한다.
+  h_infoCheck = false;
+  o_transformList:any;
+  o_TransformInfoForm:any;
+  oComTemplateData:any;
+  constructor(
+    public cMetaSvc: WpMetaService,
+    private cComViewSvc: WpComponentViewerService,
+    private cWpDiagramSvc: WpDiagramService,
+    private cWpDiagramPreviewSvc: WpDiagramPreviewService,
+    private cWpDiagramToolbarSvc: WpDiagramToolbarService,
+    private cWpStreamingSvc: WpStreamingService,
+    private cWpVolttronSvc: WpVolttronService,
+    private cWpTrainModelSvc: WpTrainModelService,
+    private cWpCompareModelSvc: WpCompareModelService,
+    // private cWpDynPromptSvc: WpDynamicPromptService,
+    private cWpComSvc: WpComponentService,
+    private cWpAppSvc: WorkflowAppService,
+    private matDialog: MatDialog,
+    private cWpHiveSvc: HiveQueryService,
+    private cWpSocketSvc: WpSocket,
+    private cWpAppConfig: WpAppConfig,
+    private cMainAppSvc: MainAppService,
+    // public cWpResouceDiagramSvc: WpResouceDiagramService,
+    private cWpApiSvc : WpApiService,
+    private cTransSvc: TranslateService,
+    private cWpTransferModelSvc: WpTransferModelService
+  ) {
+    this.o_TransformInfoForm = [{
+      vname: this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info68"),
+      name: 'correlation',
+      value: '',
+      type: 'button',
+      fvalue: '',
+      visible: true,
+      edit: true,
+      callbak: null
+    },
+    {
+      vname: this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info69"),
+      name: 'visualization',
+      value: '',
+      type: 'button',
+      fvalue: '',
+      visible: true,
+      edit: true,
+      callbak: null
+    },
+    {
+      vname: this.cTransSvc.instant("탐색적데이터분석"),
+      name: 'analysis',
+      value: '',
+      type: 'button',
+      fvalue: '',
+      visible: true,
+      edit: true,
+      callbak: null
+    }];
+    // 상관관계/시각화 transform컴퍼넌트 리스트 가져오기
+    this.cComViewSvc.getTransformList().subscribe(p_result => {
+      this.o_transformList = p_result.map((obj: any) => obj.ID);
+    });
+    // 워크플로우 안하고 바로 데이터셋이나 모델매니저에서 워크플로우이력누르면 COM_ID를 못찾아서 여기서 세팅
+    this.cMetaSvc.getComList().subscribe(e=>{
+          e = e.filter((sCom:any) => sCom.DISPLAY == 'true');
+          this.oComTemplateData = e;
+    
+          // 컴포넌트 TYPE - ID 매핑 초기화
+          this.oComTemplateData.map((c: any) => setCOM_ID(c.TYPE, c.ID, c.CATEGORY));
+        });
+  }
+  async ngOnChanges(changes: SimpleChanges) {
+    let sInitSize: SimpleChange = changes.iWpComponentData;
+    // comviewerSvc의 onCloseViewer에서 iWpComponentData를 undefined로 할당하기 때문에 sInitSize 를 체크해야 함. 실제로 viewer가 열렸을 때만 아래 로직을 탐.
+    if (sInitSize && !sInitSize.firstChange && sInitSize.currentValue) {
+      console.log("sInitSize.currentValue.text:", sInitSize.currentValue.text);
+       // component가 transform컴퍼넌트일경우에는 infoCheck true로 보이게끔
+      this.h_infoCheck = this.o_transformList.includes(sInitSize.currentValue.type);
+      if(this.h_infoCheck) {
+        this.oInfoFormData = this.o_TransformInfoForm
+      }
+      this.oFormData = [];
+      this.oComponentData = sInitSize.currentValue['wp-data'];
+      // h_componentTabData 초기화
+      this.h_componentTabData = this.oComponentData['o_data'];
+
+      this.oSelectComId = sInitSize.currentValue.id;
+      this.cComViewSvc.setComId(this.oSelectComId);
+
+      this.oDisplay = true;
+      this.oType = sInitSize.currentValue.type;
+      this.oParentCnt = sInitSize.currentValue.parentId.length;
+      // sInitSize.currentValue.type: COM_MSTR 테이블의 ID 칼럼
+      if (sInitSize.currentValue.type == COM_ID['I-HDFS']) {
+        // let s_dsHDFS: DS_MSTR_ATT[] = await this.cMetaSvc.getDsInfo({TYPE: 'hdfs'}).toPromise();
+
+        this.oComponent = new WpHdfsComponent(this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.matDialog);
+        this.cMetaSvc.getDsInfo({ includeFtp: true }).pipe(map(pDsData => {
+          let s_Hdfslist = pDsData.filter((sDs: DS_MSTR_ATT) => sDs.TYPE === 'hdfs');
+          this.oComponent.setHdfsNmList(s_Hdfslist);
+        })).subscribe();
+      } else if (sInitSize.currentValue.type == COM_ID['I-DATASOURCE']) {
+        this.oComponent = new WpDataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpSocketSvc);
+        let sTableType = {params : {TBL_TYPE: 'structure'}}
+        let tmp = await this.cComViewSvc.getDataSourceList(sTableType);
+        let tmpShared = await this.cComViewSvc.getSharedDataList(); // #37 공유 데이터셋
+        this.oComponent.setFileNm(tmp, tmpShared);
+      } else if (sInitSize.currentValue.type == COM_ID['I-STREAMING']) {
+        this.oComponent = new WpStreamingComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpStreamingSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.matDialog, this.cMainAppSvc);
+      } else if (sInitSize.currentValue.type == COM_ID['I-VOLTTRON']) {
+        this.oComponent = new WpVolttronComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpVolttronSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.matDialog, this.cMainAppSvc);
+      }else if (sInitSize.currentValue.type == COM_ID['I-DATABASE']) {
+        let sDsData: DS_MSTR_ATT[] = await this.cMetaSvc.getDsInfo().toPromise();
+        // WPLAT-365
+        let sDbList = sDsData.filter(sDs => sDs.TYPE === 'db' && getEnumValues(DB_SUPPORT_TYPE).includes(sDs.DBMS_TYPE));
+        this.oComponent = new WpOdbcComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cMetaSvc, this.cWpHiveSvc, 'odbc', sDbList);
+      } else if (sInitSize.currentValue.type == COM_ID['I-HIVE']) {
+        let sHiveDbList = await this.cWpHiveSvc.getHiveDbInfo().toPromise()
+        this.oComponent = new WpOdbcComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cMetaSvc, this.cWpHiveSvc, 'hive', sHiveDbList);
+      } else if (sInitSize.currentValue.type == COM_ID['I-FTP']) {
+        this.oComponent = new WpFtpComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpDiagramSvc, this.matDialog, this.cMetaSvc);
+        this.cMetaSvc.getDsInfo({ includeFtp: true }).pipe(map(pDsData => {
+          let sFtpList = pDsData.filter((sDs: DS_MSTR_ATT) => sDs.TYPE === 'ftp' || sDs.TYPE === 'sftp');
+          this.oComponent.setFtpNmList(sFtpList);
+        })).subscribe();
+      } else if (sInitSize.currentValue.type == COM_ID['I-WORKFLOW']) {
+        let s_workflowList = await this.cComViewSvc.getInputWorkflowList();
+        this.oComponent = new WpIWorkflowComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpSocketSvc, this.cWpDiagramSvc);
+        this.oComponent.setWorkflowList(s_workflowList);
+
+
+      } else if (sInitSize.currentValue.type == COM_ID['I-STORAGE']) {
+
+        let s_dsStorage: DS_MSTR_ATT[] = await this.cMetaSvc.getDsInfo({ DS_ID: this.cWpAppConfig.getConfig('DS_ID') }).toPromise();
+
+        // console.log("sDsData : ", sDsData);
+        this.oComponent = new WpStorageComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.matDialog, s_dsStorage);
+      } 
+      else if (sInitSize.currentValue.type == COM_ID['I-IMAGE-STORAGE']) {
+        let s_dsStorage: DS_MSTR_ATT[] = await this.cMetaSvc.getDsInfo({ DS_ID: this.cWpAppConfig.getConfig('DS_ID') }).toPromise();
+        this.oComponent = new WpImageStorageComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.matDialog, s_dsStorage, this.cWpDiagramSvc);
+      } 
+      // else if (sInitSize.currentValue.type == COM_ID['T-IMAGE-RESIZE']) {
+      //   this.oComponent = new WpImageResizeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.matDialog);
+      // } 
+      else if (sInitSize.currentValue.type == COM_ID['T-IMAGE-LABEL']) {
+        this.oComponent = new WpImageLabelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.matDialog, this.cWpDiagramSvc, this.cMetaSvc);
+      }
+      else if (sInitSize.currentValue.type == COM_ID['I-IMAGE-DATASOURCE']) {
+        this.oComponent = new WpImageDataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpSocketSvc, this.cWpDiagramSvc);
+        let sTableType = {params :{TBL_TYPE: 'image'}}
+        let tmp = await this.cComViewSvc.getDataSourceList(sTableType);
+        let tmpShared = await this.cComViewSvc.getSharedDataList();
+        this.oComponent.setFileNm(tmp, tmpShared);
+      }
+      else if (sInitSize.currentValue.type == COM_ID['O-IMAGE-DATASOURCE']) {
+        this.oComponent = new WpImageODataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc);
+        let tmp = await this.cComViewSvc.getDataSourceList();
+        let tmpShared = await this.cComViewSvc.getSharedDataList();
+        this.oComponent.setFileNm(tmp, tmpShared);
+      }
+      // else if(sInitSize.currentValue.type == COM_ID['O-HDFS'])
+      //     this.oComponent = new WpOHdfsComponent(this.cComViewSvc);
+      else if (sInitSize.currentValue.type == COM_ID['I-API']) {
+        this.h_componentTabData = this.h_componentTabData['parameter'];
+        this.oComponent = new WpApiComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cMetaSvc, this.cWpApiSvc);
+      }
+      else if (sInitSize.currentValue.type == COM_ID['O-DATASOURCE']) {
+        this.oComponent = new WpODataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc, this.cWpAppSvc);
+        // #148 output overwrite 데이터 리스트 수정
+        let tmp = await this.cComViewSvc.getDataSourceList();
+        let tmpShared = await this.cComViewSvc.getSharedDataList(); // #37 공유 데이터셋
+        this.oComponent.setFileNm(tmp, tmpShared);
+      }
+      else if (sInitSize.currentValue.type == COM_ID['O-DATABASE']) {
+        this.oComponent = new WpOOdbcComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cMetaSvc, this.cWpHiveSvc, this.cWpAppSvc,this.cWpComSvc,this.cWpSocketSvc,this.cWpDiagramSvc,this.matDialog);
+      }
+      // else if(sInitSize.currentValue.type == COM_ID['I-EXCEL'])
+      //     this.oComponent = new WpFileComponent();
+      // else if(sInitSize.currentValue.type == COM_ID['I-원시파일'])
+      //     this.oComponent = new WpFileComponent();
+      else if (sInitSize.currentValue.type == COM_ID['T-TYPE']) {
+        this.oComponent = new WpTypeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-MERGE']) {
+        let sNodes = this.cWpDiagramSvc.getWpNodes();
+        this.oComponent = new WpMergeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, sNodes);
+
+        if (this.oParentCnt > 1) {
+          let sComData = [];
+          let sFlag = true;
+          for (let sParentId of sInitSize.currentValue.parentId) {
+            if (this.cWpAppSvc.getComData(sParentId) == undefined) {
+              sFlag = false;
+            }
+            let sTempComData = this.cWpAppSvc.getComData(sParentId);
+            if (sTempComData) {
+              sComData.push(this.cWpDiagramSvc.getDeriveSchema(sTempComData));
+            } else {
+              this.h_EditFlag = false;
+            }
+          }
+          if (sFlag)
+            this.oComponent.setSchema(sComData);
+        }
+      } else if (sInitSize.currentValue.type == COM_ID['T-SORT']) {
+        this.oComponent = new WpSortComponent(this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-SPLIT']) {
+        this.oComponent = new WpSplitComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      }
+      // #28 슬라이스 추가
+      else if (sInitSize.currentValue.type == COM_ID['T-SLICE']) {
+        this.oComponent = new WpSliceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-NULL']) {
+        this.oComponent = new WpNullComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-SAMPLEING']) {
+        this.oComponent = new WpSamplingComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-OUTLIER']) {
+        this.oComponent = new WpAnomalyComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-GROUPING']) {
+        this.h_componentTabData = this.oComponentData['o_data']['groupby']
+        this.oComponent = new WpGroupingComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-SELECT']) {
+        this.oComponent = new WpColumnSelectorComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpAppSvc);
+      }
+      else if (sInitSize.currentValue.type == COM_ID['T-PYTHON']) {
+        this.oComponent = new WpPythonComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.cWpAppSvc, this.cWpSocketSvc, this.matDialog);
+      }
+      // else if(sInitSize.currentValue.type == COM_ID['용어 추출'])
+      //     this.oComponent = new WpWordExportComponent(this.cComViewSvc,this.oComponentData);
+      else if (sInitSize.currentValue.type == COM_ID['T-JOIN']) {
+        this.h_componentTabData = this.oComponentData['o_data']['joinKey']
+        let sNodes = this.cWpDiagramSvc.getWpNodes();
+        this.oComponent = new WpJoinComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, sNodes);
+        if (this.oParentCnt > 1) {
+          let sComData = [];
+          let sFlag = true;
+          for (let sParentId of sInitSize.currentValue.parentId) {
+            if (this.cWpAppSvc.getComData(sParentId) == undefined) {
+              sFlag = false;
+            }
+            let sTempComData = this.cWpAppSvc.getComData(sParentId);
+            if (sTempComData) {
+              sComData.push(this.cWpDiagramSvc.getDeriveSchema(sTempComData));
+            } else {
+              this.h_EditFlag = false;
+            }
+          }
+          if (sFlag)
+            this.oComponent.setSchema(sComData);
+        }
+      } else if (sInitSize.currentValue.type == COM_ID['T-DERIVED']) {
+        this.oComponent = new WpDerivedColumnComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpComSvc, this.matDialog);
+      }
+      // #138 파생열 조건부 컴포넌트 추가
+      else if (sInitSize.currentValue.type == COM_ID['T-DERIVED_COND']) {
+        this.h_componentTabData = this.oComponentData['o_data']['derivedColumnArray'];
+        this.oComponent = new WpDerivedConditionalComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc, this.cWpComSvc, this.matDialog, this.cWpSocketSvc);
+      } else if (sInitSize.currentValue.type == COM_ID['T-AGGREGATE']) {
+        this.h_componentTabData = this.oComponentData['o_data']['aggKey']
+        this.oComponent = new WpAggregateComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-MATH']) {
+        this.oComponent = new WpMathComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpComSvc, this.matDialog);
+      } else if (sInitSize.currentValue.type == COM_ID['T-DATE']) {
+        this.oComponent = new WpDateComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpComSvc, this.matDialog);
+      } else if (sInitSize.currentValue.type == COM_ID['T-WINDOW']) {
+        this.oComponent = new WpWindowComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+        // 컬럼명 변경 컴포넌트 추가
+      } else if (sInitSize.currentValue.type == COM_ID['T-NAME']) {
+        this.oComponent = new WpColumnNameComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      } else if (sInitSize.currentValue.type == COM_ID['T-F_IMPORTANCE']) {
+        this.oComponent = new WpFeatureImportanceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.cWpAppSvc, this.cWpSocketSvc);
+      } else if (sInitSize.currentValue.type == COM_ID['A-COMPARE_MODEL']) {
+        this.h_componentTabData = this.oComponentData['o_data']['compare_model']
+        this.oComponent = new WpCompareModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpCompareModelSvc, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
+        let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
+        this.oComponent.setSchema(sComData);
+      } else if (getCOM_IDListByPrefix('A-Ensemble').includes(sInitSize.currentValue.type)) { // includes('A-Ensemble')
+        let s_argId = sInitSize.currentValue.type;
+        let s_argInfo = await this.getArgInfo(s_argId);
+        console.log("s_argInfo: ", s_argInfo);
+        // WPLAT-362
+        this.oComponent = new WpEnsembleModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.matDialog, this.cWpTrainModelSvc, this.cWpDiagramPreviewSvc, s_argInfo);
+      } else if (sInitSize.currentValue.type == COM_ID['A-ENSEMBLE']) {
+        // WPLAT-362
+        // this.oComponent = new WpEnsembleModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.matDialog, this.cWpTrainModelSvc, this.cWpDiagramPreviewSvc);
+      } else if (sInitSize.currentValue.type == COM_ID['A-FILTER_MODEL']) {
+        this.h_componentTabData = this.oComponentData['o_data']['compare_model']
+        //필터 기능 쓸때 모델 명 중복 기능 검사 때문에 파라미터 추가
+        this.oComponent = new WpFilterModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpCompareModelSvc, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
+        // 상위 연결이 모델 비교이면 모델 비교 컴포넌트의 모델 리스트로 설정
+        if (this.oParentCnt === 1) {
+          let sParentComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
+          this.oComponent.setModelListData(sParentComData['wp-data']['o_data'].compare_model);
+          this.oComponent.setModelType(sParentComData['wp-data']['o_data'].modelType);
+          // 상위 연결이 모델 학습이면 모델 학습 컴포넌트의 모델 속성으로 설정함.
+        } else if (this.oParentCnt > 1) {
+          let sNodes = this.cWpDiagramSvc.getWpNodes();
+          let sFlag = true;
+          let sCompareModelList: COM_FILTER_MODEL_ATT['compare_model'] = [];
+          for (let sParentId of sInitSize.currentValue.parentId) {
+            let sTempComData = this.cWpAppSvc.getComData(sParentId);
+            if (!sTempComData) {
+              sFlag = false;
+              this.h_EditFlag = false;
+            } else {
+              let sWkData = sNodes.filter(sNode => sNode.id === sParentId)[0];
+
+              // 사용 워크플로우 같은데에서 확인할 경우 sNodes 값이 없음, 이 경우 현재 저장되어 있는 값 가져오게 설정
+              if(sWkData === undefined){
+                sWkData = sInitSize.currentValue
+              }
+              this.oComponent.setModelType(sWkData['wp-data']['o_data'].modelType);
+              sCompareModelList.push({
+                h_model_name: `${sWkData.text}(job ${sWkData.jobId})`,
+                MODEL_NM: `${sWkData.text}(job ${sWkData.jobId})`,
+                MODEL_ID: undefined,
+                MODEL_IDX: undefined,
+                COM_UUID: sWkData.id,
+                COM_ID: sWkData.type,
+                ARG_TYPE: sWkData['wp-data'].o_data.modelType
+              });
+            }
+          }
+          if (sFlag) {
+            this.oComponent.setModelListData(sCompareModelList);
+          }
+        }
+        let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
+        this.cWpDiagramSvc.getDeriveSchema(sComData);
+        this.oComponent.setSchema(sComData);
+      } else if (sInitSize.currentValue.type == COM_ID['A-PREDICT_MODEL']) {
+        this.oComponent = new WpPredictModelComponenet(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
+      } 
+      // else if (sInitSize.currentValue.type == COM_ID['A-DEPLOY_MODEL']) {
+      //   let sServerInfo = await this.cMetaSvc.getServerInfo({}).toPromise();
+      //   let sPlatformId = this.cWpAppConfig.getConfig('PLATFORM_ID');
+      //   let sPlatformInfo = await this.cWpResouceDiagramSvc.getPlatformInfo({ platformId: sPlatformId }).toPromise();
+        // // master node의 사용 가능한 CPU, MEMOERY 값을 속성창에 넘겨줘야 한다.
+        // // master label 변경으로 인해 wp=wp-master로 변경.
+        // let sMasterNodeInfo = sPlatformInfo.filter((sFilterNode: any) => sFilterNode.label && sFilterNode.label.includes("wp=slave3"))[0];
+        // let sNodeMemory: any = sMasterNodeInfo.allocatable_memory.slice(0, -1);
+        // let sNodeCpu = sMasterNodeInfo.allocatable_cpu;
+        // let sNodeGpu:any = sMasterNodeInfo.allocatable_gpu;
+        // let sResource = await this.cWpResouceDiagramSvc.getNodeResource({
+        //   platformId: sServerInfo[0]['PLATFORM_ID'],
+        //   // 쿠버네티스 자원조회는 내부IP로 구성되어있기때문에 내부IP로 조회
+        //   // 현재 모델 배포 컴포넌트는 노드 1개에만 할당가능함
+        //   // hostIp: sServerInfo[0]['INTERNAL_IP']
+        //   hostIp: '172.31.40.90'
+        // }).toPromise();
+        // sNodeMemory = Number(sNodeMemory - sResource['use_memory'] - 1);
+        // sNodeCpu = Math.min(1, sNodeCpu - sResource['use_cpu'] - 1);
+        // sNodeGpu = sNodeGpu - sResource['use_gpu'];
+      //   let sNodes = this.cWpDiagramSvc.getWpNodes();
+      //   let sWkData = sNodes.filter(sNode => sNode.id === sInitSize.currentValue.parentId[0])[0];
+      //   this.oComponent = new WpDeployModelComponenet(this.cTransSvc, this.cComViewSvc, this.cWpResouceDiagramSvc, this.oComponentData,sWkData.id,sPlatformInfo,sPlatformId);
+      // } 
+      // else if (sInitSize.currentValue.type == COM_ID['A-PROMPT']) {
+      //   this.h_componentTabData = this.oComponentData['o_data']['set_var']
+      //   let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
+      //   this.oComponent = new WpDynamicPromptComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDynPromptSvc, this.cWpAppSvc, this.cWpDiagramSvc);
+      //   this.oComponent.setSchema(sComData);
+      //   // #179 알고리즘별 분석 모델 컴포넌트
+      // }  
+      else if (sInitSize.currentValue.type == COM_ID['A-TRANSFER_MODEL']) {
+        this.oComponent = new WpTransferModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpTransferModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, this.cWpComSvc, this.cWpDiagramToolbarSvc, this.matDialog);
+      } else if (getCOM_IDListByPrefix('A-').includes(sInitSize.currentValue.type)) { // sInitSize.currentValue.text.slice(0, 2) == 'A-'
+        let s_argId = sInitSize.currentValue.type;
+        let s_argInfo = await this.getArgInfo(s_argId);
+        console.log("s_argInfo: ", s_argInfo);
+        // // 사용자 모델
+        // if (sModelType == 'USER_MODEL') {
+        //   let sUserAlgorithmList = await this.cWpTrainModelSvc.getWpUserAlgorithmList();
+        //   let sUserArgParamList = await this.cWpTrainModelSvc.getWpArgParameterList();
+        //   this.oComponent = new WpTrainUserModelComponent(this.cComViewSvc, this.oComponentData, this.cWpTrainModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, sModelType, sInitSize.currentValue.text, this.cWpComSvc, this.cWpDiagramToolbarSvc, sUserAlgorithmList, sUserArgParamList);
+        //   // 280강화학습
+        // } else if (sModelType == 'DQN') {
+        //   this.oComponent = new WpTrainReinforcementModelComponent(this.cComViewSvc, this.oComponentData, this.cWpTrainModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, sModelType, sInitSize.currentValue.text, this.cWpComSvc, this.cWpDiagramToolbarSvc, this.matDialog);
+        // } else {
+          this.oComponent = new WpTrainModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpTrainModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, s_argInfo, this.cWpComSvc, this.cWpDiagramToolbarSvc);
+        // }
+      } else {
+        this.oComponent = undefined;
+      }
+      // 공통 사용으로 아래로 뺌
+      if (![COM_ID['I-HDFS'], COM_ID['I-DATASOURCE'], COM_ID['I-STREAMING'], COM_ID['I-HIVE'], COM_ID['I-DATABASE'], COM_ID['T-MERGE'], COM_ID['T-JOIN'], COM_ID['A-COMPARE_MODEL'], COM_ID['A-FILTER_MODEL']].includes(sInitSize.currentValue.type)) {
+        if (this.oParentCnt > 0) {
+          let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
+          if (sComData && this.h_EditFlag) {
+            sComData = this.cWpDiagramSvc.getDeriveSchema(sComData);
+            this.oComponent.setSchema(sComData);
+            if (sInitSize.currentValue.type == COM_ID['T-DATE'] || sInitSize.currentValue.type == COM_ID['T-MATH'] || sInitSize.currentValue.type == COM_ID['T-DERIVED']) {
+              this.oComponent.setDervColList(sComData);
+            }
+          } else {
+            let sTmp = sInitSize.currentValue.schema ? { ...sInitSize.currentValue } : { ...sInitSize.currentValue, schema: [{}] };
+            this.oComponent.setSchema(sTmp);
+            if (sTmp.type == COM_ID['T-DATE'] || sTmp.type == COM_ID['T-MATH'] || sTmp.type == COM_ID['T-DERIVED']) {
+              this.oComponent.setDervColList(sTmp);
+            }
+          }
+        }
+      }
+
+      if (this.oComponent != undefined) {
+        this.oFormData = await this.oComponent.getFormData();
+        // #10 Diagram Preview (현재 컴포넌트 데이터) - 조인, 병합, 열선택을 제외한 케이스는 DiagramPreview에 현재 데이터 스키마를 표시
+        if (this.h_EditFlag) {
+          let sType = sInitSize.currentValue.type;
+          if (sType !== COM_ID['T-JOIN'] && sType !== COM_ID['T-MERGE'] && sType !== COM_ID['T-SELECT'])
+            this.setDiagramPreviewById(sInitSize.currentValue.id, true);
+          // #10 Diagram Preview (연결된 과거 컴포넌트 데이터) - parentId로 과거 데이터 스키마 표시
+          if (sInitSize.currentValue.parentId.length > 0) {
+            this.setDiagramPreviewById(sInitSize.currentValue.parentId, false);
+          }
+          // #135 조인, 병합 데이터 여러개일때 표시 수정
+          if (sType == COM_ID['T-JOIN'] || sType == COM_ID['T-MERGE']) {
+            let sCompIdList = this.cWpDiagramSvc.getNodesByType(sType).filter(sCom => sCom.hasOwnProperty('wp-data')).map(sCom => sCom.id);
+            if (sCompIdList.length > 1) {
+              sCompIdList.forEach((sComId, index) => {
+                let sTmpData = this.cWpAppSvc.getComData(sComId);
+                sTmpData.name = `${sType}데이터_${index + 1}.csv`;
+                this.cComViewSvc.selectData(sTmpData);
+              })
+            }
+          }
+        }
+        if (!this.h_EditFlag) {
+          this.oFormData.forEach((sForm) => {
+            if (sForm.type === 'tab') {
+              sForm.fvalue.forEach((sSubForm: WpPropertiesWrap) => {
+                sSubForm.edit = false;
+              })
+            } else {
+              sForm.edit = false;
+            }
+          })
+        }
+      } else {
+        this.cWpAppSvc.showMsg("이 컴포넌트는 설정할 수 없습니다.", false);
+        this.setDisplay(false);
+      }
+
+
+    }
+  }
+  setDisplay(pChk: boolean) {
+    this.oDisplay = pChk;
+  }
+  ngOnInit(): void {
+    this.oComNameMap = this.cWpDiagramSvc.getComNameMap();
+    this.oTrainModelComIdList = this.cWpDiagramSvc.getTrainModelComIdList();
+    this.oSubs.push(
+      this.cComViewSvc.selectDataEmit.subscribe(p => {
+        let sTmpData: any = { id: this.oSelectComId, data: p.data, schema: p.schema, name: p.name, 'wp-data': this.oComponentData, parentId: this.iWpComponentData.parentId, type: this.oType, filter: undefined }; //wp-data: id로 oComponentData에 접근할 수 있도록 추가
+        this.cWpAppSvc.setWpData(sTmpData);
+      })
+    );
+    this.oSubs.push(
+      this.cComViewSvc.setViewerTrainModelComIdListEmit.subscribe(() => {
+        this.oTrainModelComIdList = this.cWpDiagramSvc.getTrainModelComIdList();
+      })
+    )
+    this.oSubs.push(
+      this.cComViewSvc.onDisplayResultViewerEmit.subscribe(pEmitData => {
+        this.openResultDialog(pEmitData);
+      })
+    );
+    this.oSubs.push(
+      // #14 링크 및 컴포넌트 삭제시 타겟의 속성창이 띄워져 있을 경우 닫기
+      this.cComViewSvc.onCloseViewerEmit.subscribe(() => {
+        this.onClose();
+      }));
+    this.oSubs.push(
+      // 속성창 열기 추가
+      this.cComViewSvc.onOpenViewerEmit.subscribe(() => {
+        this.onOpen();
+      }));
+    this.oSubs.push(
+      this.cComViewSvc.showDiagramPreviewEmit.subscribe(pData => {
+        this.setDiagramPreviewById(pData.comId, pData.currDataFlag);
+      })
+    );
+    this.oSubs.push(
+      this.cComViewSvc.setEditFlagEmit.subscribe(pFlag => {
+        this.h_EditFlag = pFlag;
+      })
+    )
+    // component Info form 설정 추가
+    this.oSubs.push(
+      this.cComViewSvc.setInfoFormDataEmit.subscribe(pFormData => {
+        this.oInfoFormData = pFormData;
+      })
+    )
+  }
+  openResultDialog(pEmitData: { initJob: { jobList: { [index: string]: JOB_DATA_ATT }, step_count: number, analyiticModelFlag?: boolean }, trainModelFlag: boolean }): void {
+    let sInitJob = pEmitData.initJob;
+    sInitJob.analyiticModelFlag = pEmitData.trainModelFlag;
+    const dialogRef = this.matDialog.open(WpResultViewerComponent, {
+      width: '1000px',
+      data: sInitJob
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+  onClose() {
+    console.log("====== onClose ======");
+    this.setDisplay(false);
+  }
+  onOpen() {
+    console.log("====== onOpen ======");
+    this.setDisplay(true);
+    // 초기 탭은 컴포넌트 속성 설정 창
+    this.setTabVisible('Configuation');
+    // 초기 속성창 사이즈 설정
+    let sConfElem: HTMLElement = document.querySelector('wp-component-viewer > .component-configuration');
+    if (sConfElem) {
+      sConfElem.style.width = '334px '
+    }
+  }
+  onClickTab(pEvent: Event, pCallbackOpt: boolean) {
+    console.log("pEvent : ", pEvent);
+    let sTapId = (pEvent.target as Element).className;
+    this.setTabVisible((sTapId as "Configuation" | "Info"), pCallbackOpt);
+  }
+  setTabVisible(pType: 'Configuation' | 'Info', pCallbackOpt?: boolean) {
+    this.h_tapId = pType;
+    // 탭아이디에 따라 display 변경함.
+    let sConfElem = document.getElementById('h_tab_conf').parentElement;
+    let sInfoElem = document.getElementById('h_tab_info').parentElement;
+    if (pType == 'Configuation') {
+      sConfElem.style['display'] = 'block';
+      sInfoElem.style['display'] = 'none';
+      // this.oInfoFormData = [];
+    }
+    if (pType == 'Info') {
+      sConfElem.style['display'] = 'none';
+      sInfoElem.style['display'] = 'block';
+    }
+    if (pCallbackOpt) {
+      // 탭 바뀔때 컴포넌트 안에 콜백함수 필요하면 추가
+      if (this.oComponent.onChangeTab) {
+        this.oComponent.onChangeTab(this.h_tapId);
+      }
+      // 탭 바뀔때 transform 컴포넌트일 경우, 상관관계 보이게 설정. 다른 컴포넌트는 안보이게
+      else if(!this.h_infoCheck){
+        sInfoElem.style['display'] = 'none';
+      }
+    }
+  }
+  onAddList(pName: string) {
+    let aTempData;
+    if (this.oType == COM_ID['T-GROUPING']) {
+      aTempData = { minRange: '', maxRange: '', value: '' };
+    } else if (this.oType == COM_ID['T-DERIVED'] || this.oType == COM_ID['T-DERIVED_COND']) {
+      aTempData = { derivedColumn: '', value: '' };
+    } else if (this.oType == COM_ID['T-MATH']) {
+      aTempData = { derivedColumn: '', targetColumn: '', value: '', derivedOption: "true" };
+      // } else if (this.oType == COM_ID['T-SELECT']) {
+      //   aTempData = { target_column: '' };
+    } else if (this.oType == COM_ID['T-DATE']) {
+      aTempData = { column: '', derivedColumn: '', value: '', dateFormatText: '', derivedOption: "true" };
+    } else if (this.oType == COM_ID['T-NULL']) {
+      aTempData = { column: '', type: '', value: '', dateexp: '' };
+    } else if (this.oType == COM_ID['T-JOIN']) {
+      aTempData = { useColumn: '', joinColumn: '' };
+    } else if (this.oType == COM_ID['A-COMPARE_MODEL']) {
+      aTempData = { h_model_name: '', model_name: '', model_id: '', model_idx: '', com_id: '' };
+    } else if (this.oType == COM_ID['A-PROMPT']) {
+      aTempData = { dynamic_var: '', mapped_value: '' };
+    } else if (this.oType == COM_ID['T-TYPE'] || this.oType == COM_ID['T-SORT']) {
+      aTempData = { column: '', type: '' };
+    } else if (this.oType == COM_ID['T-AGGREGATE']) {
+      if (pName == 'aggKey') {
+        aTempData = { column: '', type: '' };
+      } else {
+        aTempData = { groupColumn: '' };
+      }
+    } else if (this.oType == COM_ID['I-API']) {
+      aTempData = { name : '' , value :''};
+    } else {
+      aTempData = { column: '', type: '', value: '' };
+    }
+
+    if (this.oType == COM_ID['T-DERIVED'] || this.oType == COM_ID['T-MATH'] || this.oType == COM_ID['T-DATE']) {
+      this.oComponent.setDervInputReadOnly();
+    }
+    this.h_componentTabData.push(aTempData);
+    // #WPLAT-6 NULL 변환 날짜 변환식 추가로 수정.
+    if (this.oType == COM_ID['T-NULL']) {
+      setTimeout(() => {
+        this.oComponent.setFormByTransformType(this.h_componentTabData.length - 1);
+      }, 100)
+    }
+  }
+  // #20 컴포넌트 속성 삭제 기능 추가
+  onRemoveList(pName: string, pEvent: Event) {
+    console.log(" =========== onRemoveList =========== ")
+    let sRemoveIndex = (pEvent.target as Element).closest(".inputAddedItem").getAttribute('tableindex');
+    if (this.h_componentTabData.length >= 2 || this.oType == COM_ID['I-API']) {
+      this.h_componentTabData.splice(Number(sRemoveIndex), 1);
+      let sComId = this.cComViewSvc.getComId();
+      this.setDiagramPreviewById(sComId, true);
+    }
+  }
+  // #25 그룹화 컴포넌트에서 변수 범위 검증, #26 시계열 컴포넌트 검증
+  onKeyUp(pEvent: KeyboardEvent, pName: string, pTabIdx?: number) {
+    // #12 input Validation
+    if ((this.oType == COM_ID['T-WINDOW'] && pName == 'value') ||
+      (this.oType == COM_ID['T-SPLIT'] && pName == 'value') ||
+      (this.oType == COM_ID['T-SLICE'] && pName == 'value') ||
+      (this.oType == COM_ID['T-SAMPLEING'] && pName == 'value') ||
+      (this.oType == COM_ID['T-NULL'] && pName == 'value') ||
+      (this.oType == COM_ID['T-OUTLIER'] && pName == 'value') ||
+      (this.oType == COM_ID['T-DERIVED'] && pName == 'derivedColumn') ||
+      (this.oType == COM_ID['T-DERIVED_COND'] && pName == 'derivedColumn') ||
+      (this.oType == COM_ID['T-MATH'] && pName == 'value') ||
+      (this.oType == COM_ID['T-DATE'] && pName == 'derivedColumn') ||
+      (this.oType == COM_ID['T-F_IMPORTANCE'] && pName == 'value') ||
+      (this.oType == COM_ID['O-DATASOURCE'] && pName == 'new_filename') ||
+      (this.oType == COM_ID['O-DATABASE'] && pName == 'tablename') ||
+      (this.oType == COM_ID['T-GROUPING']) ||
+      (this.oType == COM_ID['A-DEPLOY_MODEL']) ||
+      (this.oType == COM_ID['A-FILTER_MODEL'] && pName =='modelName')
+    ) {
+      this.oComponent.onKeyUp(pEvent, pName, pTabIdx);
+    } else if (this.oType == COM_ID['A-PROMPT'] && pName == 'mapped_value') {
+      this.oComponent.onKeyUp(pEvent, pName, pTabIdx, this.h_componentTabData);
+    }
+    // #34 분석 컴포넌트 값 validation 추가
+    if (this.oTrainModelComIdList.includes(this.oType)) {
+      this.oComponent.onParamValueChanged(pEvent, pName);
+    }
+    this.setDiagramPreviewById(this.oSelectComId, true);
+    return false;
+  }
+  // #10 (onCompViewerChanged) component-viewer에서 이벤트 발생 -> callback 함수 존재할 경우 실행 후 diagram preview 데이터 갱신
+  async onCompViewerChanged(pCallbackName: any, pEvent: any, pTabIdx?: number) {
+    try {
+      let sCallbackName = pCallbackName ? pCallbackName.name.split(" ")[1] : undefined;
+      if (pEvent.element && ['DX-SELECT-BOX', 'DX-TAG-BOX'].includes(pEvent.element.tagName)) {
+        let sElemTagName = pEvent.element.tagName
+        if (pEvent.component._valueChangeEventInstance && (pEvent.selectedItem || pEvent.value || pEvent.addedItems)) { // 팝업 여러번 뜨는 에러 수정
+          // componenet viewer 바뀔때 이전 속성창에서 바인딩 된 컴포넌트에 데이터 바인딩 되는 문제 > selection change 발생할 때 직접 componentData에 바인딩함.
+          let sFormIndex = pEvent.element.getAttribute('form-index');
+          let sInnerFormIndex = pEvent.element.getAttribute('inner-form-index');
+          let sFormMain;
+          let sSelctedIndex = this.getItemIndexByElem(pEvent.component._valueChangeEventInstance.currentTarget)
+          if (typeof pTabIdx == 'undefined') { // 단일 form
+            sFormMain = this.oFormData[sFormIndex];
+            let sWpData = this.oComponentData['o_data']
+            // 분석 컴포넌트 데이터 바인딩
+            if (this.oTrainModelComIdList.includes(this.oType)) {
+              if (sElemTagName == 'DX-SELECT-BOX') {
+                if (sFormMain.name.includes('param_')) {
+                  sWpData[sFormMain.name]['value'] = sFormMain.fvalue[sSelctedIndex];
+                } else {
+                  sWpData[sFormMain.name] = sFormMain.fvalue[sSelctedIndex];
+                }
+              }
+              else if (sElemTagName == 'DX-TAG-BOX') {
+                sWpData[sFormMain.name]['option'] = pEvent.component._selectedItems;
+              }
+              // 변환 컴포넌트 데이터 바인딩
+            } else {
+              if (sElemTagName == 'DX-SELECT-BOX') {
+                sWpData[sFormMain.name] = sFormMain.fvalue[sSelctedIndex];
+              }
+              else if (sElemTagName == 'DX-TAG-BOX') {
+                sWpData[sFormMain.name] = pEvent.component._selectedItems;
+              }
+            }
+          } else { //tab으로 구성된 form
+            sFormMain = this.oFormData;
+            let sFormSub = sFormMain[sFormIndex].fvalue[sInnerFormIndex];
+            if (sElemTagName == 'DX-SELECT-BOX') {
+              this.h_componentTabData[pTabIdx][sFormSub.name] = sFormSub.fvalue[sSelctedIndex];
+            } else if (sElemTagName == 'DX-TAG-BOX') {
+              this.h_componentTabData[pTabIdx][sFormSub.name] = pEvent.component._selectedItems;
+            }
+          }
+          if (sCallbackName && sCallbackName !== 'onKeyUp') {
+            this.oComponent[sCallbackName](pEvent, pTabIdx); // Callback 함수 존재할 경우 실행
+          }
+        } else {
+          return false;
+        }
+      }
+      else {
+        if (sCallbackName && sCallbackName !== 'onKeyUp') {
+          this.oComponent[sCallbackName](pEvent, pTabIdx); // Callback 함수 존재할 경우 실행
+        }
+      }
+    }
+    catch (err) {
+      console.log(err);
+    }
+    finally {
+      // 병합이나 조인이면 대상 데이터가 선택되어야 preview에 표시할 수 있도록 함
+      if (this.oType == COM_ID['T-MERGE'] || this.oType == COM_ID['T-JOIN']) {
+        let pData = this.cWpAppSvc.getComData(this.oSelectComId);
+        // 유효한 병합 or 조인이면 Diagram Preview 표시
+        this.cWpDiagramSvc.showValidDiagPreview(pData); //pData:컴포넌트ComData
+      } else if (this.oType !== COM_ID['I-DATASOURCE'] && this.oType !== COM_ID['I-HIVE'] && this.oType !== COM_ID['I-DATABASE'] && this.oType !== COM_ID['I-HDFS'] && this.oType !== COM_ID['I-FTP'] && !this.oTrainModelComIdList.includes(this.oType)) { // 분석 컴포넌트의 diagram preview도 입력데이터처럼 컴포넌트 내에서 직접 설정함.
+        this.setDiagramPreviewById(this.oSelectComId, true);
+      }
+
+      return false;
+    }
+  }
+  onFocusOutSelectBox(sEvent: { event: Event, Element: HTMLElement, component: dxSelectBox }) {
+    if (sEvent.component) {
+      sEvent.component.close()
+    }
+  }
+
+
+  async getArgInfo(pModelType: string) {
+    let s_result:any = await this.cComViewSvc.getArgInfo(pModelType);
+    return s_result[0]
+  }
+  // getModelArgNm(pModelType: string) {
+  //   let sModelType = pModelType;
+  //   switch (pModelType) {
+  //     case 'DecisionTree':
+  //       sModelType = "Decision Tree";
+  //       break;
+  //     case 'RandomForest':
+  //       sModelType = "Random Forest";
+  //       break;
+  //     case 'GradientBoosting':
+  //       sModelType = "Gradient Boosting";
+  //       break;
+  //     case 'ElasticNet':
+  //       sModelType = "Elastic Net";
+  //       break;
+  //     case 'LogisticRegression':
+  //       sModelType = "Logistic Regression";
+  //       break;
+  //     case 'Kmeans':
+  //       sModelType = "K-means";
+  //       break;
+  //     case 'GaussianMixture':
+  //       sModelType = "Gaussian Mixture";
+  //       break;
+  //     case 'KMedoids':
+  //       sModelType = "K-Medoids";
+  //       break;
+  //   }
+  //   return sModelType;
+  // }
+  public getItemIndexByElem(pElem: Element) {
+    return Array.from(pElem.parentNode.children).indexOf(pElem)
+  }
+
+  // #10 Id를 기준으로 Diagram Preview 생성
+  setDiagramPreviewById(pCompId: string | string[], pCurrDataFlag: boolean) {
+    // WPLAT-361 8번 수정
+    try {
+      let sComData;
+      if (pCurrDataFlag && typeof pCompId === 'string') {
+        // 현재 데이터 ComData
+        sComData = this.cWpAppSvc.getComData(pCompId);
+        if (typeof sComData == 'undefined')
+          return;
+        else {
+          sComData = this.cWpDiagramSvc.getDeriveSchema(sComData);
+        }
+      } else {
+        sComData = [];
+        let sTmpPrevComData;
+        // 연결되어있는 이전 단계 ConData
+        if (pCompId.length > 0) {
+          (pCompId as string[]).forEach((sPrevId: string) => {
+            sTmpPrevComData = this.cWpAppSvc.getComData(sPrevId);
+            sComData.push(this.cWpDiagramSvc.getDeriveSchema(sTmpPrevComData));
+          })
+        }
+      }
+      this.cWpDiagramPreviewSvc.setDiagramPreviewByData({ 'sComData': sComData, 'sCurrDataFlag': pCurrDataFlag });
+    } catch (error) {
+      
+    }
+  }
+  // #111 저장/불러오기/실행 팝업 여러개 뜨지 않게 unsubscribe
+  ngOnDestroy() {
+    this.oSubs.forEach(sSub => {
+      sSub.unsubscribe();
+    })
+  }
+    async onBasicInfoClick(p_name: any, pEvent: any) {
+    let s_type = p_name;
+    this.cComViewSvc.showProgress(true);
+    this.cWpDiagramSvc.excuteCurrentDiagram('excuteBefore');
+    let s_comId = this.cComViewSvc.getComId();
+    // 필터 다음 컴퍼넌트에서 통계량/상관관계확인할 경우 필터 여부 확인하기 위해
+    let sComData = this.cWpAppSvc.getComData(s_comId);
+
+    let s_subsIdx = this.cWpComSvc.getSubsIdx(s_comId);
+    let s_dialogRef: any;
+    if (s_subsIdx == -1) {
+      this.cWpComSvc.addSubscription(s_comId, [
+        this.cWpDiagramSvc.sendJobCallResultEmit.subscribe(async (pData: any) => {
+
+          if (this.cComViewSvc.oCurrentComId == s_comId) {
+            if (pData && pData.mode == 'excuteBefore') {
+              setTimeout(() => {
+                this.cWpDiagramSvc.chkFinishExcute(pData.result.ID).then(async (pResult: any) => {
+                  console.log("pResult : ", pResult);
+                  if (pResult['sucsess']) {
+                    // 필터 다음에 상관관계, 통계량 등을 확인할 경우 true 또는 false 붙여야됨.
+                    if (sComData.hasOwnProperty('filter')) {
+                      // filter 값이 "true"로 시작하면 true, "false"로 시작하면 false
+                      if (sComData.filter[0].startsWith("true")) {
+                        pResult['pViewId'] = pResult['pViewId'] + '_true';
+                      } else if (sComData.filter[0].startsWith("false")) {
+                        pResult['pViewId'] = pResult['pViewId'] + '_false';
+                      }
+                    }
+                    // this.oComponent.setComViewId(pResult['pViewId']);
+                    this.oComponent.o_usetable.usetable = pResult['pViewId'];
+                    let s_schema: any = await this.cWpDiagramSvc.viewTable(pResult['pViewId']);
+                    this.oComponent.o_usetable.schema = s_schema['schema'];
+                    // derived-condition, python
+                    if (this.oComponent.oWpData.usetable_info) {
+                      this.oComponent.oWpData.usetable_info.usetable = pResult['pViewId'];
+                      // python
+                      if (this.oComponent.oWpData.popup_data) {
+                        this.oComponent.oWpData.popup_data.usetable = pResult['pViewId'];
+                      }
+                    }
+                    this.cComViewSvc.showMsg('컴퍼넌트 데이터 조회 완료', false);
+
+
+                    s_dialogRef = this.matDialog.open(WpInfoPopupComponent, {
+                      width: '1440px',
+                      data: { data: this.oComponent.o_usetable.usetable, schema: this.oComponent.o_usetable.schema, type: s_type },
+                      id: 'wp-info-popup'
+                    });
+                  } else {
+                    // 에러 발생시 조회 옵션 해제
+                    this.cComViewSvc.showProgress(false);
+                    this.cComViewSvc.showMsg('변수 중요도 조회 에러가 발생하였습니다.', false)
+                  }
+                }).catch(pError => {
+                  this.cComViewSvc.showProgress(false);
+                  this.cComViewSvc.showMsg(pError.message, false);
+                })
+              }, 1000);
+            } 
+            // else {
+            //   this.cComViewSvc.showProgress(false);
+            // }
+          }
+        }, error => {
+          console.log(error);
+          // 에러 발생시 조회 옵션 해제
+          this.cComViewSvc.showMsg('변수 중요도 조회 에러가 발생하였습니다.', false)
+        })
+      ])
+    } else {
+      this.cComViewSvc.showProgress(true);
+      s_dialogRef = this.matDialog.open(WpInfoPopupComponent, {
+        width: '1440px',
+        data: { data: this.oComponent.o_usetable.usetable, schema: this.oComponent.o_usetable.schema, type: s_type },
+        id: 'wp-info-popup'
+      });
+    }
+  }
+}

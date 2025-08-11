@@ -1,0 +1,16 @@
+::ng-deep #wp-load-popup.mat-dialog-container {
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width: 1100px;
+}
+::ng-deep #wp-load-popup .panel-single {
+    width: 100%;
+}
+::ng-deep #wp-load-popup wp-load lib-wp-grid > .scroll-wrapper.component-table.scrollbar {
+    height: 470px;
+}
+/* ::ng-deep lib-wp-grid {
+    width: 100%;
+    height: 100%;
+} */

@@ -1,0 +1,26 @@
+<div id="wpLoadPopup" class="modal large on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{'WPP_WORKFLOW.COMPONENT.POPUP.popup66' | translate }}
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="panel-single">
+                <lib-wp-grid (callBack)="onGridCallback($event)" [iColInfo]="o_gridCol" [iGridData]="o_gridData" [iComptNm]="oComptNm"
+                    [iHead]="o_gridHeader" [iHoverEffect]="o_hoverEffect" [iRowEvt]="o_rowEvt" [iPage]="true"></lib-wp-grid>
+            </div>
+        </div>
+        <div class="modal-footer" style="width: 100%;">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="onClose()" class="btn sm">{{'WPP_COMMON.BUTTON.button1' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim on"></div> -->
+</div>

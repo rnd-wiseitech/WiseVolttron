@@ -1,0 +1,157 @@
+<div id="demo" class="modal tight on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{ oFormData.title }}
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="input-item modal-filter">
+                <div class="inputAddedItem">
+                    <div class="input-item">
+                        <div class="grid">
+                                <label for="" class="like-label left">Column</label>
+                                <!-- <a href="#" class="ico remove right">remove</a> -->
+                        </div>
+                    </div>
+                    <div class="input-item">
+                        <!-- <div class="input-item-inner"> -->
+                        <div class="row">
+                                <input type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="oViewText" placeholder="select content for make derived column" [readonly]="oDervEditFlag" (input)="chkColName($event)" >
+                                <a (click)="onRemoveList($event)" class="ico remove right">remove</a>
+                        </div>
+                    </div>
+                    <div *ngIf = "hUserInputDervColList.includes(hSelectType) && hFuncNm!=''" class="input-item">
+                        <div class="grid">
+                            <label for="" class="like-label left">{{hUserInputForm[hFuncNm].vname}}</label>
+                            <a (click)="onAddList()" class="ico added right">added</a>
+                        </div>
+
+                        <div class="input-item-inner">
+                            <ng-container *ngIf = "hUserInputForm[hFuncNm].type !== 'tab'">
+                                <!-- TEXT BOX -->
+                                <input 
+                                    *ngIf="hUserInputForm[hFuncNm].type == 'text'" 
+                                    type="text"
+                                    [(ngModel)]="oUserInputData[hFuncNm]"
+                                    [ngModelOptions]="{standalone: true}"
+                                    [disabled]="!hUserInputForm[hFuncNm].edit"  
+                                >  
+                                <!-- SELECT BOX -->
+                                <select
+                                    *ngIf="hUserInputForm[hFuncNm].type=='select'"
+                                    [(ngModel)]="oUserInputData[hFuncNm]"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (change)="hUserInputForm[hFuncNm].callbak != null ? onSelectChanged(oUserInputData[hFuncNm],hUserInputForm[hFuncNm].callbak) :  null"
+                                    [disabled]="!hUserInputForm[hFuncNm].edit"
+                                >
+                                    <option *ngFor="let sOption of hUserInputForm[hFuncNm].fvalue; let sOptIdx = index;" [value]="hUserInputForm[hFuncNm].value[sOptIdx]" [ngValue]="hUserInputForm[hFuncNm].value[sOptIdx]">{{sOption}}</option>
+                                </select>
+                            </ng-container>
+                            <ng-container *ngIf = "hUserInputForm[hFuncNm].type == 'tab'">
+                                <div class = 'row'>
+                                    <ng-container *ngFor = "let sForm of hUserInputForm[hFuncNm].fvalue">
+                                        <!-- TEXT BOX -->
+                                        <input 
+                                            *ngIf="sForm.type == 'text'" 
+                                            type="text"
+                                            [(ngModel)]="oUserInputData[hFuncNm][sForm.name]"
+                                            [ngModelOptions]="{standalone: true}"
+                                            [disabled]="!sForm.edit"  
+                                            [placeholder]="sForm.vname"
+                                        >  
+                                        <!-- SELECT BOX -->
+                                        <select
+                                            *ngIf="sForm.type=='select'"
+                                            [(ngModel)]="oUserInputData[hFuncNm][sForm.name]"
+                                            [ngModelOptions]="{standalone: true}"
+                                            (change)="sForm.callbak != null ? onSelectChanged(oUserInputData[hFuncNm][sForm.name],sForm.callbak) :  null"
+                                            [disabled]="!sForm.edit"
+                                        >
+                                            <option *ngFor="let sOption of sForm.fvalue; let sOptIdx = index;" [value]="sForm.value[sOptIdx]" [ngValue]="sForm.value[sOptIdx]">{{sOption}}</option>
+                                            <option [ngValue]="undefined" selected disabled hidden>{{sForm.vname}}</option>
+                                        </select>
+
+                                    </ng-container>
+
+                                </div>
+                            </ng-container>
+                        </div>
+                        <!-- <div class="input-item-inner">
+                            <p class="guide-txt">사용자 입력에는 컬럼, 상수, 연산자, 함수를 제외한 문자 또는 숫자를 입력해주세요.</p>
+                        </div> -->
+                    </div>
+                    <div *ngIf = "true" class="input-item">
+                        <div class="input-item-inner">
+                            <p class="guide-txt" *ngIf="oWarningMsg.length>0">{{oWarningMsg}}</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="component-table">
+				<div class="tbl row type-tbl-div col-2">
+                    <div class="scroll-wrapper column scrollbar">
+                        <table class="tbl-click-table">
+                            <colgroup>
+                                <col style="width:100%;">
+                            </colgroup>
+                            <!-- <thead>
+                                <tr>
+                                    <th>구분</th>
+                                </tr>
+                            </thead> -->
+                            <tbody>
+                                <tr *ngFor = "let sDiv of hDervColForm; let typeIndex = index;">
+                                    <!-- <td class="tbl-click-cell on">{{ sDiv.vname }}</td>                                                                     -->
+                                    <td [id]="'DervCol_'+sDiv.name" class="tbl-click-cell" (click)="onSelectType(sDiv['name'], typeIndex)">{{ sDiv.vname }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+					<div class="scroll-wrapper column scrollbar">
+                        <div class = "column scrollbar scroll-content scroll-scrolly_visible">
+                            <table>
+                                <colgroup>
+                                    <col style="width:100%;">
+                                </colgroup>
+                                <!-- <thead>
+                                    <tr>
+                                        <th>리스트</th>
+                                    </tr>
+                                </thead> -->
+                                <tbody>
+                                    <ng-container *ngIf ="hDervColForm[hSelectTypeIdx].type!='user_input'">
+                                        <tr *ngFor = "let sOption of hDervColForm[hSelectTypeIdx].fvalue; let sIndex=index;">
+                                            <td (click) = "hDervColForm[hSelectTypeIdx].callbak !=null ? onSelectChanged(sOption,hDervColForm[hSelectTypeIdx].callbak) :null">
+                                                {{ sOption }}
+                                                <a *ngIf="oDescType!==''" class="tooltip memo">
+                                                    <img src="assets/images/ico-help.png" alt="">
+                                                    <p class="tooltip-info">{{ getDescription(oDescType, sOption) }}</p>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </ng-container>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="onClose()" class="btn sm">{{'WPP_COMMON.BUTTON.button4' | translate }}</a>
+                    <a (click)="onClose()" class="btn sm natural modalClose">{{'WPP_COMMON.BUTTON.button2' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

@@ -1,0 +1,115 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+# Only exists if Bazel was run
+/bazel-out
+config.txt
+# dependencies
+/node_modules
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+py_result
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.bak
+*.log
+*.log.*
+*.csv
+*.zip
+*.tar
+*.yml
+*.pyc
+.idea/
+.vscode/
+*.pyc/
+*.db
+package-lock.json
+node_modules/
+*.Identifier
+projects/wp-server/setup_centos/docker/docker-20.10.0.tgz
+projects/wp-server/setup/docker/docker-20.10.0.tgz
+projects/wp-server/main
+*.rpm
+*.wsd
+projects/wp-server/dist
+projects/wp-server/node_modules
+
+
+projects/wiseprophet/node_modules/
+projects/wiseprophet/dist
+
+projects/wp-ml/__pycache__/
+projects/wp-ml/.dockerignore
+projects/wp-ml/py_result/*
+projects/wp-ml/.eggs
+# #21 샘플 데이터셋 추가
+!projects/wp-ml/py_result/sample_dataset
+!projects/wp-ml/py_result/sample_dataset/*
+projects/wp-ml/keras_retinanet.egg*
+projects/wp-ml/build/
+projects/wp-ml/serviceUnmodel/build/*
+projects/wp-ml/keras_retinanet/pre_trained_model/
+projects/wp-ml/serviceUnmodel/keras_retinanet/pre_trained_model/
+projects/wp-ml/textprocess/dictionary/*
+projects/wp-ml/build/temp.win-amd64-3.7/Release/keras_retinanet/utils/compute_overlap.cp37-win_amd64.exp
+projects/wp-ml/build/temp.win-amd64-3.7/Release/keras_retinanet/utils/compute_overlap.cp37-win_amd64.lib
+projects/wp-ml/build/temp.win-amd64-3.7/Release/keras_retinanet/utils/compute_overlap.obj
+projects/wp-ml/build/temp.win-amd64-3.6/Release/keras_retinanet/utils/compute_overlap.cp36-win_amd64.def
+projects/wp-ml/build/temp.win-amd64-3.6/Release/keras_retinanet/utils/compute_overlap.o
+projects/wp-ml/serviceText/dictionary/wise_filter_name.json
+projects/wp-ml/serviceText/dictionary/wise_filter_people.json
+projects/wp-ml/config/instantclient_21_3
+projects/wp-ml/util/instantclient_21_3
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/build/temp.win-amd64-cpython-37/common/_mask.cp37-win_amd64.lib
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/build/temp.win-amd64-cpython-37/common/_mask.cp37-win_amd64.exp
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/build/temp.win-amd64-cpython-37/common/_mask.cp37-win_amd64.lib
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/build/temp.win-amd64-cpython-37/common/maskApi.obj
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/build/temp.win-amd64-cpython-37/Release/crowdposetools/_mask.obj
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/crowdposetools/_mask.c
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/crowdposetools.egg-info/dependency_links.txt
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/crowdposetools.egg-info/SOURCES.txt
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/crowdposetools.egg-info/top_level.txt
+projects/wp-ml/serviceUnmodel/pytorch_model/DEKR/crowdpose-api/PythonAPI/dist/crowdposetools-2.0-py3.7-win-amd64.egg
+projects/wp-ml/serviceUnmodel/pytorch_model/koGPT2/model/pytorch_model.bin
+projects/wp-ml/serviceUnmodel/keras_retinanet/_pretrained_model.h5
+wp-develop-platform.pem
+*.out

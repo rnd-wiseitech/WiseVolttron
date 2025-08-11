@@ -1,0 +1,64 @@
+<p class="guide-txt">{{'WPP_WORKFLOW.INFO.info1' | translate }}</p>
+<div class="panel-head grid-pos">
+    <div class="tab type-file left workflow-file">
+        <ul class="tab-length">
+            <ng-container *ngFor="let sTab of h_tabList; let sIndex=index;">
+                <li [class]="sTab.show?'on':undefined">
+                    <a (click)="onMoveTab(sIndex)" (dblclick)="onChangeTabName(sIndex)" class="name"><span>{{sTab.name}}</span></a>
+                    <a (click)="onRemoveTab(sIndex)" class="ico close">close</a>
+                </li>
+            </ng-container>
+        </ul>
+        <ul class="tab-option">
+            <li class="button fileTabAdd line">
+                <a (click)="onAddTab()" class="ico added">added</a>
+            </li>
+        </ul>
+    </div>
+    <div class="side-control right">
+        <ul>
+            <!-- <li>
+                <div class="button">
+                    <a (click)="onClickHeaderBtn('prev')" class="ico prev on">prev</a>
+                </div>
+            </li>
+            <li>
+                <div class="button">
+                    <a (click)="onClickHeaderBtn('next')" class="ico next on">next</a>
+                </div>
+            </li> -->
+            <li class="button" id="user-param-btn">
+                <div class="button" style="width:120px">
+                    <a (click)="onClickHeaderBtn('parameter')">
+                        <span style="white-space: pre;">{{'WPP_WORKFLOW.BUTTON.button1' | translate }}</span>
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="button">
+                    <a (click)="onClickHeaderBtn('refresh')" class="ico refresh">refresh</a>
+                </div>
+            </li>
+            <!-- <li>
+                <div class="button">
+                    <a (click)="onClickHeaderBtn('last')" class="ico last">last</a>
+                </div>
+            </li> -->
+            <li>
+                <div class="button">
+                    <a (click)="onClickToolBtn('load',$event)" class="ico folder-on">load</a>
+                </div>
+            </li>
+            <li>
+                <div class="button workflow-load">
+                    <a (click)="onClickToolBtn('save',$event)" class="ico save">save</a>
+                </div>
+            </li>
+            <li>
+                <div class="button">
+                    <a (click)="onClickToolBtn('excute',$event)" class="ico play">play</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

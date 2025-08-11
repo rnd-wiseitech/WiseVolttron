@@ -1,0 +1,57 @@
+<div class="component-workflow scrollbar">
+    <dx-diagram #hDiagram style="height: calc(100% - 40px);"  customShapeTemplate="customShapeTemplate" [simpleView]="true"
+                                                                        [showGrid]="false"
+                                                                        (onItemClick)="onComponentClick($event)" 
+                                                                        (onInitialized)="onInitialize($event)"
+                                                                        (onContentReady)="onContentReady($event)"
+                                                                        (onRequestEditOperation)="requestEditOperationHandler($event)"
+                                                                        (onRequestLayoutUpdate)="requestLayoutUpdateHandler($event)">
+        <dxo-nodes [dataSource]="oDiagramData" keyExpr="id" >
+            <dxo-auto-layout type="tree" orientation="horizontal"></dxo-auto-layout>
+        </dxo-nodes>
+        <dxo-edges [dataSource]="oDiagramLinkData" keyExpr="id" fromExpr="fromId" toExpr="toId" textExpr="text" ></dxo-edges>  <!-- #144  -->
+        <dxi-custom-shape 
+            *ngFor="let component of oComTemplateData"
+            [category]="component.CATEGORY"
+            [type]= "component.ID"
+            [defaultText]="component.TYPE"
+            baseType="cardWithImageOnLeft"
+            [defaultImageUrl] = "component.IMG_PATH"         
+            [allowResize]="false"
+            [allowEditText]="true"
+            [defaultWidth]=1.7
+            [defaultHeight]=0.55
+            [maxWidth]=1.7
+            [maxHeight]=0.55
+        >
+
+        </dxi-custom-shape>
+        <!-- jobId 추가 -->
+        <svg *dxTemplate="let item of 'customShapeTemplate'" class="template">
+            <text class="job-id" x="92%" y="91%">
+                ({{item.id}})
+            </text>
+        </svg>
+        <dxo-toolbox visibility="disabled">
+            <dxi-group category="data_input" title="데이터 입력"></dxi-group>
+            <dxi-group category="data_change" title="데이터 변환"></dxi-group>
+            <dxi-group category="data_output" title="데이터 출력"></dxi-group>
+            <dxi-group category="analytic_model" title="모델 학습"></dxi-group>
+            <dxi-group category="model_management" title="모델 관리"></dxi-group>
+            <dxi-group category="predict_model" title="모델 예측"></dxi-group>
+            <dxi-group category="image_input" title="이미지 입력"></dxi-group>
+            <dxi-group category="image_change" title="이미지 변환"></dxi-group>
+            <dxi-group category="image_output" title="이미지 출력"></dxi-group>
+        </dxo-toolbox>
+        <dxo-properties-panel visibility="disabled">
+        </dxo-properties-panel>
+        <dxo-view-toolbar [visible]="false">
+        </dxo-view-toolbar>
+        <dxo-history-toolbar [visible]="false">
+        </dxo-history-toolbar>
+        <dxo-context-menu [enabled]="false">
+        </dxo-context-menu>
+        <dxo-context-toolbox [enabled]="false">
+        </dxo-context-toolbox>
+    </dx-diagram>
+</div>

@@ -1,0 +1,40 @@
+::ng-deep.mat-dialog-container {
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width: 1000px;
+}
+
+::ng-deep #chart {
+    height: inherit;
+}
+
+::ng-deep table.mat-elevation-z8 {
+    box-shadow: none;
+}
+
+::ng-deep.el-cell {
+    color: #9fa2b4;
+}
+
+::ng-deep.cdk-overlay-backdrop {
+    transition: none;
+}
+
+::ng-deep.component-chart .large {
+    background: #F4F7F9;
+    width: 100%;
+    height: 100%;
+    padding: 20px 20px 0;
+    height: 400px;
+    border-bottom: 1px solid #d1d4db;
+}
+
+::ng-deep.component-chart>div>div {
+    margin: auto;
+}
+
+::ng-deep #wp-train-result-popup .graph-legend .tit+.list-legend {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}

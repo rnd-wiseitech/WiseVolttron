@@ -1,0 +1,112 @@
+<div class="panel-head">
+    <div class="tab type-header">
+        <ul>
+            <li [class]="h_tapId == 'data'? 'on' : ''">
+                <a (click)="onTabClick('data')"><span>{{'WPP_WORKFLOW.MENU.menu1' | translate }}</span></a>
+            </li>
+            <li [class]="h_tapId == 'undata'? 'on' : ''">
+                <a (click)="onTabClick('undata')"><span>{{'WPP_WORKFLOW.MENU.menu11' | translate }}</span></a>
+            </li>
+            <li [class]="h_tapId == 'model'? 'on' : ''">
+                <a (click)="onTabClick('model')"><span>{{'WPP_WORKFLOW.MENU.menu2' | translate }}</span></a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="scrollbar">
+    <div class="app-inner">
+        <div class="component-option">
+            <div class="input-item" id="data_input_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu3' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="data_input"></div>
+                </div>
+            </div>
+        
+            <div class="input-item" id="data_change_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu4' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="data_change"></div>
+                </div>
+            </div>
+        
+            <div class="input-item" id="data_output_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu5' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="data_output"></div>
+                </div>
+            </div>
+            <div class="input-item" id="classification_model_items">
+                <label for="" class="like-label">분류 모델</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="classification_model"></div>
+                </div>
+            </div>
+            <div class="input-item" id="regression_model_items">
+                <label for="" class="like-label">회귀 모델</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="regression_model"></div>
+                </div>
+            </div>
+            <div class="input-item" id="cluster_model_items">
+                <label for="" class="like-label">군집 모델</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="cluster_model"></div>
+                </div>
+            </div>
+            <!-- <div class="input-item" id="language_model_items">
+                <label for="" class="like-label">언어 모델</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="language_model"></div>
+                </div>
+            </div> -->
+            <div class="input-item" id="image_model_items">
+                <label for="" class="like-label">이미지 모델</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="image_model"></div>
+                </div>
+            </div>
+            <!-- <div class="input-item" id="analytic_model_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu6' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="analytic_model"></div>
+                </div>
+            </div> -->
+
+            <div class="input-item" id="model_management_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu7' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="model_management"></div>
+                </div>
+            </div>
+
+            <div class="input-item" id="model_predict_items">
+                <label for="" class="like-label">{{'WPP_WORKFLOW.MENU.menu8' | translate }}</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="predict_model"></div>
+                </div>
+            </div>
+
+            <div class="input-item" id="image_input_items">
+                <label for="" class="like-label">이미지 입력</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="image_input"></div>
+                </div>
+            </div>
+
+            <div class="input-item" id="image_change_items">
+                <label for="" class="like-label">이미지 변환</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="image_change"></div>
+                </div>
+            </div>
+            <div class="input-item" id="image_output_items">
+                <label for="" class="like-label">이미지 출력</label>
+                <div class="input-item-inner">
+                    <div class="list-flow-option" id="image_output"></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="container">
+		<div class="panel-app workflow">
+			<!-- <as-split direction="vertical">
+				<as-split-area [size]="70"> -->
+					<div class="panel-grid resizable-vertical" style="height: calc(100vh - 400px);">
+						<div class="panel panel-option">
+							<lib-diagram-nav></lib-diagram-nav>
+						</div>
+						<div class="panel panel-flow">
+							<lib-wp-diagram-toolbar></lib-wp-diagram-toolbar>
+							<lib-wp-diagram [oComTemplateData]="oComTemplateData" ></lib-wp-diagram>
+							<lib-wp-component-properties></lib-wp-component-properties>
+						</div>
+					</div>
+				<!-- </as-split-area>
+				<as-split-area [size]="30"> -->
+					<div class="splitter-horizontal"></div>
+					<div class="panel-grid" style="min-height: calc(400px);">
+						<div class="panel panel-base">
+							<lib-wp-diagram-preview [iDiagramPreviewType]="'before'" [iStyle]="{'height':'100%'}"></lib-wp-diagram-preview>
+						</div>
+						<div class="panel panel-base">
+							<lib-wp-diagram-preview [iDiagramPreviewType]="'current'" [iStyle]="{'height':'100%'}"></lib-wp-diagram-preview>
+						</div>
+					</div>
+				<!-- </as-split-area>
+			</as-split> -->
+		</div>
+	<lib-wp-loading [iName]="'wkspin'" [iFullScreen]="true"></lib-wp-loading>
+</div>

@@ -1,0 +1,98 @@
+{
+    "BASIC_FORMAT": {
+        "yyyy-mm-dd": {
+            "PYTHON": "%Y-%m-%d",
+            "SPARK": "y-MM-dd"
+        },
+        "yyyymmdd": {
+            "PYTHON": "%Y%m%d",
+            "SPARK": "yMMdd"
+        },
+        "yy-mm-dd": {
+            "PYTHON": "%y-%m-%d",
+            "SPARK": "yy-MM-dd"
+        },
+        "yyyy/mm/dd": {
+            "PYTHON": "%Y/%m/%d",
+            "SPARK": "y/MM/dd"
+        },
+        "yyyy.mm.dd": {
+            "PYTHON": "%Y.%m.%d",
+            "SPARK": "y.MM.dd"
+        },
+        "yyyymmddHHMMss": {
+            "PYTHON": "%Y%m%d%H%M%S",
+            "SPARK": "yMMddHHmmss"
+        },
+        "yyyy-mm-dd HH:MM:ss": {
+            "PYTHON": "%Y-%m-%d  %H:%M:%S",
+            "SPARK": "y-MM-dd HH:mm:ss"
+        },
+        "yyyy-mm-dd hh:MM:ss": {
+            "PYTHON": "%Y-%m-%d  %I:%M:%S",
+            "SPARK": "y-MM-dd hh:mm:ss"
+        },
+        "yyyy-mm-dd hh:MM TT": {
+            "PYTHON": "%Y-%m-%d  %I:%M %p",
+            "SPARK": "y-MM-dd hh:mm a"
+        }
+    },
+    "DATE_FORMAT": {
+        "yyyy": {
+            "PYTHON": "%Y",
+            "SPARK": "y"
+        },
+        "yy": {
+            "PYTHON": "%y",
+            "SPARK": "yy"
+        },
+        "mm": {
+            "PYTHON": "%m",
+            "SPARK": "MM"
+        },
+        "dd": {
+            "PYTHON": "%d",
+            "SPARK": "dd"
+        }
+    },
+    "TIME_FORMAT": {
+        "hh": {
+            "PYTHON": "%I",
+            "SPARK": "hh"
+        },
+        "HH": {
+            "PYTHON": "%H",
+            "SPARK": "HH"
+        },
+        "mm": {
+            "PYTHON": "%M",
+            "SPARK": "mm"
+        },
+        "ss": {
+            "PYTHON": "%S",
+            "SPARK": "ss"
+        },
+        "TT": {
+            "PYTHON": "%p",
+            "SPARK": "a"
+        }
+    },
+    "SEP" : {
+        "-": {
+            "PYTHON": "-",
+            "SPARK": "-"
+        },
+        ".": {
+            "PYTHON": ".",
+            "SPARK": "."
+        },
+        "/": {
+            "PYTHON": "/",
+            "SPARK": "/"
+        },
+        ":": {
+            "PYTHON": ":",
+            "SPARK": ":"
+        }
+    }
+}

@@ -1,0 +1,50 @@
+<header class="header">
+    <div class="header-inner grid">
+        <div class="left">
+            <div class="logo">
+                <a>
+                    <img src="assets/images/logo.png" alt="wisePlatform">
+                </a>
+            </div>
+            <nav id="gnb" class="gnb">
+                <ul class="depth1">
+                    <li *ngFor="let sMenu of oMenuList" [ngClass]="oActiveApp == sMenu.MENU_NAME ? 'on':''"><a
+                            [routerLink]="[sMenu.URL]">
+                            <img src="assets/images/ico-{{sMenu.MENU_NAME}}@3x.png" alt=""
+                                fill="white">{{sMenu.MENU_VNAME}}</a></li>
+                    <!-- <li [ngClass]="oActiveApp == 'workflow' ? 'on':''"><a [routerLink]="['/workflow']">
+                        <img src="assets/images/ico-workflow@3x.png" alt="">Workflow
+                    </a></li>
+                    <li [ngClass]="oActiveApp == 'monitor' ? 'on':''"><a [routerLink]="['/monitor']">
+                        <img src="assets/images/ico-monitoring@3x.png" alt="">Monitoring
+                    </a></li>
+                    <li [ngClass]="oActiveApp == 'rm' ? 'on':''"><a [routerLink]="['/rm']">
+                        <img src="assets/images/ico-resource@3x.png" alt="">Resource</a></li> -->
+                </ul>
+            </nav>
+        </div>
+
+        <div class="right">
+            <nav class="util">
+                <ul>
+                    <li style="padding-right: 10px;">
+                        <div class="util-item language">
+                            <!-- 0510 언어 아이콘 텍스트 추가 -->
+                            <div style="cursor: pointer;" (click)="onLangChange($event,'btn')" class="ico-language">
+                                <span>{{h_lang}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- <li><a href="#mdSettings" class="ico settings modalLoad">Settings</a></li> -->
+                    <li style="padding-right: 10px;"><span class="ico user"></span>{{h_name}}</li>
+                    <li>
+                        <svg style="width: 10px; height: 10px; margin-left: 5px;">
+                            <circle cx="5" cy="5" r="4" [attr.fill]="h_SocketStatusFill"></circle>
+                        </svg>
+                    </li>
+                    <li><a style="cursor: pointer;" (click)="onLogout()" class="logout">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>

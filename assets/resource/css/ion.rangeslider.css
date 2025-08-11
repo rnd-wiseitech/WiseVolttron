@@ -1,0 +1,268 @@
+/* Ion.RangeSlider
+// css version 2.0.3
+// © 2013-2014 Denis Ineshin | IonDen.com
+// ===================================================================================================================*/
+
+/* =====================================================================================================================
+// RangeSlider */
+
+.irs {
+	position: relative; display: block;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	 -khtml-user-select: none;
+	   -moz-user-select: none;
+		-ms-user-select: none;
+			user-select: none;
+}
+	.irs-line {
+		position: relative; display: block;
+		overflow: hidden;
+		outline: none !important;
+	}
+		.irs-line-left, .irs-line-mid, .irs-line-right {
+			position: absolute; display: block;
+			top: 0;
+		}
+		.irs-line-left {
+			left: 0; width: 11%;
+		}
+		.irs-line-mid {
+			left: 9%; width: 82%;
+		}
+		.irs-line-right {
+			right: 0; width: 11%;
+		}
+
+	.irs-bar {
+		position: absolute; display: block;
+		left: 0; width: 0;
+	}
+		.irs-bar-edge {
+			position: absolute; display: block;
+			top: 0; left: 0;
+		}
+
+	.irs-shadow {
+		position: absolute; display: none;
+		left: 0; width: 0;
+	}
+
+	.irs-slider {
+		position: absolute; display: block;
+		cursor: pointer;
+		z-index: 1;
+	}
+		.irs-slider.single {
+
+		}
+		.irs-slider.from {
+
+		}
+		.irs-slider.to {
+
+		}
+		.irs-slider.type_last {
+			z-index: 2;
+		}
+
+	.irs-min {
+		position: absolute; display: block;
+		left: 0;
+		cursor: default;
+	}
+	.irs-max {
+		position: absolute; display: block;
+		right: 0;
+		cursor: default;
+	}
+
+	.irs-from, .irs-to, .irs-single {
+		position: absolute; display: block;
+		top: 0; left: 0;
+		cursor: default;
+		white-space: nowrap;
+	}
+
+.irs-grid {
+	position: absolute; display: none;
+	bottom: 0; left: 0;
+	width: 100%; height: 20px;
+}
+.irs-with-grid .irs-grid {
+	display: block;
+}
+	.irs-grid-pol {
+		position: absolute;
+		top: 0; left: 0;
+		width: 1px; height: 8px;
+		background: #000;
+	}
+	.irs-grid-pol.small {
+		height: 4px;
+	}
+	.irs-grid-text {
+		position: absolute;
+		bottom: 0; left: 0;
+		white-space: nowrap;
+		text-align: center;
+		font-size: 9px; line-height: 9px;
+		padding: 0 3px;
+		color: #000;
+	}
+
+.irs-disable-mask {
+	position: absolute; display: block;
+	top: 0; left: -1%;
+	width: 102%; height: 100%;
+	cursor: default;
+	background: rgba(0,0,0,0.0);
+	z-index: 2;
+}
+.lt-ie9 .irs-disable-mask {
+	background: #000;
+	filter: alpha(opacity=0);
+	cursor: not-allowed;
+}
+
+.irs-disabled {
+	opacity: 0.4;
+}
+
+
+.irs-hidden-input {
+	position: absolute !important;
+   width: 1px !important;
+   height: 1px !important;
+   margin: -1px !important;
+   padding: 0 !important;
+   overflow: hidden !important;
+   clip: rect(0, 0, 0, 0) !important;
+   border: 0 !important;
+}
+
+
+/* Ion.RangeSlider, Nice Skin
+// css version 2.0.3
+// © Denis Ineshin, 2014    https://github.com/IonDen
+// ===================================================================================================================*/
+
+/* =====================================================================================================================
+// Skin details */
+.irs{
+	width:100%;
+}
+.irs-slider {
+    background: #0735c9;
+	border: 4px solid #18e5be;
+	border-radius:50%;
+	width: 20px; height: 20px;
+	top: 18px;
+}
+
+.irs-bar-edge,
+.irs-line-mid,
+.irs-line-left,
+.irs-line-right {
+	background-color: #c2c9db;
+	/* border-radius: 100px; */
+}
+
+.irs {
+    height: 40px;
+}
+.irs-with-grid {
+    height: 60px;
+}
+.irs-line {
+    height: 3px; top: 25px;
+}
+    .irs-line-left {
+        height: 3px;
+        background-position: 0 -30px;
+    }
+    .irs-line-mid {
+        height: 3px;
+        background-position: 0 0;
+    }
+    .irs-line-right {
+        height: 3px;
+        background-position: 100% -30px;
+    }
+
+.irs-bar {
+    height: 3px;
+    top: 25px;
+    background-color: #18e5be;
+    border-radius: 100px
+}
+    .irs-bar-edge {
+        top: 25px;
+        height: 3px;
+        width: 11px;
+        background-position: 0 -90px;
+    }
+
+.irs-shadow {
+    height: 8px;
+    top: 25px;
+    background: rgba(0,0,0,0.9);
+    opacity: 0.15;
+}
+.lt-ie9 .irs-shadow {
+    filter: alpha(opacity=15);
+}
+
+
+
+.irs-min, .irs-max {
+    color: #e0e4ed;
+    font-size: 1.333rem;
+    line-height: 0.9;
+    text-shadow: none;
+    top: -8px;
+    padding: 3px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+	font-weight: 500;
+}
+
+.irs-from, .irs-to, .irs-single {
+    color: #FFF;
+    top: -50px;
+    font-size: 11px;
+    line-height: 0.9;
+    text-shadow: none;
+    padding: 3px;
+    background: #546493;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+	font-size: 1.200rem;
+	font-weight: 500;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.irs-from:after, .irs-single:after, .irs-to:after {
+    content: "";
+    position: absolute;
+    display: block;
+    bottom: -20px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -12px;
+    overflow: hidden;
+    border: 12px solid transparent;
+    border-top-color: #546493;
+}
+
+.lt-ie9 .irs-from, .lt-ie9 .irs-to, .lt-ie9 .irs-single { background: #DDD; }
+
+.irs-grid-pol { background: #AAA; }
+.irs-grid-text { color: #AAA }
+
+.irs-disabled { }

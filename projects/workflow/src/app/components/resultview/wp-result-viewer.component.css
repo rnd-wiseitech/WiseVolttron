@@ -1,0 +1,80 @@
+::ng-deep.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:1100px;
+}
+
+::ng-deep.nav-tabs {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    text-align: center;
+    overflow: auto;
+    border-bottom: 1px solid #c3c6c7;
+    padding: 0 4px 0 2px;
+    height: 62px !important;
+}
+
+::ng-deep.nav-tabs li {
+    width: 100%;
+    color: #c3c6c7;
+    font-weight: 700;
+    line-height: 36px;
+    text-align: center;
+    font-size: 1.2rem;
+    position: relative;
+    background: #fafafa;
+    padding: 0 10px;
+}
+
+::ng-deep.nav-tabs li a {
+    color: #c3c6c7;
+}
+
+::ng-deep.nav-tabs li.active a {
+    color: #323e45;
+}
+
+::ng-deep.nav-tabs li.active:after {
+    background: #3751ff;
+    border-color: #3751ff;
+}
+
+::ng-deep.nav-tabs li.active:before {
+    background-color: #3751ff;
+}
+
+::ng-deep.nav-tabs li:after {
+    content: "";
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 1px solid #c3c6c7;
+    border-radius: 50%;
+    margin: auto auto 10px;
+}
+
+::ng-deep.nav-tabs li:before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 10px;
+    background: #c3c6c7;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+::ng-deep .nav-tabs li:last-child {
+    border-radius: 0 50px 50px 0;
+}
+  
+::ng-deep table.mat-elevation-z8 {
+    box-shadow: none
+}

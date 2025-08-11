@@ -1,0 +1,426 @@
+<div class="component-configuration" [ngStyle]="oDisplay? {'display': 'block'} : {'display': 'none'}">
+  <div class="config-head">
+    <div class="tab grid">
+      <ul class="left">
+        <li [class]="h_tapId == 'Configuation'? 'on' : ''" (click)="onClickTab($event, true)">
+          <a><span class="Configuation">{{'WPP_WORKFLOW.MENU.menu9' | translate }}</span></a>
+        </li>
+        <li [class]="h_tapId == 'Info'? 'on' : ''" (click)="onClickTab($event, true)">
+          <a><span class="Info">{{'WPP_WORKFLOW.MENU.menu10' | translate }}</span></a></li>
+      </ul>
+      <div class="right component-viewer-close">
+        <a (click)="onClose()" class="ico close modalClose">Cancel</a>
+      </div>
+    </div>
+  </div>
+  <!-- Configuation -->
+  <div id="h_tab_conf" class="config-body scrollbar">
+    <ng-container *ngIf="oType==COM_ID['I-STREAMING']">
+      <div class="input-item">
+        <div class="input-item-inner">
+          <a class="btn positive line" (click)="oComponent.onKafkaConnectPopup($event)">{{'WPP_WORKFLOW.COMPONENT.BUTTON.button3' | translate }}</a>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- 변환 컴포넌트 -->
+    <ng-container *ngIf="!oTrainModelComIdList.includes(oType)">
+      <div *ngFor="let sForm of oFormData; let sFormIndex = index;"  [id]="oType + '_' + sForm.name" style="padding-top:2%">
+        <ng-container *ngIf = "sForm.visible">
+          <!-- CHECKBOX -->
+          <div class="input-item" *ngIf="sForm.type!='tab' && sForm.type=='checkbox'" style="display: flex;">
+            <div class="input-item-inner">
+              <input type="checkbox" [id]="sForm.name" [(ngModel)]="oComponentData['o_data'][sForm.name]" [disabled]="!sForm.edit"
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="onCompViewerChanged(sForm.callbak,$event)"
+                style="margin-right: 5px;">
+            </div>
+            <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+          </div>
+          <div class="input-item" *ngIf="sForm.type!='tab' && sForm.type!='checkbox'">
+            <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+            <div class="input-item-inner">
+              <!-- TEXT -->
+              <input type="text" 
+                    [id]="sForm.name" 
+                    [placeholder]="sForm.name +'값을 입력하세요.'"
+                    [(ngModel)]="oComponentData['o_data'][sForm.name]" 
+                    [disabled]="!sForm.edit"  
+                    [value]="sForm.value" 
+                    [ngModelOptions]="{standalone: true}" 
+                    *ngIf="sForm.type=='text'" 
+                    (click)="onCompViewerChanged(sForm.callbak,$event)" 
+                    (keyup)="onKeyUp($event, sForm.name)"
+                    (change)="sForm.callbak != null ? sForm.callbak($event, sForm):null"
+                    >
+              <!-- SELECT -->
+              <dx-select-box
+                  [id]="sForm.name" 
+                  *ngIf="sForm.type=='select'"  
+                  [dataSource]="sForm.fvalue"
+                  (onSelectionChanged)="onCompViewerChanged(sForm.callbak,$event)"
+                  (onFocusOut)="onFocusOutSelectBox($event)"
+                  [value]="oComponentData['o_data'][sForm.name]"
+                  [disabled]="!sForm.edit"
+                  [attr.form-index] = "sFormIndex"
+                  [attr.inner-form-index] = ""
+              ></dx-select-box>
+              <!-- MULTIPLE SELECT -->
+              <dx-tag-box
+                [id]="sForm.name" 
+                *ngIf="sForm.type=='multiple_select'" 
+                [dataSource]="sForm.fvalue"
+                (onSelectionChanged)="onCompViewerChanged(sForm.callbak,$event)"
+                [value]="oComponentData['o_data'][sForm.name]"
+                [disabled]="!sForm.edit"
+                [attr.form-index] = "sFormIndex"
+                [attr.inner-form-index] = ""
+              ></dx-tag-box>
+              <!--  BUTTON TOGGLE -->
+              <div class="input-item-inner toggle" *ngIf="sForm.type=='button_toggle'">
+                <label class="radio" *ngFor="let sOption of sForm.fvalue;let sOptIdx = index;">
+                  <input type="radio" [disabled]="!sForm.edit" [name]="sForm.name+'_option'" (click)="sForm.callbak? sForm.callbak({value:sOption,event:$event,name:sForm.name}):null" [checked]="oComponentData['o_data'][sForm.name]==sOption" >
+                  <span>{{sOption}}</span>
+                </label>
+              </div>
+
+              <!-- CHECK BOX -->
+              <!-- <input type="checkbox" 
+                    *ngIf="sForm.type=='checkbox'" 
+                    [id]="sForm.name" 
+                    [(ngModel)]="oComponentData[sForm.name]" 
+                    [disabled]="!sForm.edit"
+                    [ngModelOptions]="{standalone: true}" 
+                    (click)="sForm.callbak != null ? onCompViewerChanged(sForm.callbak.name,$event) : null" 
+              >  -->
+              <!-- BUTTON -->
+              <a *ngIf="sForm.type=='button'" class="btn positive line"
+                (click)="onCompViewerChanged(sForm.callbak,$event)"
+                [id]="oType+'_button'">{{sForm.vname}}</a>
+              <!-- LIST -->
+              <dx-list *ngIf="sForm.type=='list' && sForm.visible" [dataSource]="sForm.fvalue" [height]="200"></dx-list>
+              <!-- QUERY -->
+              <ng-container *ngIf="sForm.type=='query'">
+                <div [id]="sForm.name" class="component-code"
+                  style="height: 200px; border: 1px solid #f0f1f7;border-radius: 6px;margin-bottom:10px">
+                  <ngx-monaco-editor id="workflow_query" *ngIf="oComponent.h_queryOptions" class="monaco"
+                    [options]="oComponent.h_queryOptions" [(ngModel)]="oComponent.h_query.code"
+                    (onInit)="oComponent.editorInit($event)">
+                  </ngx-monaco-editor>
+                </div>
+                <a class="btn positive line"
+                  (click)="sForm.callbak != null ? sForm.callbak($event) : undefined">{{'WPP_WORKFLOW.COMPONENT.BUTTON.button2' | translate }}</a>
+              </ng-container>
+              <!-- GRID -->
+              <ng-container *ngIf="sForm.type=='grid'">
+                <lib-wp-grid *ngIf="oComponent.oGridDataObj"
+                  (callBack)="sForm.callbak != null ? sForm.callbak($event) : undefined"
+                  [iSelection]="oComponent.hSelection? oComponent.hSelection: undefined"
+                  [iSelectedList] = "oComponent.hSelectionList? oComponent.hSelectionList: undefined"
+                  [iColInfo]="oComponent.oGridColObj[sForm.name]" [iGridData]="oComponent.oGridDataObj[sForm.name]" [iRowEvt]="true">
+                </lib-wp-grid>
+              </ng-container>
+              <ng-container *ngIf="sForm.type=='fileInput'">
+                <!-- <input type="file" #fileInput hidden (click)="sForm.callbak($event)"/> -->
+                <button  class="btn positive line" (click)="onCompViewerChanged(sForm.callbak,$event)"> {{sForm.vname}}</button>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="inputAddedEvent" *ngIf="sForm.type=='tab'">
+          <div class="grid" *ngIf = "sForm.visible"> <!-- visible false 시 라벨 및 버튼 안보이게 추가-->
+            <label [for]="sForm.name" class="like-label left">{{sForm.name}}</label>
+            <a class="ico added inputAddedBtn right" (click)="onAddList(sForm.name)">added</a>
+          </div>
+          <!-- tab 형태로 되어있는 데이터 바인딩 변수명 수정 -->
+          <div class="inputAddedItem" *ngFor="let sTabArr of h_componentTabData; let sTabIdx = index;" [attr.tableindex]= sTabIdx [attr.comid]=oSelectComId>
+            <ng-container *ngIf = "sForm.visible">
+              <div class="input-group">
+                  <div class="input-item" *ngFor="let sTabList of sForm.fvalue; let sTabItemIdx = index;" [attr.id]="sTabIdx+'_'+sTabList.name">
+                      <!-- 첫 행이면 닫기 버튼과 라벨 표시-->
+                  <ng-container *ngIf="sTabItemIdx==0">
+                    <div class="grid">
+                      <label for="" class="like-label left">{{sTabList.vname}}</label>
+                      <a class="ico remove right" (click)="onRemoveList(sForm.name,$event)">remove</a>
+                    </div>
+                  </ng-container>
+
+                  <!-- 첫행 아니면 라벨만 표시 -->
+                  <ng-container *ngIf="sTabItemIdx!=0">
+                    <label for="" class="like-label">{{sTabList.vname}}</label>
+                  </ng-container>
+
+                  <div class="input-item-inner">
+                    <!-- TEXT BOX -->
+                    <input 
+                    type="text"
+                    [id]="sTabList.name+'_'+sTabIdx" 
+                    [(ngModel)]="h_componentTabData[sTabIdx][sTabList.name]" 
+                    [disabled]="!sTabList.edit"  
+                    [value]="sTabList.value" 
+                    [ngModelOptions]="{standalone: true}"
+                    *ngIf="sTabList.type=='text'" 
+                    (click)="onCompViewerChanged(sTabList.callbak,$event,sTabIdx)" 
+                    (keyup)="onKeyUp($event, sTabList.name, sTabIdx)"
+                  >   
+                  <!-- SELECT BOX -->
+                  <dx-select-box
+                    [id]="sTabList.name+'_'+sTabIdx"
+                    *ngIf="sTabList.type=='select'"
+                    [dataSource]="sTabList.fvalue"
+                    [disabled]="!sTabList.edit"  
+                    (onValueChanged)="onCompViewerChanged(sTabList.callbak,$event,sTabIdx)"
+                    (onFocusOut)="onFocusOutSelectBox($event)"
+                    [value]="h_componentTabData[sTabIdx][sTabList.name]"
+                    [attr.form-index] = "sFormIndex"
+                    [attr.inner-form-index] = "sTabItemIdx"
+                  ></dx-select-box>
+                  <!-- MULTIPLE SELECT -->
+                  <dx-tag-box
+                    [id]="sTabList.name+'_'+sTabIdx"
+                    *ngIf="sTabList.type=='multiple_select'" 
+                    [dataSource]="sTabList.fvalue"
+                    [disabled]="!sTabList.edit"  
+                    (onSelectionChanged)="onCompViewerChanged(sTabList.callbak,$event,sTabIdx)"
+                    [value]="h_componentTabData[sTabIdx][sTabList.name]"
+                    [attr.form-index] = "sFormIndex"
+                    [attr.inner-form-index] = "sTabItemIdx"
+                  ></dx-tag-box>
+                  <!-- BUTTON TOGGLE -->
+                  <div class="input-item-inner toggle" *ngIf="sTabList.type=='button_toggle'" [id]="oType+'_button_toggle_'+sTabIdx">
+                    <label class="radio" *ngFor="let sOption of sTabList.fvalue;let sOptIdx = index;">
+                      <input type="radio" [disabled]="!sTabList.edit"  [name]="sTabList.name+'_'+sTabIdx+'_option'" (click)="sTabList.callbak? sTabList.callbak({value:sOption,event:$event,name:sTabList.name},sTabIdx):null" [checked]="h_componentTabData[sTabIdx][sTabList.name]==sOption" >
+                      <span>{{sOption}}</span>
+                    </label>
+                  </div>
+                  <!-- CHECK BOX -->
+                  <input type="checkbox" 
+                        *ngIf="sTabList.type=='checkbox'" 
+                        [id]="sTabList.name" 
+                        [(ngModel)]="h_componentTabData[sTabIdx][sTabList.name]" 
+                        [disabled]="!sTabList.edit"
+                        [ngModelOptions]="{standalone: true}" 
+                        (click)="onCompViewerChanged(sTabList.callbak,$event,sTabIdx)" 
+                  > 
+                  <!-- BUTTON -->
+                  <a *ngIf="sTabList.type=='button'" [id]="oType+'_button_'+sTabIdx" class="btn positive line" (click)="onCompViewerChanged(sTabList.callbak,$event,sTabIdx)">{{sTabList.vname}}</a>
+
+                </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+
+    <!-- #34 분석 컴포넌트 -->
+    <!-- #34 분석 컴포넌트에서 모델 파라미터(param_1, param_2,..)는 바인딩하는 데이터가 oComponentData[sForm.name]['value'] 여서 구분함. -->
+    <form *ngIf="oTrainModelComIdList.includes(oType)">
+      <div *ngFor="let sForm of oFormData;let sFormIndex = index"  [id]="oType + '_' + sForm.name" style="padding-top:5px;">
+        <ng-container *ngIf="sForm.type=='parameter'">
+          <div *ngFor="let param of sForm.value ;let sParamIndex = index"  [id]="oType + '_' + param.name" style="padding-top:5px;">
+            <div class="input-item" *ngIf="param.type!='checkbox'">
+              <ng-container *ngIf="param.visible">
+                <label [for]="param.name" class="like-label">{{param.vname}}</label>
+                <div class="input-item-inner">
+                <!-- TEXT -->
+                <input type="text" 
+                      [id]="param.name" 
+                      [placeholder]="param.name +'값을 입력하세요.'"
+                      [(ngModel)]="param.value" 
+                      [disabled]="!param.edit"  
+                      [value]="param.value" 
+                      [ngModelOptions]="{standalone: true}" 
+                      *ngIf="param.type=='text'" 
+                      (change)="param.callbak != null ? param.callbak($event, param):null"
+                      >      
+                  <!-- SELECT -->
+                  <dx-select-box
+                    [id]="param.name" 
+                    *ngIf="param.type=='select'"  
+                    [dataSource]="param.fvalue"
+                    (onSelectionChanged)="param.callbak != null ? param.callbak($event, param):null"
+                    [(ngModel)]="param.value"
+                    [ngModelOptions]="{standalone: true}" 
+                    [disabled]="!param.edit"
+                    [attr.form-index] = "sParamIndex"
+                    [attr.inner-form-index] = ""
+                  ></dx-select-box>
+                  <!-- MULTIPLE SELECT -->
+                  <dx-tag-box
+                    [id]="param.name" 
+                    *ngIf="param.type=='multiple_select'" 
+                    [dataSource]="param.fvalue"
+                    (onSelectionChanged)="param.callbak != null ? param.callbak($event, param):null"
+                    [value]="param.value"
+                    [disabled]="!param.edit"
+                    [attr.form-index] = "sParamIndex"
+                    [attr.inner-form-index] = ""
+                  ></dx-tag-box>
+                  <!-- BUTTON  -->
+                  <a *ngIf="param.type=='button'" class="btn positive line"
+                    (click)="onCompViewerChanged(param.callbak,$event)">{{param.vname}}</a>
+                  <!--  BUTTON TOGGLE -->
+                  <div class="input-item-inner toggle" *ngIf="param.type=='button_toggle'">
+                    <label class="radio" *ngFor="let sOption of param.fvalue;let sOptIdx = index;">
+                      <input type="radio" [name]="param.name+'_option'" (click)="param.callbak? param.callbak({value:sOption,event:$event,name:param.name}):null" [checked]="oComponentData['o_data'][param.name]==sOption" >
+                      <span>{{sOption}}</span>
+                    </label>
+                  </div>
+    
+                  <!-- RANGE INPUT -->
+                  <ng-container *ngIf="param.type=='range_input'">
+                    <input style="width: 46%;" type="text" [id]="param.name+'_min'" [placeholder]="param.vname+'_min'" [(ngModel)]="param.value[0]" [ngModelOptions]="{standalone: true}" (change)="param.callbak != null ? param.callbak($event, param, 0):null" >
+                    <p style = "display: inline-block;">&nbsp;~&nbsp;</p>
+                    <input style="width: 46%;" type="text" [id]="param.name+'_max'" [placeholder]="param.vname+'_min'" [(ngModel)]="param.value[1]" [ngModelOptions]="{standalone: true}" (change)="param.callbak != null ? param.callbak($event, param, 1):null" >
+                  </ng-container>
+              </div>
+              </ng-container>
+            </div>
+          
+          </div>
+        </ng-container>
+       
+       
+       
+       
+       
+       
+       
+       
+        
+        <!-- CHECKBOX -->
+        <ng-container *ngIf="sForm.visible">
+        <div class="input-item" *ngIf="sForm.type=='checkbox'" style="display: flex;">
+          <div class="input-item-inner">
+            <!-- CHECK BOX -->
+            <input type="checkbox" *ngIf="sForm.type=='checkbox'" [id]="sForm.name"
+              [(ngModel)]="oComponentData['o_data'][sForm.name]" [disabled]="!sForm.edit" [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="sForm.callbak != null ? sForm.callbak($event, sForm):null"
+              style="margin-right: 5px;">
+          </div>
+          <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+        </div>
+        <div class="input-item" *ngIf="sForm.type!='checkbox'">
+            <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+            <div class="input-item-inner">
+            <!-- TEXT -->
+            <input type="text" 
+                  [id]="sForm.name" 
+                  [placeholder]="sForm.name +'값을 입력하세요.'"
+                  [(ngModel)]="oComponentData['o_data'][sForm.name]" 
+                  [disabled]="!sForm.edit"  
+                  [value]="sForm.value" 
+                  [ngModelOptions]="{standalone: true}" 
+                  *ngIf="sForm.type=='text'" 
+                  (change)="sForm.callbak != null ? sForm.callbak($event, sForm):null"
+                  
+                  >      
+              <!-- SELECT -->
+              <dx-select-box
+                [id]="sForm.name" 
+                *ngIf="sForm.type=='select'"  
+                [dataSource]="sForm.fvalue"
+                (onSelectionChanged)="sForm.callbak != null ? sForm.callbak($event, sForm):null"
+                [value]="oComponentData['o_data'][sForm.name]"
+                [disabled]="!sForm.edit"
+                [attr.form-index] = "sFormIndex"
+                [attr.inner-form-index] = ""
+              ></dx-select-box>
+              <!-- MULTIPLE SELECT -->
+              <!-- <dx-tag-box
+                [id]="sForm.name" 
+                *ngIf="sForm.type=='multiple_select'" 
+                [dataSource]="sForm.fvalue"
+                (onSelectionChanged)="onCompViewerChanged(sForm.callbak,$event)"
+                [value]="oComponentData['o_data'][sForm.name]['option']"
+                [disabled]="!sForm.edit"
+                [attr.form-index] = "sFormIndex"
+                [attr.inner-form-index] = ""
+              ></dx-tag-box> -->
+              <!-- BUTTON  -->
+              <a *ngIf="sForm.type=='button'" class="btn positive line" (click)="onCompViewerChanged(sForm.callbak,$event)"
+               >{{sForm.vname}}</a>
+              <!--  BUTTON TOGGLE -->
+              <div class="input-item-inner toggle" *ngIf="sForm.type=='button_toggle'">
+                <label class="radio" *ngFor="let sOption of sForm.fvalue;let sOptIdx = index;">
+                  <input type="radio" [name]="sForm.name+'_option'" (click)="sForm.callbak != null ? sForm.callbak(sOption, sForm):null" [checked]="oComponentData['o_data'][sForm.name]==sOption" >
+                  <span>{{sOption}}</span>
+                </label>
+              </div>
+
+              <!-- RANGE INPUT -->
+              <ng-container *ngIf="sForm.type=='range_input'">
+                <input style="width: 46%;" type="text" [id]="sForm.name+'_min'" [placeholder]="sForm.vname+'_min'" [(ngModel)]="oComponentData['o_data'][sForm.name]['option'][0]" [ngModelOptions]="{standalone: true}" (keyup)="onKeyUp($event, sForm.name+'_min')" >
+                <p style = "display: inline-block;">&nbsp;~&nbsp;</p>
+                <input style="width: 46%;" type="text" [id]="sForm.name+'_max'" [placeholder]="sForm.vname+'_min'" [(ngModel)]="oComponentData['o_data'][sForm.name]['option'][1]" [ngModelOptions]="{standalone: true}" (keyup)="onKeyUp($event, sForm.name+'_max')" >
+              </ng-container>
+          </div>
+          
+        </div>
+      </ng-container>
+      </div>
+    </form>
+  </div>
+  <!-- Info -->
+  <div id="h_tab_info" class="config-body scrollbar">
+    <div *ngFor="let sForm of oInfoFormData; let sFormIndex = index;" style="padding-bottom: 10px;">
+      <!-- CHART -->
+      <ng-container *ngIf="sForm.visible && sForm.type.includes('chart')">
+        <!-- Classification 차트 -->
+        <ng-container *ngIf="oComponent.oChartArgType=='Classification' || oComponent.oChartArgType =='Image'">
+          <wp-lib-confusion-chart [targetId]="'h-confusionChart'" [chartData]="oComponent.oChartData"></wp-lib-confusion-chart>
+        </ng-container>
+        <!-- Regression 차트 -->
+        <ng-container *ngIf="oComponent.oChartArgType == 'Regression'">
+          <wp-lib-common-chart [targetId]="'h-evalutionChart'" [chartData]="oComponent.oChartData"></wp-lib-common-chart>
+        </ng-container>
+        <!-- Cluster 차트 -->
+        <ng-container  *ngIf="oComponent.oChartArgType == 'Clustering'">
+          <wp-lib-common-chart [targetId]="'h-evalutionClusterChart'" [chartData]="oComponent.oChartData"></wp-lib-common-chart>
+        </ng-container>
+        <!-- 모델 비교 차트 -->
+        <ng-container  *ngIf="oComponent.oChartArgType == 'CompareModel'">
+          <dx-chart id="chart" [dataSource]="oComponent.oChartData" >
+            <dxi-series *ngFor="let sChartFiled of oComponent.oChartFieldData;" [valueField]="sChartFiled.valueField" [name]="sChartFiled.name" ></dxi-series>
+            <dxo-common-series-settings argumentField="group_nm" type="bar">
+              <dxo-label [visible]="true"></dxo-label>
+            </dxo-common-series-settings>
+            <dxo-legend verticalAlignment="bottom" horizontalAlignment="center"></dxo-legend>
+            <dxi-value-axis [autoBreaksEnabled]="true" [maxAutoBreakCount]="5"></dxi-value-axis>
+          </dx-chart>
+        </ng-container>      
+      </ng-container>
+      <ng-container *ngIf="sForm.visible && (sForm.type=='grid' || sForm.type=='list')">
+        <div class="input-item">
+          <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+          <div class="input-item-inner">
+            <!-- GRID -->
+            <ng-container *ngIf="sForm.visible && sForm.type=='grid'">
+              <div class="input-item-inner-grid scrollbar">
+                <lib-wp-grid *ngIf="oComponent.oInfoGridDataObj"
+                  (callBack)="sForm.callbak != null ? sForm.callbak($event) : undefined"
+                  (change)="sForm.callbak != null ? sForm.callbak($event) : undefined"
+                  [iColInfo]="oComponent.oInfoGridColObj[sForm.name]"
+                  [iGridData]="oComponent.oInfoGridDataObj[sForm.name]" [iRowEvt]="true" [iPage]="true">
+                </lib-wp-grid>
+              </div>
+            </ng-container>
+            <!-- LIST -->
+            <dx-list *ngIf="sForm.visible && sForm.type=='list'" [dataSource]="sForm.fvalue" [height]="100"></dx-list>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="sForm.visible && h_infoCheck">
+        <label [for]="sForm.name" class="like-label">{{sForm.vname}}</label>
+        <a *ngIf="sForm.type=='button'" class="btn positive line"
+       
+        [id]="oType+'_button'" (click)="onBasicInfoClick(sForm.name,$event)">{{sForm.vname}}</a>
+      </ng-container>
+    </div>
+  </div>
+</div>

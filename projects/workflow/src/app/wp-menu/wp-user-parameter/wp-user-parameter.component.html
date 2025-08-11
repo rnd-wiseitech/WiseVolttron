@@ -1,0 +1,26 @@
+<div id="wpUserParamPopup" class="modal large on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{'WPP_WORKFLOW.COMPONENT.POPUP.popup58' | translate }}
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="panel-single">
+                <lib-wp-grid (callBack)="onGridCallback($event)" [iColInfo]="oGridCol" [iGridData]="oGridData"
+                    [iHead]="oGridHeader" [iHoverEffect]="oHoverEffect" [iRowEvt]="oRowEvt" [iPage]="true">
+                </lib-wp-grid>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="onClose()" class="btn sm">Ok</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+</div>

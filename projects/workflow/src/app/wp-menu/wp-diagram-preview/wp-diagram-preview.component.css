@@ -1,0 +1,8 @@
+::ng-deep lib-wp-diagram-preview > div> lib-wp-grid > div {
+  min-height: 100px;
+  height: 100%;
+  max-height: inherit;
+}
+::ng-deep table.mat-elevation-z8 {
+  box-shadow: none;
+}

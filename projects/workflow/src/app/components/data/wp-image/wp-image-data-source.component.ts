@@ -1,0 +1,171 @@
+import { WpSocket } from "projects/wp-lib/src/lib/wp-socket/wp-socket";
+import { IWpProperties, WpPropertiesWrap } from 'projects/workflow/src/app/wp-menu/wp-component-properties/wp-component-properties-wrap';
+import { WpDiagramPreviewService } from 'projects/workflow/src/app/wp-menu/wp-diagram-preview/wp-diagram-preview.service';
+import { WpComponentViewerService } from 'projects/workflow/src/app/components/wp-component-viewer.service';
+import { COM_DATASOURCE_ATT } from "projects/wp-server/wp-type/WP_COM_ATT";
+import { WpDataSourceData } from "projects/wp-server/util/component/data/wp-datasource";
+import { TranslateService } from "@ngx-translate/core";
+import { WpToggleEvent } from 'projects/workflow/src/app/wp-menu/wp-component-properties/wp-component-properties-wrap';
+import { WpDiagramService } from '../../../wp-diagram/wp-diagram.service';
+export class WpImageDataSourceComponent implements IWpProperties {
+    hide = false;
+    public oFormData:WpPropertiesWrap [];
+
+    public oSelectData:any = {};
+    public oProcess:boolean = false;
+    public oComViewerSvc:WpComponentViewerService;
+    public oDiagramPreviewSvc:WpDiagramPreviewService;
+    oWpData: COM_DATASOURCE_ATT;
+    oWpSocketSvc:WpSocket;
+    oFileList: any[];
+    oSharedFileList : any[];
+    cTransSvc: TranslateService;
+    oWpDiagramSvc: WpDiagramService;
+    constructor(
+        pTransSvc: TranslateService,
+        pComViewerSvc:WpComponentViewerService,
+        pComponentData:WpDataSourceData,
+        pDiagramPreviewSvc:WpDiagramPreviewService,
+        pWpSocketSvc:WpSocket,
+        pWpDiagramSvc: WpDiagramService
+        ) { 
+        this.cTransSvc = pTransSvc;
+        this.oFormData = [
+            {
+                // #37 공유 데이터 선택 추가
+                vname:pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info7"),
+                name:'dataOpt',
+                value:'',
+                type:'button_toggle',
+                fvalue:[pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info9"), pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info10")],
+                visible:true,
+                edit:true,
+                callbak:this.onChangedataOpt.bind(this)
+            },
+            {
+                vname:pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info8"),
+                name:'originalname',
+                value:'',
+                type:'select',
+                fvalue:[],
+                visible:true,
+                edit:true,
+                callbak:this.onFilenameChange.bind(this)
+            }];
+        this.oComViewerSvc = pComViewerSvc;
+        this.oDiagramPreviewSvc = pDiagramPreviewSvc;
+        this.oWpSocketSvc = pWpSocketSvc;
+        this.oWpDiagramSvc = pWpDiagramSvc;
+        this.oWpData = (pComponentData['o_data'] as COM_DATASOURCE_ATT);
+        this.oFileList = [];
+        this.oSharedFileList = [];
+        // default option : 내 데이터셋
+        if (this.oWpData.dataOpt == ''){
+            this.oWpData.dataOpt = pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info9");
+        }
+    }
+    // # DI 오류수정
+    chkSocketConnection(){
+        if (!this.oWpSocketSvc.oSocketStatus) {
+            console.log("Socket Reconnected");
+            this.oWpSocketSvc.onConnection();
+        }
+    }
+    public onFilenameChange(pEvent:any){
+        let sSeletecIdx:number = this.getItemIndexByElem(pEvent.component._valueChangeEventInstance.currentTarget);
+        let sFileList:any;
+        if (this.oWpData.dataOpt == this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info9")){
+            sFileList = this.oFileList;
+        }
+        if (this.oWpData.dataOpt == this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info10")){
+            sFileList = this.oSharedFileList;
+        }
+
+        let s_jobId = this.oWpDiagramSvc.getNodesById(this.oComViewerSvc.getComId());
+        let sParam = {
+            action: "input",
+            method: "I-IMAGE-DATASOURCE",
+            groupId: 'Temp',
+            jobId: s_jobId.jobId,
+            location: 'workflow',
+            data: {
+                filename: sFileList[sSeletecIdx]['viewid'],
+                filetype: sFileList[sSeletecIdx]['filetype'],
+                fileseq: ',',
+                dataUserno: sFileList[sSeletecIdx]['userno']
+            }
+        };
+        // socket 연결이 끊어져있는 경우 다시 연결 후 실행해야 결과 제대로 표시 됨.
+        this.chkSocketConnection();
+        this.oComViewerSvc.showProgress(true);
+        this.oComViewerSvc.getDataSchema(sParam).subscribe((response:any) => {
+            console.log('============');
+            this.oSelectData = JSON.parse(response); 
+            if (this.oSelectData.hasOwnProperty('responsecode')){
+                if (this.oSelectData['responsecode'] == 200){
+                    this.oSelectData['name'] = sFileList[sSeletecIdx].filename;
+                    this.oWpData['originalname'] = sFileList[sSeletecIdx].filename;
+                    this.oWpData['filename'] = sFileList[sSeletecIdx].viewid;
+                    this.oWpData['filetype'] = sParam.data.filetype;
+                    this.oWpData['dataUserno'] = sFileList[sSeletecIdx].userno;
+                    this.oWpData['count'] = this.oSelectData.count;
+                    this.oWpData.usetable = this.oSelectData.viewname;
+                    // #65 입력 데이터 변경시 기존 연결의 속성창 초기화
+                    this.oComViewerSvc.onInitData();
+                    this.oComViewerSvc.selectData(this.oSelectData);
+                    this.oDiagramPreviewSvc.setDiagramPreviewByData({ 'sComData': this.oSelectData, 'sCurrDataFlag': true, 'sInputDataFlag': true, 'sInputComId': this.oComViewerSvc.getComId() })
+                }
+                else {
+                    this.oComViewerSvc.showMsg(this.oSelectData['exception'], false);
+                }
+                this.oComViewerSvc.showProgress(false);
+            }
+        }, (error:any) => {
+            this.oComViewerSvc.showProgress(false);
+            this.oComViewerSvc.showMsg(error['message'], false);
+        });
+        console.log(pEvent);
+    }
+    // #37 공유 데이터 선택 추가
+    public onChangedataOpt(pEvent: WpToggleEvent) {
+        this.oWpData[pEvent.name] = pEvent.value;
+        this.setFileNmList(pEvent.value);
+        this.oWpData['originalname'] = undefined;
+        this.oWpData['filename'] = undefined;
+    }
+    public getFormData(){
+        return this.oFormData;
+    }
+    public setFileNm(pFileList:any, pSharedFileList:any){
+        // 모든 데이터셋에서 공유 데이터셋은 빼고 진행
+        let sMyFileList:any = pFileList.filter((pDataSet:any) => {
+            return !pSharedFileList.some((pSharedDataSet:any) => pSharedDataSet.userno === pDataSet.userno)
+        });
+        this.oFileList = sMyFileList;
+        this.oSharedFileList = pSharedFileList;
+        this.setFileNmList(this.oWpData.dataOpt);
+    }
+    public setFileNmList(pdataOpt: any) {
+        let sFileList = [];
+        if (pdataOpt == this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info9")){
+            sFileList = this.oFileList;
+        }
+        if (pdataOpt == this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info10")){
+            sFileList = this.oSharedFileList;
+        }
+        let sFileNmList:any = [];
+        sFileList.forEach(pFileInfo => {
+            sFileNmList.push(pFileInfo.filename);
+        })
+        this.oFormData.map(e=>{
+            if(e.vname == this.cTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info8"))
+                e.fvalue = sFileNmList;
+        });
+    }
+    public getSelectData(){
+        return this.oSelectData;
+    }
+    public getItemIndexByElem(pElem:any){
+        return Array.from(pElem.parentNode.children).indexOf(pElem);
+    }
+}

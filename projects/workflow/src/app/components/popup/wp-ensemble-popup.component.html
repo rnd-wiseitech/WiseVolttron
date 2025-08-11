@@ -1,0 +1,79 @@
+<div id="wpEnsemblePopup" class="modal extra-large on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{'WPP_WORKFLOW.COMPONENT.INFO.info76' | translate }}
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="modal-filter">
+                <div class="scrollbar">
+                    <div class="input-group" *ngFor="let sModelForm of h_modelFormList; let model_idx = index">
+                        <div class="input-item">
+                            <div class="grid">
+                                <label for="" class="like-label main left">{{'WPP_WORKFLOW.COMPONENT.POPUP.popup48' | translate }} {{model_idx+1}}</label>
+                                <a *ngIf="model_idx==0" (click)="onAddList()" class="ico added right">added</a>
+                                <a *ngIf="model_idx!=0" (click)="onRemoveList(model_idx)" class="ico remove right">remove</a>
+                            </div>
+                        </div>
+
+                        <!-- 4개마다 한 줄로 구성하기 위해서 이렇게 사용 -->
+                            <div class="row iptauto col-4" >
+                                <div class="column" *ngFor="let sForm of sModelForm; let i = index">
+                                    <div class="input-item">
+                                        <label for="sForm.name" class="like-label">{{sForm.vname}}</label>
+                                        <div class="input-item-inner">
+                                            <ng-container
+                                                *ngIf="sForm.name == 'arg' ">
+                                                <dx-select-box [id]="sForm.name + '_' + model_idx" *ngIf="sForm.type=='select'"
+                                                    [dataSource]="sForm.fvalue" displayExpr="VNAME" valueExpr="VALUE"
+                                                    (onValueChanged)="sForm.callbak != null ? sForm.callbak({model_idx:model_idx, form_idx:i, event:$event}):null"
+                                                    [(value)]="sForm.value"></dx-select-box>
+                                            </ng-container>
+                                            <ng-container *ngIf="sForm.name != 'arg'">
+                                                <input type="text" 
+                                                [id]="sForm.name + '_' + model_idx"
+                                                [placeholder]="sForm.name +'값을 입력하세요.'"
+                                                [(ngModel)]="sForm.value" 
+                                                [disabled]="!sForm.edit"  
+                                                [ngModelOptions]="{standalone: true}" 
+                                                *ngIf="sForm.type=='text'" 
+                                                (change)="sForm.callbak != null ?  sForm.callbak($event, sForm, model_idx):null"
+                                                >      
+                                            <!-- SELECT -->
+                                            <dx-select-box
+                                              [id]="sForm.name + '_' + model_idx"
+                                              *ngIf="sForm.type=='select'"  
+                                              [dataSource]="sForm.fvalue"
+                                              (onSelectionChanged)="sForm.callbak != null ?  sForm.callbak($event, sForm, model_idx):null"
+                                              [(ngModel)]="sForm.value"
+                                              [ngModelOptions]="{standalone: true}" 
+                                              [disabled]="!sForm.edit"
+                                              [attr.form-index] = "model_idx"
+                                              [attr.inner-form-index] = ""
+                                            ></dx-select-box>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
+                </div>
+            </div>
+            <lib-wp-loading [iName]="'wppopupspin'" [iFullScreen]="false"></lib-wp-loading>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="setEnsembleData($event)" class="btn sm">{{'WPP_COMMON.BUTTON.button1' | translate }}</a>
+                    <a (click)="onClose()" class="btn sm natural modalClose">{{'WPP_COMMON.BUTTON.button2' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

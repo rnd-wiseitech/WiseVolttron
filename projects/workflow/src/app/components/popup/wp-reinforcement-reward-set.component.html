@@ -1,0 +1,77 @@
+<div id="wpRewardPopup" class="modal large on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                전처리 코드 실행
+            </div>
+        </div>
+        <div class="modal-body full">
+            <lib-wp-loading [iName]="'wppopupspin'" [iFullScreen]="false"></lib-wp-loading>
+            <div class="modal-body-column" style="padding-left: 5%;">
+                <div class="row defualt">
+                    <div class="column" style="width: 40%;">
+                        <div class="input-item type-label">
+                            <div class="input-item-inner grid">
+                                <div class="settings-tit left">사용 가능한 변수</div>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0 10px 0;">
+                            <p style="text-align:center;font-size: 1.3rem;">호출 가능 라이브러리: np, pd</p>
+                        </div>
+                        <div class="input-item">
+                            <lib-wp-grid *ngIf="oGridData" (callBack)="undefined" [iColInfo]="oGridCol"
+                                [iGridData]="oGridData"></lib-wp-grid>
+                        </div>
+                    </div>
+                    <div class="column" style="width: 60%;">
+                        <div class="input-item type-label">
+                            <div class="input-item-inner grid">
+                                <div class="settings-tit left">코드영역</div>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0 10px 0;">
+                            <p *ngIf="data.excuteFlag" class="guide-txt" style="font-size: 1.3rem;">데이터프레임 df 에 변환하려는
+                                파이썬 코드를 실행합니다.</p>
+                            <p *ngIf="!data.excuteFlag" class="guide-txt" style="font-size: 1.3rem;">데이터프레임 df 에 적용하려는
+                                파이썬 코드를 입력합니다.</p>
+                        </div>
+                        <div class="input-item">
+                            <div id="wp-python-popup-code" class="component-code"
+                                style="height: 370px; border: 1px solid #f0f1f7;border-radius: 6px;margin-bottom:10px">
+                                <ngx-monaco-editor *ngIf="h_queryOptions" id="wp_reward_popup_code" class="monaco"
+                                    [options]="h_queryOptions" [(ngModel)]="h_query.code" (onInit)="editorInit($event)">
+                                </ngx-monaco-editor>
+                            </div>
+                            <div *ngIf="data.excuteFlag" style="text-align: right;">
+                                <a (click)="onSubmit($event)" class="btn sm">코드 실행</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column" id="code-result" style="width: 100%; padding-left: 2%; padding-right: 2%;">
+                <div class="title" style="font-weight:500;">
+                    Reward Chain over Time
+                </div>
+                <div class="chart">
+                    <wp-lib-common-chart [targetId]="'evalutionChart'"
+                        [chartData]="h_modelChart"></wp-lib-common-chart>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <!-- <a (click)="onSubmit($event)" class="btn sm">코드 실행</a> -->
+                    <a (click)="onSubmit($event)" class="btn sm">보상 체크</a>
+                    <a (click)="onComplete($event)" class="btn sm">코드 적용</a>
+                    <a (click)="onClose()" class="btn sm natural modalClose">닫기</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

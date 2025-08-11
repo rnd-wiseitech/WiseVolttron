@@ -1,0 +1,151 @@
+<ng-container *ngIf="h_infoType =='correlation' && h_corrChart">
+    <div id="wpInfoCorrPopup" class="modal on" style="width: 100%; height: 100%;">
+        <div class="modal-inner" style="width: 100%; max-width: 100%; height: 100%;">
+            <div class="modal-header">
+                <div class="tit">
+                    {{'WPP_WORKFLOW.COMPONENT.INFO.info68' | translate }}
+                </div>
+            </div>
+            <div class="modal-body full" style="width: 100%; height: 100%;">
+                <div class="chart" style="width: 100%; height: 100%;">
+                    <wp-lib-confusion-chart [targetId]="'ColConfusionChart'"
+                        [chartData]="h_corrChart"></wp-lib-confusion-chart>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="grid-div">
+                    <div class="right">
+                        <a (click)="onClose()" class="btn sm">{{'WPP_COMMON.BUTTON.button1' | translate }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-controller">
+                <a (click)="onClose()" class="ico close modalClose">닫기</a>
+            </div>
+        </div>
+    </div>
+</ng-container>
+<ng-container *ngIf="h_infoType =='visualization'">
+    <div id="wpInfoVisualPopup" class="modal on" style="width: 100%;">
+        <div class="modal-inner" style="width: 100%; max-width: 100%;">
+            <div class="modal-header">
+                <div class="tit">
+                    {{'WPP_WORKFLOW.COMPONENT.POPUP.popup39' | translate }}
+                </div>
+            </div>
+            <div id="info-popup" class="modal-body full" style="height: 100%; width: 100%;">
+                <div class="component-configuration scrollbar info-popup"
+                    style="border-radius: 0; min-height: 500px; float: left;width: auto;">
+                    <label [for]="h_graphData.name" class="like-label"
+                        style="padding-left: 20px; padding-top: 10px;">{{h_graphData.vname}}</label>
+                    <dx-select-box [id]="h_graphData.name" (onSelectionChanged)="onGraphChanged($event)"
+                        [dataSource]="h_graphData.fvalue" [attr.form-index]="0"
+                        [attr.inner-form-index]=""></dx-select-box>
+                    <ng-container *ngIf="h_formData">
+                        <div *ngFor="let sForm of h_formData; let sFormIndex = index;"
+                            [id]="sFormIndex + '_' + sForm.name">
+                            <ng-container *ngIf="sForm.visible && sForm.type != 'tab'">
+                                <label [for]="sForm.name" class="like-label"
+                                    style="padding-left: 20px; padding-top: 10px;">{{sForm.vname}}</label>
+                                <dx-select-box [id]="sForm.name" *ngIf="sForm.type=='select'"
+                                    (onSelectionChanged)="onFormChanged(sForm, $event)" [value]="h_test"
+                                    [dataSource]="sForm.fvalue" [disabled]="!sForm.edit" [attr.form-index]="sFormIndex"
+                                    [attr.inner-form-index]=""></dx-select-box>
+                            </ng-container>
+                            <div class="inputAddedEvent" *ngIf="sForm.type=='tab'">
+                                <div class="grid">
+                                    <label [for]="sForm.name" class="like-label left"
+                                        style="padding-left: 20px;">{{sForm.vname}}</label>
+                                    <a class="ico added inputAddedBtn right" (click)="onAddFormArray(sForm)">added</a>
+                                </div>
+                                <!-- tab 형태로 되어있는 데이터 바인딩 변수명 수정 -->
+                                <div class="inputAddedItem" *ngFor="let s_tabForm of sForm.fvalue; let sTabIdx = index;"
+                                    [attr.tableindex]=sTabIdx>
+                                    <div class="input-group">
+                                        <div class="grid">
+                                            <label [for]="s_tabForm.col.name" class="like-label"
+                                                style="padding-left: 20px; float:left">{{s_tabForm.col.vname}}</label>
+                                                <a class="ico remove right"
+                                                    (click)="onRemoveFormArray(sForm, $event, sTabIdx)">remove</a>
+                                        </div>
+                                        <dx-select-box [id]="s_tabForm.col.name" *ngIf="s_tabForm.col.type=='select'"
+                                            (onSelectionChanged)="onFormChanged(s_tabForm.col, $event)" [value]="h_test"
+                                            [dataSource]="s_tabForm.col.fvalue" [disabled]="!s_tabForm.col.edit"
+                                            [attr.form-index]="sTabIdx" [attr.inner-form-index]=""></dx-select-box>
+                                        <label [for]="s_tabForm.type.name" class="like-label" *ngIf="s_tabForm.type.visible"
+                                            style="padding-left: 20px; padding-top: 10px;">{{s_tabForm.type.vname}}</label>
+                                        <dx-select-box [id]="s_tabForm.type.name" *ngIf="s_tabForm.type.type=='select'"
+                                            (onSelectionChanged)="onFormChanged(s_tabForm.type, $event)"
+                                            [value]="h_test" [dataSource]="s_tabForm.type.fvalue"
+                                            [disabled]="!s_tabForm.type.edit" [attr.form-index]="sTabIdx"
+                                            [attr.inner-form-index]=""></dx-select-box>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+                <ng-container *ngIf="h_chartData">
+                    <div id="graph_div"
+                        style="float: left; width: 85%; min-height: 570px; padding-right: 10px;padding-left: 10px;">
+                        <ng-container *ngIf="h_graphType == 'pie'">
+                            <wp-lib-dx-pie-chart [chartData]="h_chartData"
+                                style="width: 100%; height: 100%; min-height: 570px;"></wp-lib-dx-pie-chart>
+                        </ng-container>
+                        <ng-container *ngIf="h_graphType == 'bar'">
+                            <wp-lib-dx-bar-chart [chartData]="h_chartData"
+                                style="width: 100%; height: 100%; min-height: 570px;"></wp-lib-dx-bar-chart>
+                        </ng-container>
+                        <ng-container *ngIf="h_graphType == 'line'">
+                            <wp-lib-dx-line-chart [chartData]="h_chartData"
+                                style="width: 100%; height: 100%; min-height: 570px;"></wp-lib-dx-line-chart>
+                        </ng-container>
+                        <ng-container *ngIf="h_graphType == 'scatter'">
+                            <wp-lib-dx-scatter-chart [chartData]="h_chartData"
+                                style="width: 100%; height: 100%; min-height: 570px;"></wp-lib-dx-scatter-chart>
+                        </ng-container>
+                    </div>
+                </ng-container>
+            </div>
+            <div class="modal-footer" style="width: 100%;">
+                <div class="grid-div">
+                    <div class="right">
+                        <a (click)="onDrawChart()" class="btn sm">{{'WPP_COMMON.BUTTON.button5' | translate }}</a>
+                        <a (click)="onClose()" class="btn sm">{{'WPP_COMMON.BUTTON.button9' | translate }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-controller">
+                <a (click)="onClose()" class="ico close modalClose">닫기</a>
+            </div>
+        </div>
+    </div>
+
+</ng-container>
+<ng-container *ngIf="h_infoType =='analysis'&& h_edaData.data.length > 0">
+    <div id="wpInfoCorrPopup" class="modal on" style="width: 100%; height: 100%;">
+        <div class="modal-inner" style="width: 100%; max-width: 100%; height: 100%;">
+            <div class="modal-header">
+                <div class="tit">
+                    탐색적데이터분석
+                </div>
+            </div>
+            <div class="modal-body full" style="width: 100%; height: 100%;">
+                <div class="chart" style="width: 100%; height: 100%;">
+                    <lib-wp-grid [iHoverEffect]="true" [iGridData]="h_edaData.data"
+                    [iColInfo]="h_edaData.column"></lib-wp-grid>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="grid-div">
+                    <div class="right">
+                        <a (click)="onClose()" class="btn sm">{{'WPP_COMMON.BUTTON.button1' | translate }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-controller">
+                <a (click)="onClose()" class="ico close modalClose">닫기</a>
+            </div>
+        </div>
+    </div>
+</ng-container>

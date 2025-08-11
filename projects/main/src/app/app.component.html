@@ -1,0 +1,7 @@
+
+<div class="viewport">
+	<header-layout *ngIf="oAuthView" [oActiveApp]="oActiveApp"></header-layout>		
+	<router-outlet></router-outlet>
+	<lib-wp-modal (callBack)="onModalClose($event)" [iMsg]="oModalMsg" [iFlag]="oModalFlag" [iType]="oModalType" [iCallBackType]="oModalCallbackType"></lib-wp-modal>
+	<lib-wp-loading [iName]="'mainspin'" [iFullScreen]="true"></lib-wp-loading>
+</div>

@@ -1,0 +1,144 @@
+<div id="wpDeriveConditionalSetPopup" class="modal on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{'WPP_COMMON.POPUP.popup2' | translate }}
+            </div>
+        </div>
+        <div class="modal-body full">
+            <div class="modal-filter">
+                <div class="scrollbar">
+                    <div class="input-group" *ngFor="let sDervRow of oWpDervData.dervData; let i = index">
+                        <div class="input-item">
+                            <div class="grid">
+                                <label for="" class="like-label main left">{{'WPP_WORKFLOW.COMPONENT.POPUP.popup23' | translate }}</label>
+                                <a *ngIf="i==0" (click)="onAddList()" class="ico added right">added</a>
+                                <a *ngIf="i!=0" (click)="onRemoveList(i)" class="ico remove right">remove</a>
+                            </div>
+                        </div>
+                        <div class="row iptauto col-4">
+                            <!-- 문자형 컬럼일때 -->
+                            <ng-container *ngIf="h_stringType.includes(oWpDervData.displayOption[i]['type'])">
+                                <div class="column" *ngFor="let sForm of oDervFormString">
+                                    <div class="input-item">
+                                        <label for="sForm.name" class="like-label">{{sForm.vname}}</label>
+                                        <div class="input-item-inner">
+                                            <ng-container
+                                                *ngIf="sForm.type=='text' || sForm.type=='select' || sForm.type=='textarea' ">
+                                                <input [id]="sForm.name + '_' + i" *ngIf="sForm.type=='text'"
+                                                    type="text" [(ngModel)]="sDervRow[sForm.name]"
+                                                    [ngModelOptions]="{standalone: true}"
+                                                    [disabled]="!oWpDervData.dervEditData[i][sForm.name]">
+                                                <ng-container
+                                                    *ngIf="sForm.name !== 'operation_value' && sForm.type=='select'">
+                                                    <dx-select-box [id]="sForm.name + '_' + i"
+                                                        [dataSource]="sForm.fvalue" displayExpr="Name" valueExpr="ID"
+                                                        (onValueChanged)="sForm.callbak != null ? sForm.callbak({'value':sDervRow[sForm.name],'event':$event, 'type':'string'}, sForm.name, i):null"
+                                                        [(value)]="sDervRow[sForm.name]"
+                                                        [disabled]="!oWpDervData.dervEditData[i][sForm.name]"></dx-select-box>
+                                                </ng-container>
+                                                <ng-container
+                                                    *ngIf="sForm.name == 'operation_value' && sForm.type=='select'">
+                                                    <dx-tag-box [id]="sForm.name + '_' + i"
+                                                        [dataSource]="oWpDervData.selectboxOption['operation_value_'+i]"
+                                                        [searchEnabled]="true" [multiline]="true"
+                                                        (onValueChanged)="sForm.callbak != null ? sForm.callbak({'value':sDervRow[sForm.name],'event':$event, 'type':'string'}, sForm.name, i):null"
+                                                        [(value)]="sDervRow[sForm.name]"
+                                                        [disabled]="!oWpDervData.dervEditData[i][sForm.name]"></dx-tag-box>
+                                                </ng-container>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </ng-container>
+                            <!-- 숫자형 컬럼일때 -->
+                            <ng-container *ngIf="!h_stringType.includes(oWpDervData.displayOption[i]['type'])">
+                                <div class="column" *ngFor="let sForm of oDervFormNumeric">
+                                    <div class="input-item">
+                                        <label for="sForm.name" class="like-label">{{sForm.vname}}</label>
+                                        <div class="input-item-inner">
+                                            <ng-container *ngIf="sForm.name != 'operation_value'">
+                                                <ng-container
+                                                    *ngIf="sForm.type=='text' || sForm.type=='select' || sForm.type=='textarea' ">
+                                                    <input [id]="sForm.name + '_' + i" *ngIf="sForm.type=='text'"
+                                                        type="text" [(ngModel)]="sDervRow[sForm.name]"
+                                                        [ngModelOptions]="{standalone: true}"
+                                                        [disabled]="!oWpDervData.dervEditData[i][sForm.name]">
+                                                    <dx-select-box [id]="sForm.name + '_' + i"
+                                                        *ngIf="sForm.type=='select'" [dataSource]="sForm.fvalue"
+                                                        displayExpr="Name" valueExpr="ID"
+                                                        (onValueChanged)="sForm.callbak != null ? sForm.callbak({'value':sDervRow[sForm.name],'event':$event, 'type':'numeric'}, sForm.name, i):null"
+                                                        [(value)]="sDervRow[sForm.name]"
+                                                        [disabled]="!oWpDervData.dervEditData[i][sForm.name]"></dx-select-box>
+                                                </ng-container>
+                                            </ng-container>
+                                            <ng-container *ngIf="sForm.name == 'operation_value'">
+                                                <dx-select-box [id]="sForm.name + '_' + i" *ngIf="sForm.type=='select' && (!oWpDervData.displayOption[i]['type'].includes('COLUMN') && !oWpDervData.displayOption[i]['type'].includes('INPUT'))"
+                                                    [dataSource]="sForm.fvalue" displayExpr="Name" valueExpr="ID"
+                                                
+                                                    (onValueChanged)="sForm.callbak != null ? sForm.callbak({'value':sDervRow[sForm.name],'event':$event, 'type':'numeric'}, sForm.name, i):null"
+                                                    [disabled]="!oWpDervData.dervEditData[i][sForm.name]"></dx-select-box>
+                                                <input [class]="sForm.name + '_input_' + i"  *ngIf="oWpDervData.displayOption[i]['type'].includes('INPUT')"
+                                                    type="text" [(ngModel)]="sDervRow[sForm.name]"
+                                                    [ngModelOptions]="{standalone: true}"
+                                                    [disabled]="!oWpDervData.dervEditData[i][sForm.name]">
+                                                <dx-select-box [class]="sForm.name + '_column_' + i" *ngIf="oWpDervData.displayOption[i]['type'].includes('COLUMN')"
+                                                    [dataSource]="o_conditionColumn"
+                                                    (onValueChanged)="sForm.callbak != null ? sForm.callbak({'value':sDervRow[sForm.name],'event':$event, 'type':'numeric'}, sForm.name, i):null"
+                                                    displayExpr="Name" valueExpr="Name"
+                                                    [(ngModel)]="sDervRow[sForm.name]"
+                                                    
+                                                    ></dx-select-box>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <!-- 문자형 컬럼 코드 실행 안하는 옵션일 때는 문구 표시 -->
+                        <ng-container
+                            *ngIf="oWpDervData.displayOption[i]['type']=='string' || oWpDervData.displayOption[i]['type']=='text'">
+                            <div class="input-item" style="margin-top: 5px;">
+                                <p *ngIf="!oWpDervData.excuteFlag" class="guide-txt" style="font-size: 1.3rem;">문자형 컬럼의
+                                    (조건)값 입력 문자는 " 으로 감싸야
+                                    합니다. 예)"A","B"</p>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <!-- 기본값 입력 창-->
+                    <div class="input-group" *ngFor="let sDervRow of oWpDervData.dervDataDefault; let i = index">
+                        <div class="input-item">
+                            <div class="grid">
+                                <label for="" class="like-label main left">기본값</label>
+                            </div>
+                        </div>
+                        <div class="row iptauto">
+                            <div class="column" *ngFor="let sForm of oDervDefaultForm">
+                                <div class="input-item">
+                                    <div class="input-item-inner">
+                                        <input [id]="sForm.name + '_' + i" *ngIf="sForm.type=='text'" type="text"
+                                            [(ngModel)]="sDervRow[sForm.name]" [ngModelOptions]="{standalone: true}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <lib-wp-loading [iName]="'wppopupspin'" [iFullScreen]="false"></lib-wp-loading>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="setViewText($event)" class="btn sm">Ok</a>
+                    <a (click)="onClose()" class="btn sm natural modalClose">Cancel</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

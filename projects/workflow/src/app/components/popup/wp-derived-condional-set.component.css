@@ -1,0 +1,27 @@
+::ng-deep #wp-derv-cond-set-popup.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:100%;
+}
+
+#wp-derv-cond-set-popup .scroll-wrapper > .scroll-content {
+    height: auto;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    max-height: 300px;
+}
+
+::ng-deep #wp-derv-cond-set-popup dx-select-box > div > div > div.dx-texteditor-input-container > input {
+    border:none
+}
+
+::ng-deep #wp-derv-cond-set-popup dx-select-box {
+    border: 1px solid #f0f1f7;
+    border-radius: 6px;
+    background-color: #fcfdfe;
+}
+
+/* .modal-body .row .column {
+    width: 100%;
+} */

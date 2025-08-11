@@ -1,0 +1,83 @@
+{
+
+    "NODE": {
+        "host": "localhost",
+        "port": "8800"
+    },
+    "PY": {
+        "host": "localhost",
+        "port": "1337"
+    },
+    "META_DB": {
+        "host": "127.0.0.1",
+        "port": "3306",
+        "id": "root",
+        "passwd": "0000",
+        "db": "wise_prophet_v1_volttron",
+        "type": "mysql"
+    },
+    "LDAP": {
+        "use": false,
+        "host": "43.201.43.135",
+        "port": "30091"
+    },
+    "HIVE_DB": {
+        "use": false,
+        "host": "43.201.43.135",
+        "port": "3306",
+        "id": "root",
+        "passwd": "wise1012",
+        "db": "hive",
+        "type": "mysql"
+    },
+    "WP_API": {
+        "host": "localhost",
+        "port": "1337",
+        "monitoring_port":"30095"
+    },
+    "KAFKA": {
+        "use": true,
+        "host": "13.124.41.117",
+        "connectors_port":"8083",
+        "topics_port":"8082"
+    },
+    "JUPYTER": {
+        "host": "localhost",
+        "port": "8888",
+        "token": "wise1012",
+        "env-name": "python3"
+    },
+    "LIVY": {
+        "host": "43.203.159.103",
+        "port": "30008"
+    },
+    "VOLTTRON": {
+        "use": true,
+        "host": "13.125.209.149",
+        "port": "22",
+        "user": "ubuntu",
+        "key" : "C:/wiseitech/WP_AWS_KEY/wp_aws_key.pem",
+        "agentDir" : "/home/volttron/agent"
+    },
+    "DS_ID": 15,
+    "STORAGE_TYPE":"LOCAL",
+    "API_TYPE": "COMMON",
+    "PREPROCESSING_AVAILABLE" : true,
+    "LOAD_BALANCER": false,
+    "LANG": "ko",
+    "BACKGROUND": false,
+    "PLATFORM_ID": 1000,
+    "ADVANCE": true,
+    "CLOUD": false,
+    "CRON": true,
+    "CRYPTO_TYPE":"",
+    "APP_NO": 1,
+    "KEY_PATH": "C:/wiseitech/WP_AWS_KEY/",
+    "LIB_PATH": "C:/prophet/wp-platform.v1/projects/wp-server/lib/instantclient_21_3",
+    "LICENSE":"U2FsdGVkX19ha3g0LCXiXkUTgZt14vJUP64Nb4SpF/+QcjNU1TkPqvdgrKhpmki2uuxNeA8qDVubguy05f/mYXszFD2imZusk7pvNNhyOcs=",
+    "ML_PATH": "C:/wisePlatform/develop/wp-platform.v1/projects/wp-ml/",
+    "MLFLOW":true,
+    "DBLIST": ["db2", "mysql", "mssql", "oracle", "postgresql","tibero"],
+    "FILE_FORMAT": "delta",
+    "OFFER_MODEL": ["classification_model", "regression_model", "cluster_model", "image_model"]
+}

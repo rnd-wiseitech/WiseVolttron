@@ -1,0 +1,35 @@
+<div id="wpResultViewer" class="modal large on">
+  <div class="modal-inner">
+    <div class="modal-header">
+			<div class="tit">
+        {{'WPP_WORKFLOW.COMPONENT.POPUP.popup52' | translate }}
+			</div>
+		</div>
+    <div class="modal-body full">
+        <div class="input-item">
+          <div class="input-item-inner">
+              <ng-wizard [config]="config" (stepChanged)="stepChanged($event)">
+                  <ng-wizard-step *ngFor="let sStop of oStepCount; let idx = index" [title]="'Step' + idx" [state]="oStepStates[idx]"
+                    [canEnter]="isValidTypeBoolean" [canExit]="isValidFunctionReturnsBoolean.bind(this)">
+                  </ng-wizard-step>
+              </ng-wizard>
+          </div>
+          <lib-wp-grid [iGridData]="oCurrentStepJob" [iColInfo]="oGridCol"></lib-wp-grid>
+        </div>
+    <div class="modal-footer">
+			<div class="grid-div">
+				<div class="right">
+          <a (click)="onClick()" class="btn sm">Ok</a>
+          <a (click)="showPreviousStep()" class="btn sm natural modalClose">Previous</a>
+          <a (click)="showNextStep()" class="btn sm natural modalClose">Next</a>
+					<a (click)="onNoClick()" class="btn sm natural modalClose">Cancel</a>
+        
+				</div>
+			</div>
+		</div>
+    <div class="modal-controller">
+			<a (click)="onNoClick()" class="ico close modalClose">닫기</a>
+		</div>
+  </div>
+  <!-- <div class="modal-dim on"></div> -->
+</div>
