@@ -1,0 +1,31 @@
+::ng-deep #wp-popup-diagram.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:100%;
+}
+
+::ng-deep #wp-popup-diagram .modal-body {
+    background-color: #f4f7f9;
+    display: flex;
+    height: 500px;
+    min-height: 500px;
+}
+::ng-deep #wp-popup-diagram .ico.remove.right {
+    pointer-events: none;
+}
+
+::ng-deep #wp-popup-diagram .ico.added.inputAddedBtn.right {
+    pointer-events: none;
+}
+
+wp-component-viewer.no-clicks {
+    pointer-events: auto;
+}
+wp-component-viewer.no-clicks * {
+    pointer-events: none;
+}
+wp-component-viewer.no-clicks *:active {
+    pointer-events: auto;
+}
+/*  */

@@ -1,0 +1,25 @@
+
+<div class="fileManagerPopup" style="background-color: white;" >
+<!--  [ngStyle]="'hdfs'  == h_type && h_showPopup ?  {'display': 'block'} : {'display': 'none'}" -->
+    <dx-file-manager id="h_fileManager"
+        [fileSystemProvider]="oCustomFileProvider"
+        [selectionMode]="h_selectMode"
+        (onSelectedFileOpened)="onSelectedFileOpened($event)"
+        height="500">
+        <dxo-item-view [showParentFolder]="true">
+            <dxo-details>
+                <dxi-column dataField="thumbnail"></dxi-column>
+                <dxi-column dataField="name"></dxi-column>
+            </dxo-details>
+        </dxo-item-view>
+        <dxo-toolbar>
+            <dxi-item name="showNavPane" visible="true"></dxi-item>
+            <dxi-item name="separator"></dxi-item>
+            <dxi-item name="refresh"></dxi-item>
+            <dxi-item widget="dxButton" location="after" [options]="closePopupOptions"></dxi-item>
+            
+            <dxi-file-selection-item widget="dxButton" [options]="selectFileOptions"></dxi-file-selection-item>   
+            <dxi-file-selection-item name="clearSelection"></dxi-file-selection-item>
+        </dxo-toolbar>
+    </dx-file-manager>
+</div>

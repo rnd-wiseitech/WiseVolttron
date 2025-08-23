@@ -1,0 +1,234 @@
+<!-- 검색창과 grid랑 함께 사용해야해서 헤더부분 lib-grid로 이동
+기존의 div class="component-table scrollbar" 경우 참고
+iHead 있는 경우 헤더적용 -->
+<div class="panel-head grid-pos" style="height: 48px;" *ngIf="iHead">
+  <div class="tab type-file left" *ngIf="iHead.btnNm">
+    <ul style="padding-top: 3px;">
+      <li class="button">
+        <a (click)="onHeadBtnEmit()"><span>{{iHead.btnNm}}</span></a>
+      </li>
+    </ul>
+  </div>
+  <ng-container *ngIf="iHead.btnNmList">
+      <div class="tab type-file left">
+        <ul style="padding-top: 3px;">
+          <li class="button" *ngFor="let sBtnNm of iHead.btnNmList">
+            <a (click)="onHeadBtnEmit(sBtnNm)"><span>{{sBtnNm}}</span></a>
+          </li>
+        </ul>
+      </div>
+  </ng-container>
+  <div class="side-control right">
+    <ul *ngIf="oFilterChk">
+      <li *ngIf="oDateFilterChk">
+        <div class="input">
+          <dx-date-box
+              placeholder="날짜"
+              [showClearButton]="true"
+              [useMaskBehavior]="true"
+              displayFormat="yy/MM/dd"
+              type="date"
+              [value]="date"
+              (onValueChanged)="onApplyFilter('date',$event)">
+            
+          </dx-date-box>
+        </div>
+      </li>
+      <li *ngIf="oFilterFunction;else other_content">
+        <div class="input">
+          <input type="text" class="side-search" [(ngModel)]="h_SearchWord" placeholder="{{'WPP_LIB.INFO.info1' | translate }}"
+            (keyup.enter)="onApplyFilter('text',$event)">
+          <a class="ico search">search</a>
+        </div>
+      </li>
+      <ng-template #other_content>
+        <li>
+          <div class="input">
+            <input type="text" class="side-search" [(ngModel)]="h_SearchWord" placeholder="{{'WPP_LIB.INFO.info1' | translate }}"
+              (keyup)="onApplyFilter('text',$event)">
+            <a class="ico search">search</a>
+          </div>
+        </li>
+      </ng-template>
+  
+      <li>
+        <div class="button">
+          <a (click)="onApplyFilter()" class="ico trash">remove</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- <div *ngIf="oData.length!=0" class="component-table" [ngClass]="iScroll ? 'scrollbar':''"> -->
+<div class="component-table scrollbar">
+  
+  <table *ngIf="oData.length!=0" mat-table [dataSource]="oData" class="mat-elevation-z8 dataTable" [ngClass]="iHoverEffect?'hoverEffect':''">
+
+
+    <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+
+    <!-- Position Column -->
+    <!-- [ngClass] 추가. 특정컬럼은 움직이지 않고 나머지 컬럼만 스크롤 되도록-->
+    <ng-container [matColumnDef]="sColumn" *ngFor="let sColumn of oDisplayedColumns">
+      <th mat-header-cell *matHeaderCellDef 
+      [ngClass]="{'sticky-head': sColumn === ('WPP_WORKFLOW.COMPONENT.POPUP.popup75' | translate)}">
+        <span *ngIf="!(sColumn == 'SELECT' && iSelection == 'multiple')">{{oDisplayedColumnNms[sColumn]}}</span>
+        <!-- <span *ngIf="sColumn == 'SELECT' && iSelection == 'multiple'"><input type="checkbox" name="check_all" checked=""
+          [checked]="oSelection.hasValue() && isAllSelected()"
+          (change)="$event ? masterToggle() : null"><label for=""></label>
+        </span> -->
+        <!-- [checked]="oSelection.hasValue() && isAllSelected()" 부분 수정 -->
+        <span *ngIf="sColumn == 'SELECT' && iSelection == 'multiple'"><input type="checkbox" name="check_all" checked=""
+            [checked]="h_allSelected" (change)="$event ? masterToggle() : null"><label for=""></label>
+        </span>
+      </th>
+
+      <!-- [ngClass] 추가. 특정컬럼은 움직이지 않고 나머지 컬럼만 스크롤 되도록-->
+      <td mat-cell *matCellDef="let element;let sElIdx = index;" 
+      [ngClass]="{'sticky-row': sColumn === ('WPP_WORKFLOW.COMPONENT.POPUP.popup75' | translate)}">
+        <!-- 일반적인 컬럼-->
+        <span *ngIf="!h_speicalCol.includes(sColumn)" > {{element[sColumn]}}</span>
+        <!-- cell안에서 엔터키 가능한 컬럼-->
+        <span *ngIf="h_enterCol.includes(sColumn)" style="white-space: pre-line;"> {{element[sColumn]}}</span>
+        <!-- 워크플로우 정보애서 탐색적데이터분석에서 통계량 컬럼-->
+         <span *ngIf="sColumn==('WPP_WORKFLOW.COMPONENT.POPUP.popup75' | translate)" style="font-weight: bold;"> {{ ('WPP_WORKFLOW.COMPONENT.EDA.' + element[sColumn]) | translate }}</span>
+        <!-- checkbox 필요할 경우, single -->
+        <div class="check-single" *ngIf="sColumn == 'SELECT' && iSelection == 'single'">
+          <span><input type="checkbox" name="check_{{sElIdx}}" checked=""
+            [checked]="oSelection.isSelected(element)"><label for=""></label>
+          </span>
+        </div>
+        <!-- checkbox 필요할 경우, multiple -->
+        <div class="check-multi" *ngIf="sColumn == 'SELECT' && iSelection == 'multiple'">
+          <span><input type="checkbox" name="check_{{sElIdx}}" checked=""
+            [checked]="oSelection.isSelected(element)"><label for=""></label>
+          </span>
+        </div>
+
+        <!-- datalist 아이콘.. 일단 추가해봄 -->
+        <span *ngIf="sColumn == 'AUTHORITY'">
+          <span class="material-icons-outlined" *ngIf="element[sColumn] =='소유'">folder</span>
+          <span class="material-icons-outlined" *ngIf="element[sColumn] =='공유'">group</span>
+        </span>
+        <!-- 삭제, 다운로드 등 기능 필요할 때 사용 -->
+        <span *ngIf="sColumn == 'FUNCTION'" style="display: flex;">
+          <div *ngFor="let sFunc of h_FuncList">
+            <div *ngIf="iComptNm == ''" style="margin-right: 5px;">        
+              <a class="ico {{sFunc}}"
+                (click)="onFuncEmit(element, sFunc, $event)" title="{{h_iconTitle[sFunc]}}">sFunc
+              </a>   
+            </div>
+            <div *ngIf="iComptNm == 'wp-authority'" style="margin-right: 5px;">       
+              <a *ngIf="(sFunc !='hiveadd') && ((element['AUTHORITY'] =='소유') || (element['AUTHORITY'] =='공유' && sFunc!='personadd' && sFunc!='trash' && sFunc!='modify') || (element['AUTHORITY'] =='공유' && sFunc=='personadd' && element['USER_MODE']=='ADMIN'))" class="ico {{sFunc}}"
+                (click)="onFuncEmit(element, sFunc, $event)" title="{{h_iconTitle[sFunc]}}">sFunc
+              </a>
+              <!-- 하이브테이블이 있으면 수정 / 없으면 등록-->
+              <ng-container
+                *ngIf="sFunc=='hiveadd' && (element['USER_MODE']=='ADMIN' || (element['AUTHORITY'] =='소유' && element['USER_MODE']!='ADMIN'))">
+                <a *ngIf="element['HIVESTATUS'] != null" class="ico hiveedit" (click)="onFuncEmit(element, 'hiveedit', $event)" title="{{h_iconTitle['hiveedit']}}">hiveedit</a>
+                <a *ngIf="element['HIVESTATUS'] == null" class="ico hiveadd" (click)="onFuncEmit(element, 'hiveadd', $event)" title="{{h_iconTitle['hiveadd']}}">hiveadd</a>
+              </ng-container>
+            </div>
+            <div *ngIf="iComptNm == 'dm-connection' || iComptNm == 'wp-connection'" style="margin-right: 5px;">      
+              <a *ngIf="(element['DS_ID']!='0')" class="ico {{sFunc}}"
+                (click)="onFuncEmit(element, sFunc, $event)" title="{{h_iconTitle[sFunc]}}">sFunc
+              </a>      
+            </div>
+          </div>
+          <!-- <a class="ico {{trash}}" (click)="onDmListEmit(element,'delFile')">trash</a>
+            <a class="ico download" (click)="onDmListEmit(element,'downloadFile')">download</a>
+            <a class="ico share" (click)="onDmListEmit(element,'restApi')">share</a> -->
+        </span>
+        <!--스케줄 기능 컬럼-->
+        <span *ngIf="sColumn == 'SCH_FUNC'" style="display: flex;">
+          <a *ngFor="let i of element[sColumn]" class="ico {{i}}" title="{{h_iconTitle[i]}}" (click)="onFuncEmit(element, i, $event)">i</a>
+        </span>
+        <!--모니터링에 사용-->
+        <div *ngIf="sColumn == 'TASK_STATUS'" id="progress_bar" class="progress" style="height: 25px;background: #f7f7f7;
+        border-radius: 50px;">
+        <span style="line-height: 25px; position: absolute; width: 100%;z-index: 99;text-align: center;">{{element[sColumn]}}</span>
+          <div class="progress-bar ui-progress" style="border-radius: 50px;" [ngStyle]="onChangeStyle(element)">
+          </div>
+        </div>
+        
+        <div *ngIf="sColumn == 'TEXT-LINK'" style="text-align: center;">
+          <a class="btn natural2" [style.visibility]="element[sColumn]" (click)="onKillEmit(element, $event,'detail')">상세보기</a>
+          </div>
+        <div *ngIf="sColumn == 'KILL'" style="text-align: center;">
+        <a class="btn natural2" [style.visibility]="element[sColumn]" (click)="onKillEmit(element, $event,'kill')">kill</a>
+        </div>
+        <!-- 워크플로우 컬럼명 변경에 사용 -->
+        <div *ngIf="sColumn == 'INPUT_TEXT'">
+          <span>
+            <input type="text" name="input_{{sElIdx}}" [(ngModel)]="element[sColumn]" [ngModelOptions]="{standalone: true}"
+              (keyup)="onKeyUpEmit(element,sElIdx)" (change)="onValueChange(element, $event)">
+          </span>
+        </div>
+        <!-- user-manager JIRA보드 웹링크 버튼 -->
+        <div *ngIf="sColumn == 'LINK'" style="text-align: center; width: 5px;">
+          <a class="btn natural" [style.visibility]="element[sColumn]" (click)="onJiraEmit(element, $event)">web</a>
+          </div>
+      </td>
+    </ng-container>
+    <!-- 
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> 통계 여부 </th>
+        <td mat-cell *matCellDef="let element">
+          <span *ngIf="element.STATUS_CODE==10 || element.STATUS_CODE==undefined"> 통계 분석대기</span>  
+          <span *ngIf="element.STATUS_CODE==20"> 통계 분석중</span>  
+          <span *ngIf="element.STATUS_CODE==40"> 통계 분석완료</span>  
+          <span *ngIf="element.STATUS_CODE==99"> 통계 분석오류</span>  
+        </td>
+      </ng-container> -->
+    <!-- #58 -->
+    <!-- <ng-container matColumnDef="func">
+        <th mat-header-cell *matHeaderCellDef>  </th>
+        <td mat-cell *matCellDef="let element" style="text-align: center;"> 
+          <mat-icon style="cursor: pointer;margin-right: 5px;" (click)="onDelFile(element)">delete</mat-icon>
+          <mat-icon style="cursor: pointer;margin-right: 5px;" (click)="onDownloadFile(element)">file_download</mat-icon>
+          <mat-icon style="cursor: pointer;font-size: 22px;" (click)="onRestApi(element)">share</mat-icon>
+        </td>
+      </ng-container> -->
+
+    <tr mat-header-row *matHeaderRowDef="oDisplayedColumns;sticky:true;"></tr>
+    <!--페이징처리할경우-->
+    <ng-container *ngIf="iPage == true">
+    <tr mat-row
+      *matRowDef="let row; columns: oDisplayedColumns | paginate: {itemsPerPage: o_size, currentPage: o_currentPage, totalItems: o_totalPageData.length, id: h_PagingId}"
+      (click)="iRowEvt ? onRowClickEmit(row, 'rowClick') :  null"></tr>
+    </ng-container>
+    <!--아닐경우-->
+    <ng-container *ngIf="iPage != true">
+      <tr mat-row *matRowDef="let row; columns: oDisplayedColumns;"
+      (click)="iRowEvt ? onRowClickEmit(row, 'rowClick') :  null"></tr>
+    </ng-container>
+    <!-- <div *ngIf="oData.length==0" class="component-table" style="padding-top: 130px;">
+      <div class="nodata">
+          <div class="el-table">
+              <div class="el-cell">
+                  <img src="assets/images/img-null.png" alt="">
+                  <p>No data to display</p>
+              </div>
+          </div>
+      </div>
+    </div> -->
+  </table>
+  <div *ngIf="oData.length==0" class="component-table" style="padding-top: 130px;">
+    <div class="nodata">
+        <div class="el-table">
+            <div class="el-cell">
+                <img src="assets/images/img-null.png" alt="">
+                <p>No data to display</p>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- mat-table하고 호환되는 페이징 기능 -->
+<!-- <mat-paginator *ngIf="iPage == true && oData.data?.length > o_size" class="wp-grid-paging"  [pageSize]="o_size" showFirstLastButtons (page)="pageChange($event)" ></mat-paginator> -->
+<!--페이징컨트롤-->
+<pagination-controls [id]="h_PagingId" class="wp-grid-paging" style="float: right;"
+  *ngIf="iPage == true && o_totalPageData.length > o_size" (pageChange)="pageChange($event);">
+</pagination-controls>

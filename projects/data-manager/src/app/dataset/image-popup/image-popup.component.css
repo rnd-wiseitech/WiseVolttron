@@ -1,0 +1,6 @@
+::ng-deep #wp-ftp-popop.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:1500px;
+}

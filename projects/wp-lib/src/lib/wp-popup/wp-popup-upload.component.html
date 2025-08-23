@@ -1,0 +1,86 @@
+<div id="wpPopup" [class]="'modal ' + hColWidth + ' on'">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{oData.title}}
+            </div>
+        </div>
+        <div class="modal-body">
+            <div [ngClass]="oData.scroll? 'scrollbar':''">
+                <!-- (message popup) -->
+                <ng-container *ngIf="hColSize === 0">
+                    {{oData.message}}
+                </ng-container>
+                <!-- (formData) -->
+                <ng-container *ngIf="hColSize === 1">
+                    <form [formGroup]="oFormGroup">
+                        <div class="app-inner">
+                            <div class="input-item" *ngFor="let sForm of oData.formdata">
+                                <div *ngIf="sForm.visible" [id]="'wp-popup-'+sForm.name">
+                                    <div class="input-item-inner" *ngIf="sForm.type!='password'">
+                                        <label [for]="sForm.vname" class="like-label"
+                                            *ngIf="!hHideLabelArray.includes(sForm.name)">{{sForm.vname}}</label>
+                                        <!-- SELECT BOX -->
+                                        <select *ngIf="sForm.type=='select'" [formControlName]="sForm.name"
+                                            (change)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">
+                                            <ng-container *ngIf="hHideLabelArray.includes(sForm.name)">
+                                                <option [ngValue]="null" selected disabled>{{sForm.vname}}</option>
+                                            </ng-container>
+                                            <option *ngFor="let sOption of sForm.fvalue; let sOptIdx = index;"
+                                                [value]="sForm.value[sOptIdx]" [ngValue]="sForm.value[sOptIdx]">
+                                                {{sOption}}
+                                            </option>
+                                        </select>
+                                        <!-- TEXT BOX -->
+                                        <input *ngIf="sForm.type=='text' && sForm.name != 'CRON_INFO'" type="text"
+                                            [formControlName]="sForm.name"
+                                            [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:''"
+                                            appForbiddenName="bob">
+                                        <!-- NUMBER -->
+                                        <input *ngIf="sForm.type=='number'" type="number" [formControlName]="sForm.name"
+                                            [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:''"
+                                            appForbiddenName="bob">
+                                        <!--FILE-->
+                                        <ng-container *ngIf="sForm.type=='file'">
+                                            <input type="text" style="width: 80%;" readonly
+                                                [formControlName]="sForm.name"
+                                                [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:'키 파일 없음'"
+                                                appForbiddenName="bob">
+                                            <a class="btn positive line" style="margin-left: 3%;"
+                                                (click)="onKeyFileClick()">찾아보기</a>
+                                            <input type="file" style="display: none;" id="keyfile-input"
+                                                (change)="onFileSelected($event, sForm)">
+                                        </ng-container>
+                                        <div class="input-item-inner" *ngIf="sForm.type=='button'">
+                                            <a class="btn positive line"
+                                            (click)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">{{sForm.vname}}</a>
+                                        </div>
+                                    </div>
+
+  
+                                    <mat-error *ngIf="oFormGroup.get(sForm.name).invalid">{{onShowErrMsg(sForm.name)}}
+                                    </mat-error>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </ng-container>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a class="btn sm" (click)="onConfirm()">{{hConfirmBtnText}}</a>
+                    <a class="btn sm natural modalClose" (click)="onCancel()" *ngIf="oData.flag"
+                        style="margin-left: 10px;">{{'WPP_COMMON.BUTTON.button2' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a class="ico close modalClose" (click)="onCancel()">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim on"></div> -->
+</div>

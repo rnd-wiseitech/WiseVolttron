@@ -22,14 +22,11 @@ import {
   dxDiagramData, WpComData, WpEdgePro, WpNodePro, dxDiagramConnector, dxDiagramShape, dxDiagramChangeConnectorEvent, WkSaveData
 } from '../wp-menu/wp-component-properties/wp-component-properties-wrap';
 import dxDiagram, { Item } from 'devextreme/ui/diagram';
-import { WpTrainModelService } from '../components/analytic-model/wp-train-model/wp-train-model.service';
 import { getPropertiesData } from 'projects/wp-server/util/component/component-util';
 import { WpPropertiesService } from '../wp-menu/wp-component-properties/wp-component.properties.servie';
 import { WpDiagramPreviewService } from '../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { COM_JOIN_ATT, JOB_DATA_ATT } from 'projects/wp-server/wp-type/WP_COM_ATT';
-import { HiveQueryService } from 'projects/data-manager/src/app/hive-query/hive-query.service';
 import { WF_MSTR_ATT } from 'projects/wp-server/metadb/model/WF_MSTR';
-import { DP_MODEL_MSTR_ATT } from 'projects/wp-server/metadb/model/DP_MODEL_MSTR';
 import { WF_COM_MSTR_ATT } from 'projects/wp-server/metadb/model/WF_COM_MSTR';
 import { MainAppService } from 'projects/main/src/app/app.service';
 import { COM_ID } from 'projects/wp-lib/src/lib/wp-meta/com-id';
@@ -73,12 +70,10 @@ export class WpDiagramComponent implements OnInit, AfterViewInit, OnChanges, OnD
     private cWpDiagramPreviewSvc: WpDiagramPreviewService,
     private cWpLibSvc: WpLoadingService,
     private cDialog: MatDialog,
-    private cWpTrainSvc: WpTrainModelService,
     private cWpResultViewerSvc: WpResultViewerService,
     private cWpComSvc: WpComponentService,
     private cWpDiagramToolbarSvc: WpDiagramToolbarService,
     private cWpSocketSvc:WpSocket,
-    private cHiveSvc: HiveQueryService,
     private cMainAppSvc: MainAppService,
     private cTransSvc: TranslateService,
     private cAppConfig:  WpAppConfig
@@ -1515,14 +1510,6 @@ export class WpDiagramComponent implements OnInit, AfterViewInit, OnChanges, OnD
       if (sOdbcComData['wp-data']['o_data'].mode == 'new') {
         let sTbNmList: any = [];
         try{
-          if (sOdbcComData['wp-data']['o_data'].dbOpt == 'HIVE') {
-            let sTableInfoList = await this.cHiveSvc.getHiveTableInfo().toPromise()
-            for (let sIdx of sTableInfoList) {
-              if (sIdx.DB_ID === sOdbcComData['wp-data']['o_data'].dsId) {
-                sTbNmList.push(sIdx['TBL_NAME']);
-              }
-            }
-          }
           if (sOdbcComData['wp-data']['o_data'].dbOpt == 'DBMS') {
             let sResult = await this.cMetaSvc.getTableInfo(sOdbcComData['wp-data']['o_data'].dsId).toPromise()
             for (let sIdx of sResult) {

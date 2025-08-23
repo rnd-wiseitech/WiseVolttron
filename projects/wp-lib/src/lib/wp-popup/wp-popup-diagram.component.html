@@ -1,0 +1,42 @@
+<div id="wpDiagramPopup" class="modal extra-large on">
+    <div class="modal-inner">
+        <div class="modal-header">
+            <div class="tit">
+                {{ oData.title }}
+            </div>
+        </div>
+        <div class="modal-body">
+            <dx-diagram #hDiagramPopup style="height: calc(100% - 40px); width:70%"  customShapeTemplate="customShapeTemplate" [simpleView]="true" [readOnly]="true"
+                (onItemClick)="onComponentClick($event)" >
+                <dxi-custom-shape *ngFor="let component of oComTemplateData"
+                    [category]="component.CATEGORY"
+                    [type]= "component.ID"
+                    [defaultText]="component.TYPE"
+                    baseType="cardWithImageOnLeft"
+                    [defaultImageUrl] = "component.IMG_PATH"         
+                    [allowResize]="false"
+                    [allowEditText]="false"
+                >
+                </dxi-custom-shape>
+                <dxo-properties-panel visibility="disabled">
+                </dxo-properties-panel>
+                <dxo-view-toolbar [visible]="false">
+                </dxo-view-toolbar>
+                <dxo-history-toolbar [visible]="false">
+                </dxo-history-toolbar>
+            </dx-diagram>
+            <wp-component-viewer class="no-clicks" style="height: 100%;" [iComponentType]="oCurrentType"  [iWpComponentData] = "oSelectData"></wp-component-viewer>
+        </div>
+        <div class="modal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a (click)="onClose()" class="btn sm">Ok</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-controller">
+            <a (click)="onClose()" class="ico close modalClose">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim"></div> -->
+</div>

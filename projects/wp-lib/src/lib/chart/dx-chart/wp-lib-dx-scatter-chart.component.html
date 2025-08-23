@@ -1,0 +1,32 @@
+<dx-chart id="chart" [dataSource]="h_data" (onLegendClick)="legendClick($event)" [palette] = "['#fa4848', '#d8de37', '#33bd41', '#0a7af2', '#b259d9']"
+style="width: 100%; height: 100%; min-height: 570px; justify-content: center;
+display: flex;">
+
+    <dxo-zoom-and-pan argumentAxis="both"></dxo-zoom-and-pan>
+    <dxo-scroll-bar [visible]="true"></dxo-scroll-bar>
+    <dxo-legend verticalAlignment="bottom" horizontalAlignment="center"></dxo-legend>
+    <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeTooltip" color="rgb(97, 97, 97)"></dxo-tooltip>
+    <dxo-export [enabled]="true"></dxo-export>
+    <dxo-title text="Scatter Chart">
+        <dxo-subtitle text="x: {{h_groupColumn}}  y: {{h_calColumn.join(', ')}}"></dxo-subtitle>
+    </dxo-title>
+    <!-- <dxi-series argumentField="{{h_groupColumn}}" valueField="{{h_calColumn[0]}}">
+        <dxo-point [size]=10></dxo-point>
+    </dxi-series> -->
+    <dxi-series *ngFor="let item of h_calColumn" [ignoreEmptyPoints]="true" argumentField="{{h_groupColumn}}" valueField="{{item}}" name="{{item}}">
+        <dxo-point [size]=7></dxo-point>
+        <dxo-label [showForZeroValues]="false"></dxo-label>
+    </dxi-series>
+    <!-- <dxi-series argumentField="{{h_groupColumn}}" valueField="y2">
+      <dxo-point symbol="triangleDown"></dxo-point>
+    </dxi-series> -->
+    <!-- <dxi-value-axis [tickInterval]="50"></dxi-value-axis> -->
+    <dxo-common-series-settings type="scatter"></dxo-common-series-settings>
+    <dxo-argument-axis >a
+      <dxo-grid [visible]="true"></dxo-grid>
+      <dxo-minor-grid [visible]="true"></dxo-minor-grid>
+    </dxo-argument-axis>
+    <dxo-common-pane-settings>
+      <dxo-border [visible]="true"></dxo-border>
+    </dxo-common-pane-settings>
+  </dx-chart>

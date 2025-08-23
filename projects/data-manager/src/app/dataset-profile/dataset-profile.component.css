@@ -1,0 +1,20 @@
+.tab-content{
+    display: none;
+}
+.tab-content.on{
+    display: block;
+}
+.alram-item{
+    margin-bottom: 5px;
+}
+* {
+    word-break: break-word;
+}
+/*통계량이 진행 중일 경우 css 애니메이션*/
+#refresh {animation: rotate_image 2s linear infinite;transform-origin: 50% 50%;}
+
+@keyframes rotate_image{
+    100% {
+        transform: rotate(360deg);
+    }
+}

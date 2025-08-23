@@ -1,0 +1,83 @@
+<div class="panel-app">
+    <div class="panel-grid">
+        <div class="panel-login">
+            <div class="logo">
+                <a>
+                    <img src="assets/images/logo.png" alt="wisePlatform">
+                </a>
+            </div>
+            <h1>Wiseplatform</h1>
+            <div class="input-item">
+                <form action="" [formGroup]="oForm" (keydown)="onKeyDownFunction($event)">
+                    <ng-container *ngIf="h_display=='login'">
+                        <div class="input-item-inner">
+                            <input 
+                                type="text" name="username" formControlName="username"
+                                [placeholder]="'AUTH.Placeholder.Email' | translate"
+                                [class]="oForm.get('username').dirty && oForm.get('username').invalid? 'invalid' : ''"
+                                [(ngModel)]="h_userModel.username"  
+                                >
+                        </div>
+                        <p class="guide-txt warning" *ngIf="oForm.get('username').dirty && oForm.get('username').invalid">{{getErrorMessage('username')}}</p>
+                        
+                        <div class="input-item-inner type-ico">
+                            <input 
+                                type="password" name="password" formControlName="passwordIn"
+                                [placeholder]="'AUTH.Placeholder.Pwd' | translate"
+                                [class]="oForm.get('passwordIn').dirty && oForm.get('passwordIn').invalid? 'invalid':''"
+                                [(ngModel)]="h_userModel.password"
+                                >
+                            <a (click)="onPasswordVisible($event)" class="ico visibility on">visibility</a>
+                        </div>
+                        <p class="guide-txt warning" *ngIf="oForm.get('passwordIn').dirty && oForm.get('passwordIn').invalid">{{getErrorMessage('passwordIn')}}</p>
+                        <div class="input-item-inner grid">
+                            <lib-wp-switch [hLalbelNm]="'AUTH.LOGIN.Remember' | translate" (onChangSwitchEvent)="onChangeRememberEmail($event)"></lib-wp-switch>
+                            <span class="txt-label right"><a [routerLink]="['/forgot']">{{ 'AUTH.LOGIN.Forget' | translate }}</a></span>
+                        </div>
+                    </ng-container>
+                    <!-- 비밀번호 변경 -->
+                    <ng-container *ngIf="h_display=='change'">
+                        <p>{{ 'AUTH.FORGET.ChangeSub' | translate }}</p>
+                        <div class="input-item-inner type-ico">
+                            <input 
+                                type="password" name="tempPwd" formControlName="tempPwd"
+                                [placeholder]="'AUTH.Placeholder.CrrPwd' | translate"
+                                [class]="oForm.get('tempPwd').dirty && oForm.get('tempPwd').invalid? 'invalid':''"
+                                >
+                            <a (click)="onPasswordVisible($event)" class="ico visibility on">visibility</a>
+                        </div>
+                        <p class="guide-txt warning" *ngIf="oForm.get('tempPwd').dirty && oForm.get('tempPwd').invalid">{{getErrorMessage('tempPwd')}}</p>
+
+                        <div class="input-item-inner type-ico">
+                            <input 
+                                type="password" name="newPwd" formControlName="newPwd"
+                                [placeholder]="'AUTH.Placeholder.NewPwd' | translate"
+                                [class]="oForm.get('newPwd').dirty && oForm.get('newPwd').invalid? 'invalid':''"
+                                >
+                            <a (click)="onPasswordVisible($event)" class="ico visibility on">visibility</a>
+                        </div>
+                        <p class="guide-txt warning" *ngIf="oForm.get('newPwd').dirty && oForm.get('newPwd').invalid">{{getErrorMessage('newPwd')}}</p>
+                    </ng-container>
+
+                </form>
+            </div>
+            <ng-container *ngIf="h_display=='login'">
+                <div class="input-item">
+                    <div class="input-item-inner">
+                        <a (click)="onFormClick()" (keydown.enter)="onFormClick()"
+                            class="btn rounded">{{'BUTTON.Login.Sign-In' | translate}}</a>
+                    </div>
+                </div>
+    
+            </ng-container>
+            <ng-container *ngIf="h_display=='change'">
+                <div class="input-item">
+                    <div class="input-item-inner">
+                        <a (click)="onChangePwdFormSubmit()" (keydown.enter)="onChangePwdFormSubmit()"
+                            class="btn rounded">{{'BUTTON.Login.Auth' | translate}}</a>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>

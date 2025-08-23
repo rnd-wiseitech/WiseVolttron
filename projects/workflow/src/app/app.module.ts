@@ -16,21 +16,20 @@ import { DiagramNavComponent } from './wp-menu/diagram-nav/diagram-nav.component
 import { WpComponentService } from './components/wp-component.service';
 import { WpComponentViewerService } from './components/wp-component-viewer.service';
 import { WpComponentPropertiesModule } from './wp-menu/wp-component-properties/wp-component-properties.module';
-import { WpStreamingService } from './components/data/wp-streaming/wp-streaming.service';
 import { MaterialModule } from 'projects/wp-lib/src/lib/meterial-module/material-module';
 import { WpDiagramPreviewModule } from './wp-menu/wp-diagram-preview/wp-diagram-preview.module';
 import { WpDiagramPreviewService } from './wp-menu/wp-diagram-preview/wp-diagram-preview.service';
-import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
+// import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
 import { WpDiagramToolbarModule } from './wp-menu/wp-diagram-toolbar/wp-diagram-toolbar.module';
 import { WpLoadComponent } from './wp-diagram/wp-load/wp-load.component';
 import { WpUserParameterComponent } from './wp-menu/wp-user-parameter/wp-user-parameter.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { WpTrainModelService } from './components/analytic-model/wp-train-model/wp-train-model.service';
-import { WpCompareModelService } from './components/analytic-model/wp-compare-model/wp-compare-model.service';
+// import { WpTrainModelService } from './components/analytic-model/wp-train-model/wp-train-model.service';
+// import { WpCompareModelService } from './components/analytic-model/wp-compare-model/wp-compare-model.service';
 // import { WpDynamicPromptService } from './components/analytic-model/wp-dynamic-prompt/wp-dynamic-prompt.service';
-import { AlgorithmSharedModule } from 'projects/algorithm-manager/src/app/app.module';
+// import { AlgorithmSharedModule } from 'projects/algorithm-manager/src/app/app.module';
 import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-diagram.module';
-import { ImageUnstructuredSharedModule } from 'projects/image-unstructured/src/app/app.module';
+// import { ImageUnstructuredSharedModule } from 'projects/image-unstructured/src/app/app.module';
 @NgModule({
   declarations: [
     WorkflowAppComponent,
@@ -55,9 +54,9 @@ import { ImageUnstructuredSharedModule } from 'projects/image-unstructured/src/a
     MaterialModule,
     WpDiagramPreviewModule,
     WpDiagramToolbarModule,
-    WpLoadingSharedModule.forRoot(),
-    AlgorithmSharedModule.forRoot(),
-    ImageUnstructuredSharedModule.forRoot(),
+    // WpLoadingSharedModule.forRoot(),
+    // AlgorithmSharedModule.forRoot(),
+    // ImageUnstructuredSharedModule.forRoot(),
     NgxPaginationModule,
     WpPopupDiagramModule
   ],
@@ -67,10 +66,9 @@ import { ImageUnstructuredSharedModule } from 'projects/image-unstructured/src/a
     WpDiagramService,
     WpComponentService,
     WpComponentViewerService,
-    WpStreamingService,
     WpDiagramPreviewService,
-    WpTrainModelService,
-    WpCompareModelService,
+    // WpTrainModelService,
+    // WpCompareModelService,
     // WpDynamicPromptService
   ],
   bootstrap: [WorkflowAppComponent]
@@ -84,8 +82,8 @@ export class WmSharedModule {
       ngModule: WorkflowAppModule,
       providers: [
         WpDiagramService,
-        WpTrainModelService,
-        WpCompareModelService,
+        // WpTrainModelService,
+        // WpCompareModelService,
         // WpDynamicPromptService
       ]
     }

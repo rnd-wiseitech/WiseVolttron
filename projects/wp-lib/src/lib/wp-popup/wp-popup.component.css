@@ -1,0 +1,33 @@
+::ng-deep.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:1100px;
+}
+/* ::ng-deep.modal-content {
+    background-color: transparent;
+    border: none;
+} */
+.input-group {
+    display: block;
+}
+::ng-deep.modal-body .row {
+    width: 100%;
+}
+::ng-deep.row.defualt {
+    display: flex;
+    flex-wrap: nowrap;
+}
+::ng-deep.row>* {
+    flex-shrink: 1;
+}
+::ng-deep.modal .modal-body-column .column {
+    width: 100%;
+}
+::ng-deep.cdk-global-scrollblock {
+    overflow-y: hidden;
+}
+
+::ng-deep#wp-info-popup {
+    width:1500px;
+}

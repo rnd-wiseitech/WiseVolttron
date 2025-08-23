@@ -1,0 +1,41 @@
+<div class="modal auto on">
+    <div class="modal-inner">
+    <div class="modal-header">
+      <div class="tit">
+        {{h_title}}
+      </div>
+    </div>
+  
+    <div class="modal-body full">
+
+      <div style="height: 100%;">
+        <div class="popup-tab type-header">
+          <ul>
+            <li [ngClass]="oActiveTab == 'user' ? 'on':''">
+              <a (click)="onTabClick('user')"><span>사용자</span></a>
+            </li>
+            <li [ngClass]="oActiveTab == 'group' ? 'on':''">
+              <a (click)="onTabClick('group')"><span>그룹</span></a>
+            </li>
+          </ul>
+        </div>
+        <lib-wp-grid (callBack)="onGridCallback($event)" [iSelection]="oSelectMode" [iSelectedList]="oPrevAuthList" [iHoverEffect]="oHoverEffect" [iRowEvt]="oGridRowEvt" [iGridData]="oGridData" [iColInfo]="oGridCol" [iHead]="oGridheader"></lib-wp-grid>
+        
+      </div>
+    </div>   
+  
+    <div class="modal-footer">
+      <div class="grid-div">
+        <div class="right">
+          <!-- disabled 추가... -->
+          <a class="btn sm natural modalClose" style="margin-right: 10px;" (click)="onUpdateAuth()">변경하기</a>
+          <a class="btn sm natural modalClose" (click)="closePopup()">취소</a>
+        </div>
+      </div>
+    </div>
+    <div class="modal-controller">
+      <a class="ico close modalClose" (click)="closePopup()">닫기</a>
+    </div>
+    </div>
+    <!-- <div class="modal-dim on"></div> -->
+  </div>

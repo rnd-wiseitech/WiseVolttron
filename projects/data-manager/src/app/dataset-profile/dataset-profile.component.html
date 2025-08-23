@@ -1,0 +1,300 @@
+<div class="panel-app col-2">
+  <div class="panel-group"  style="padding-top: 40px;">
+    <div class="panel-head grid-pos">
+      <div class="tab type-file left">
+        <ul>
+          <li class="button natural line">
+            <a class="ico back" (click)="cDmAppSvc.changeTab('dm-dataset')">back</a>
+          </li>
+          <li class="button line">
+            <a class="ico modify" (click)="onEditName()" title="이름 변경">modify</a>
+          </li>
+          <li class="readonly">
+            <a class="name"><span>{{oProfileData.DS_VIEW_NM}} <em class="gray">| {{oProfileData.USER_ID}} | Type : {{oProfileData.TYPE | uppercase}} | Name : {{oProfileData.DS_NM}}</em></span></a>
+            <!-- <div><dx-tooltip [(visible)]="h_tooltipVisible"><p>Tooltip content</p></dx-tooltip></div> -->
+          </li>
+        </ul>
+      </div>
+      <div class="side-control right">
+        <ul class="page-tab-ui">
+          <li rel="tabPanel_1" class="on" (click)="togglePanel($event)">
+            <div class="button">
+              <a class="ico alram active">
+                alram
+                <!-- <span class="ico-status"></span> -->
+              </a>
+            </div>
+          </li>
+          <li rel="tabPanel_2" (click)="togglePanel($event)">
+            <div class="button">
+              <a class="ico history">
+                history
+                <span class="ico-status"></span>
+              </a>
+            </div>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+    <div class="panel-single" style="padding-top: 0px;">
+      <div class="panel">
+        <div class="panel-grid" style="height: calc(240px);">
+          <div class="panel panel-flow">
+
+            <div class="dataset-info">
+              <div class="dataset-info-inner">
+
+                <div class="graph">
+                  <div style="cursor:pointer;height: 152px;display: flex;justify-content: center;align-items: center;" *ngIf="h_reStatisticBtn">
+                    <span style="font-size: 50px;" id="refresh" (click)="onRestatistic(h_reStatisticFlag)" class="material-icons-outlined" *ngIf="h_reStatisticFlag">
+                      {{h_icon}}
+                    </span>
+                    <span style="font-size: 50px;" (click)="onRestatistic(h_reStatisticFlag)" class="material-icons-outlined" *ngIf="!h_reStatisticFlag">
+                      {{h_icon}}
+                    </span>
+                  </div>
+                  <div *ngIf="!h_reStatisticBtn">
+                    <div class="graph-pie"><iframe class="chartjs-hidden-iframe" style="width: 100%; display: block; border: 0px; height: 0px; margin: 0px; position: absolute; inset: 0px;"></iframe>
+                      <canvas #tblDoughnutChart class="tblDoughnutChart" style="display: block; width: 160px; height: 152px;" width="160" height="152"></canvas>                                         
+                    </div>
+                    <div class="graph-legend">
+                      <div class="tit">{{'WPP_DATA_MANAGER.DATASET.INFO.info1' | translate }}</div>
+                      <ul class="list-legend">
+                        <li>
+                          <span class="vaid">{{h_graphRates.valid | number : '1.0-2'}}%</span>
+                          <ng-container *ngIf="this.oProfileData.TBL_TYPE!='image'">{{'WPP_DATA_MANAGER.DATASET.INFO.info2' | translate }} </ng-container>
+                          <ng-container *ngIf="this.oProfileData.TBL_TYPE=='image'"> {{h_graphRatesMessage.valid}} </ng-container>
+                        </li>
+                        <li *ngIf="this.h_graphType != 'total'">
+                          <span class="invaid">{{h_graphRates.invalid | number : '1.0-2'}}%</span>
+                          <ng-container *ngIf="this.oProfileData.TBL_TYPE!='image'">{{'WPP_DATA_MANAGER.DATASET.INFO.info4' | translate }} </ng-container>
+                          <ng-container *ngIf="this.oProfileData.TBL_TYPE=='image'"> {{h_graphRatesMessage.invalid}} </ng-container>
+                        </li>
+                        <li *ngIf="this.oProfileData.TBL_TYPE!='image'" >
+                          <span class="missing">{{h_graphRates.missing | number : '1.0-2'}}%</span>
+                          {{'WPP_DATA_MANAGER.DATASET.INFO.info3' | translate }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="viewer" *ngIf="this.oProfileData.TBL_TYPE!='image'">
+                  <ul class="row col-6">
+                    <li class="column">
+                      <div class="value">{{oRowCnts.row_count}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info5' | translate }}</span>
+                    </li>
+                    <li class="column">
+                      <div class="value">{{oRowCnts.column_count}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info6' | translate }}</span>
+                    </li>
+                    <li class="column">
+                      <div class="value">{{oRowCnts.cell_null_count}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info20' | translate }}</span>
+                    </li>
+                    <li class="column">
+                      <div class="value">{{h_typeCnts.numeric}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info7' | translate }}</span>
+                    </li>
+                    <li class="column">
+                      <div class="value">{{h_typeCnts.categoric}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info8' | translate }}</span>
+                    </li>
+                    <li class="column">
+                      <div class="value">{{h_typeCnts.text}}</div>
+                      <!-- <div class="value"><em class="gray">{{h_typeCnts.text}}</em></div> -->
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info9' | translate }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <!-- 데이터셋 타입이 image일 경우 이 부분이 보임-->
+                <div class="viewer" *ngIf="this.oProfileData.TBL_TYPE=='image'">
+                  <ul class="row col-{{h_ImageCount}}">
+                    <li class="column" (click)="clickEvent('total')">
+                      <div class="value">{{oImageRowCnts.row_count}}</div>
+                      <span class="val-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info5' | translate }}</span>
+                    </li>
+                    <!-- 라벨 갯수 있을때만 이 항목이 보임-->
+                    <li class="column" *ngIf="this.oImageRowCnts.label_count!= undefined" (click)="clickEvent('label')">
+                      <div class="value">{{oImageRowCnts.label_count}}</div>
+                      <span class="val-label">라벨 완료 데이터</span>
+                    </li>
+                    <li class="column" *ngIf="this.oImageRowCnts.predict_count!= undefined" (click)="clickEvent('predict')">
+                      <div class="value">{{oImageRowCnts.predict_count}}</div>
+                      <span class="val-label">예측 데이터</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-grid" style="height: calc(100% - 240px);">
+          <!-- <div class="panel panel-single"> -->
+            <div class="component-table" style="overflow: inherit;height: 100%">
+            <!-- <div class="scroll-wrapper component-table scrollbar dataView-scroll" style="position: relative;"><div class="component-table scrollbar dataView-scroll scroll-content scroll-scrollx_visible scroll-scrolly_visible" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 557px;"> -->
+                
+              <wp-lib-data-viewer #wpLibDataViewer *ngIf="oDisplayedGraphColumns" (onScrolled)="nextData($event)" 
+              [iDataSource]="oSelectData" 
+              [iDisplayedColumns]="oDisplayedColumns" 
+              [iDisplayedGraphColumns]="oDisplayedGraphColumns"
+              [iColumnsInfo]="oSchema"
+              [iOption]="oVirtualOption"
+              [iGraphColInfo]="oColInfo"
+              [iPageNum]="oCurrPageNum"></wp-lib-data-viewer>
+            <!-- </div><div class="scroll-element scroll-x scroll-scrollx_visible scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="width: 1527px; left: 0px;"></div></div></div><div class="scroll-element scroll-y scroll-scrollx_visible scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="height: 359px; top: 0px;"></div></div></div></div> -->
+            </div>
+          <!-- </div> -->
+        </div>
+      </div>
+
+      <div class="panel-tab">
+        <div id="tabPanel" class="tab-component">
+          <div class="panel tabPanel_1 tab-content on">
+            <div class="component-table scrollbar" style="position: relative;">
+              <!-- <div class="scrollbar scroll-content scroll-scrolly_visible" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 798px;"> -->
+              <div class="component-alram">
+                  <ul>
+                      <li>
+                          <label for="" class="like-label"><em class="negative">{{'WPP_DATA_MANAGER.DATASET.INFO.info10' | translate }}</em></label>
+                          <div *ngIf="h_Warnlist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                              <div class="nodata">
+                                  <div class="el-table">
+                                      <div class="el-cell" style="top: 0;">
+                                          <p>No data to display</p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="alram-item warning" *ngFor="let sWarnIdx of h_Warnlist">
+                              <div class="alram-item-inner">
+                                  <p class="message">
+                                    {{sWarnIdx.col}} {{sWarnIdx.msg}}
+                                  </p>
+                                  <span class="time"></span>
+                                  <!-- <span class="time">03/12/04:46</span> -->
+                              </div>
+                          </div>
+                      </li>              
+                      <li >
+                          <label for="" class="like-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info11' | translate }}</label>
+                          <div *ngIf="h_Noticelist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                              <div class="nodata">
+                                  <div class="el-table">
+                                      <div class="el-cell" style="top: 0;">
+                                          <p>No data to display</p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="alram-item" *ngFor="let sNoticeIdx of h_Noticelist">
+                              <div class="alram-item-inner">
+                                  <p class="message">
+                                    <em class="positive">{{sNoticeIdx.col}}</em> {{sNoticeIdx.msg}}
+                                    <span *ngIf="sNoticeIdx.tooltip" style="text-decoration: #e96f19 underline;text-underline-position: under;">{{sNoticeIdx.tooltip}}</span>                                    
+                                  </p>
+                                  <div class="alram-tooltip" *ngIf="h_TooltipMsgArr[sNoticeIdx.col]">
+                                    <p>{{h_TooltipMsgArr[sNoticeIdx.col]}}</p>
+                                  </div>
+                                  <span class="time"></span>
+                                  <!-- <span class="time">{{shistoryIdx}}</span> -->
+                              </div>
+                          </div>
+                      </li>              
+                  </ul> 
+              </div>
+              
+            </div>
+            <!-- <div class="scroll-element scroll-x scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="width: 89px;"></div></div></div><div class="scroll-element scroll-y scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="height: 510px; top: 0px;"></div></div></div></div> -->
+          </div>
+
+          <div class="tabPanel_2 tab-content">
+            <div class="component-table scrollbar" style="position: relative;">
+              <!-- <div class="scrollbar scroll-content scroll-scrolly_visible" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 798px;"> -->
+            <!-- <div class="scroll-wrapper scrollbar" style="position: relative;"><div class="scrollbar scroll-content" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 0px;"> -->
+              <!-- <div class="scroll-wrapper scrollbar" style="position: relative;"><div class="scrollbar scroll-content" style="height: auto; margin-bottom: 0px; margin-right: 0px; max-height: 0px;"> -->
+                <div class="component-history">
+                    <ul>
+                        <li>
+                            <label for="" class="like-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info11' | translate }}</label>
+                            <div *ngIf="h_Historylist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                                <div class="nodata">
+                                    <div class="el-table">
+                                        <div class="el-cell" style="top: 0;">                                   
+                                            <p>No data to display</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <ol >
+                                    <li *ngFor="let sHistoryIdx of h_Historylist">
+                                        <div class="change-tit" (click)="onLoadWorkFlow(sHistoryIdx, 'output')">{{sHistoryIdx.CAPTION}} &nbsp; {{sHistoryIdx.VALUE}}</div>
+                                        <span class="time">{{sHistoryIdx.UPD_DT | date:'MM/dd hh:mm' }}</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </li>
+                    </ul>                
+                    <ul>
+                        <li>
+                            <label for="" class="like-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info19' | translate }}</label>
+                            <div *ngIf="h_Pipelist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                                <div class="nodata">
+                                    <div class="el-table">
+                                        <div class="el-cell" style="top: 0;">
+                                            <p>No data to display</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <ol>
+                                    <li *ngFor="let sPipeIdx of h_Pipelist">
+                                        <div class="change-tit" (click)="onLoadWorkFlow(sPipeIdx.WF_ID, 'workflow')">{{sPipeIdx.WF_NM}}</div>
+                                        <span class="time">{{sPipeIdx.REG_DT | date:'MM/dd hh:mm' }}</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </li>
+                    </ul>
+                    <!-- <ul>
+                        <li>
+                            <label for="" class="like-label">Schedule Log</label>
+                            <div *ngIf="h_Loglist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                                <div class="nodata">
+                                    <div class="el-table">
+                                        <div class="el-cell" style="top: 0;">
+                                            <p>No data to display</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="history-item">
+                                <ol>
+                                    <li *ngFor="let logIdx of h_Loglist">
+                                        <div class="change-tit">[{{logIdx.VALUE}}]&nbsp;&nbsp;{{logIdx.CAPTION}}</div>
+                                        <span class="time">{{logIdx.UPD_DT | date:'MM/dd hh:mm' }}</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </li>
+                    </ul>                -->
+                
+                </div>
+                
+              <!-- </div><div class="scroll-element scroll-x"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar"></div></div></div><div class="scroll-element scroll-y"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar"></div></div></div></div> -->
+            <!-- </div><div class="scroll-element scroll-x"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar"></div></div></div><div class="scroll-element scroll-y"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar"></div></div></div></div> -->
+            </div>
+            <!-- <div class="scroll-element scroll-x scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="width: 89px;"></div></div></div><div class="scroll-element scroll-y scroll-scrolly_visible"><div class="scroll-element_outer"><div class="scroll-element_size"></div><div class="scroll-element_track"></div><div class="scroll-bar" style="height: 510px; top: 0px;"></div></div></div></div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

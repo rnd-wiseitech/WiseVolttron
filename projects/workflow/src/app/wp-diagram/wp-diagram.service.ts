@@ -8,7 +8,7 @@ import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
 import { WpPopupDiagramComponent } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-diagram.component';
 import { Observable } from 'rxjs';
 import { WorkflowAppService } from '../app.service';
-import { WpStreamingService } from '../components/data/wp-streaming/wp-streaming.service';
+// import { WpStreamingService } from '../components/data/wp-streaming/wp-streaming.service';
 import { WpComponentViewerService } from '../components/wp-component-viewer.service';
 import { dxDiagramData, WkSaveData, WpEdgePro, WpNodePro } from '../wp-menu/wp-component-properties/wp-component-properties-wrap';
 import { WpComData } from 'projects/wp-server/wp-type/WP_COM_ATT';
@@ -46,7 +46,7 @@ export class WpDiagramService extends WpSeriveImple {
     private cAppSvc: WorkflowAppService,
     private cComViewSvc: WpComponentViewerService,
     private cHttp: HttpClient,
-    private cWpStreamingSvc: WpStreamingService,
+    // private cWpStreamingSvc: WpStreamingService,
     private cMetaSvc: WpMetaService,
     private cRouter: Router,
     private cDialog: MatDialog,
@@ -138,12 +138,6 @@ export class WpDiagramService extends WpSeriveImple {
             sUiData['originalname'] = sNewFileNm;
           }
         }
-        if (sCom.type == COM_ID['I-STREAMING']) {
-          let sTopicList = await this.cWpStreamingSvc.getTopicList().toPromise();
-          if (!sTopicList.includes(sCom['wp-data']['o_data']['filename'])) {
-            sValidFlag = false;
-          }
-        }
       }
 
       if (sValidFlag) {
@@ -233,10 +227,6 @@ export class WpDiagramService extends WpSeriveImple {
         if (!sSelectData.hasOwnProperty('responsecode') || sSelectData['responsecode'] != 200) {
           return Promise.reject(false);
         }
-      }
-      if (pCom['type'] == COM_ID['I-STREAMING']) {
-        sSelectData = await this.cWpStreamingSvc.getTopicSchema({ filename: sUiData.filename }).toPromise();
-        sSelectData = JSON.parse(sSelectData);
       }
       if (pCom['type'] == COM_ID['I-WORKFLOW']) {
         let s_workflowInfo:any = await this.cComViewSvc.getInputWorkflowInfo({workflowId : sUiData['workflowId']});

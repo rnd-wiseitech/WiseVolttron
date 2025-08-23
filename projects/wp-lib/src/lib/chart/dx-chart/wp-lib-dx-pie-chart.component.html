@@ -1,0 +1,14 @@
+<dx-pie-chart palette="Soft Pastel" type="doughnut" [dataSource]="h_data" 
+    style="width: 100%; height: 100%; min-height: 570px;">
+    <dxo-legend [margin]="0" horizontalAlignment="right" verticalAlignment="top"></dxo-legend>
+    <dxo-tooltip [enabled]="true" [customizeTooltip]="customizeTooltip" color="rgb(97, 97, 97)"></dxo-tooltip>
+    <dxo-export [enabled]="true"></dxo-export>
+    <dxo-title text="Pie Chart">
+        <dxo-subtitle text="{{h_calColumn}} by {{h_groupColumn}}"></dxo-subtitle>
+    </dxo-title>
+    <dxi-series argumentField="{{h_groupColumn}}" valueField="{{h_calColumn}}">
+        <dxo-label [visible]="true" [format]='setFormat'>
+            <dxo-connector [visible]="true"></dxo-connector>
+        </dxo-label>
+    </dxi-series>
+</dx-pie-chart>

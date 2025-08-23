@@ -19,18 +19,15 @@ import { NgWizardConfig, NgWizardModule, THEME } from 'ng-wizard';
 import { WpGridSharedModule } from 'projects/wp-lib/src/lib/wp-grid/wp-grid.module';
 import { WpTrainResultviewComponent } from '../../components/resultview/wp-train-result-viewer.component';
 import { DxChartModule, DxDataGridModule, DxListModule, DxSelectBoxModule, DxTagBoxModule, DxTemplateModule, DxTextAreaModule } from 'devextreme-angular';
-import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
+// import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
 import { MonacoEditorModule, MONACO_PATH } from '@materia-ui/ngx-monaco-editor';
-import { WpPythonPopupComponent } from '../../components/popup/wp-python-popup.component';
-// import { WpImageListPopUpComponent } from '../../components/popup/wp-image-list-popup.component';
+// import { WpPythonPopupComponent } from '../../components/popup/wp-python-popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { WpChartModule } from 'projects/wp-lib/src/lib/chart/wp-chart.module';
-import { WpEnsemblePopupComponenet } from '../../components/popup/wp-ensemble-popup.component';
-import { WpReinforcementActiveSetComponent } from '../../components/popup/wp-reinforcement-active-set.component';
-import { WpReinforcementRewardSetComponent } from '../../components/popup/wp-reinforcement-reward-set.component';
+// import { WpChartModule } from 'projects/wp-lib/src/lib/chart/wp-chart.module';
+// import { WpEnsemblePopupComponenet } from '../../components/popup/wp-ensemble-popup.component';
 import { WpInfoPopupComponent } from '../../components/popup/wp-info-popup.component';
 import { WpTranslateSharedModule } from 'projects/wp-lib/src/lib/wp-lib-translate/wp-lib-translate.module';
-import { WpOodbcUpdatePopupComponent } from '../../components/popup/wp-oodbc-update-popup.component';
+// import { WpOodbcUpdatePopupComponent } from '../../components/popup/wp-oodbc-update-popup.component';/
 const ngWizardConfig: NgWizardConfig = {
     theme: THEME.default
   };
@@ -40,18 +37,12 @@ const ngWizardConfig: NgWizardConfig = {
         WpComponentViewerComponent,
         WpDerivedColumnSetComponent,
         WpDerivedCondionalSetComponent,
-        WpPythonPopupComponent,
-        // WpImageListPopUpComponent,
-        // WpMathColumnSetComponent,
-        // WpDateColumnSetComponent,
-        // WpKafkaConnectorComponent,
+        // WpPythonPopupComponent,
         WpResultViewerComponent,
         WpTrainResultviewComponent,
-        WpEnsemblePopupComponenet,
-        WpReinforcementActiveSetComponent,
-        WpReinforcementRewardSetComponent,
+        // WpEnsemblePopupComponenet,
         WpInfoPopupComponent,
-        WpOodbcUpdatePopupComponent
+        // WpOodbcUpdatePopupComponent
     ],
     imports: [
         CommonModule,
@@ -65,14 +56,14 @@ const ngWizardConfig: NgWizardConfig = {
         DxChartModule,
         NgWizardModule.forRoot(ngWizardConfig),
         WpGridSharedModule.forRoot(),
-        WpLoadingSharedModule.forRoot(),
+        // WpLoadingSharedModule.forRoot(),
         DxListModule,
         DxTemplateModule,
         DxTagBoxModule,
         DxSelectBoxModule,
         DxTextAreaModule,
         NgxPaginationModule,
-        WpChartModule,
+        // WpChartModule,
         WpTranslateSharedModule.forRoot(),
     ],
     providers: [

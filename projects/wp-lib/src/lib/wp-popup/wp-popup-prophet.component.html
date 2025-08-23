@@ -1,0 +1,185 @@
+<div id="wpPopupProphet" [class]="'wpmodal ' + hColWidth + ' on'">
+    <div class="wpmodal-inner">
+        <div class="wpmodal-header">
+            <div class="tit">
+                {{oData.title}}
+            </div>
+        </div>
+        <div class="wpmodal-body">
+            <div [ngClass]="oData.scroll? 'scrollbar':''">
+                <!-- (message popup) -->
+                <ng-container *ngIf="hColSize === 0">
+                    {{oData.message}}
+                </ng-container>
+                <!-- (formData) -->
+                <ng-container *ngIf="hColSize === 1">
+                    <form [formGroup]="oFormGroup">
+                        <div class="app-inner">
+                            <div class="input-item" *ngFor="let sForm of oData.formdata">
+                                <div *ngIf="sForm.visible" [id]="'wp-popup-'+sForm.name">
+                                    <div class="input-item-inner" *ngIf="sForm.type!='password'">
+                                        <label [for]="sForm.vname" class="like-label"
+                                            *ngIf="!hHideLabelArray.includes(sForm.name)">{{sForm.vname}}</label>
+                                        <!-- SELECT BOX -->
+                                        <select *ngIf="sForm.type=='select'" [formControlName]="sForm.name"
+                                            (change)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">
+                                            <ng-container *ngIf="hHideLabelArray.includes(sForm.name)">
+                                                <option [ngValue]="null" selected disabled>{{sForm.vname}}</option>
+                                            </ng-container>
+                                            <option *ngFor="let sOption of sForm.fvalue; let sOptIdx = index;"
+                                                [value]="sForm.value[sOptIdx]" [ngValue]="sForm.value[sOptIdx]">{{sOption}}
+                                            </option>
+                                        </select>
+
+                                        <!-- TEXT BOX -->
+                                        <input *ngIf="sForm.type=='text' && sForm.name != 'CRON_INFO'" type="text"
+                                            [formControlName]="sForm.name"
+                                            [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:''" appForbiddenName="bob">
+                                        <input id="CRON_INFO" *ngIf="sForm.type=='text' && sForm.name == 'CRON_INFO'"
+                                            type="text" [formControlName]="sForm.name" [disabled]="!sForm.edit"
+                                            [ngModel] = "cronstrue.toString(oFormGroup.get('SET_MINUTE').value + ' ' +
+                                            oFormGroup.get('SET_HOUR').value + ' ' + 
+                                            oFormGroup.get('SET_DAY').value + ' ' +
+                                            oFormGroup.get('SET_MONTH').value + ' ' +
+                                            oFormGroup.get('SET_WEEK').value, { locale: 'ko' })"
+                                            [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:''"
+                                            style="color:black; background-color: #f0f1f7;" readonly>
+                                        <!-- DATETIME 추가 수정 필요-->
+                                        <div class="dx-field" *ngIf="sForm.type=='date'">
+                                            <div class="dx-field-value">
+                                                <dx-date-box [formControlName]="sForm.name" type="datetime">
+                                                </dx-date-box>
+                                            </div>
+                                        </div>
+                                        <textarea [formControlName]="sForm.name" *ngIf="sForm.type=='text-area'"></textarea>
+                                    </div>
+                                    <!-- PASSWORD -->
+                                    <ng-container *ngIf="sForm.type=='password'">
+                                        <label [for]="sForm.vname" class="like-label"
+                                            *ngIf="!hHideLabelArray.includes(sForm.name)">{{sForm.vname}}</label>
+                                        <div class="input-item-inner type-ico">
+                                            <input type="password" [formControlName]="sForm.name">
+                                            <a (click)="onPasswordVisible($event)" class="ico visibility on">visibility</a>
+                                        </div>
+                                    </ng-container>
+
+                                    <!-- BUTTON TOGGLE -->
+                                    <div class="input-item-inner toggle" *ngIf="sForm.type=='button_toggle'">
+                                        <label class="radio" *ngFor="let sOption of sForm.fvalue;">
+                                            <input type="radio" name="option" (click)="onToggleChecked(sForm.name,sOption)"
+                                                [checked]="oFormGroup.get(sForm.name).value==sOption">
+                                            <span>{{sOption}}</span>
+                                        </label>
+                                    </div>
+                                    <!-- BUTTON -->
+                                    <div class="input-item-inner" *ngIf="sForm.type=='button'">
+                                        <a class="btn positive line"
+                                            (click)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">{{sForm.vname}}</a>
+                                    </div>
+
+                                    <!-- ARRAY -->
+                                    <ng-container *ngIf="sForm.type=='array'">
+                                        <ng-container *ngFor="let item of sForm.array;">
+                                            <select *ngIf="item.type=='select'" [formControlName]="item.name" [ngStyle]="{width: onChangeWidth(sForm.array.length)}" style="margin-right:2.5%"
+                                                (change)="item.callbak != null ? onSelectChanged(oFormGroup.get(item.name).value,item.callbak.name) :  null">
+                                                <ng-container *ngIf="hHideLabelArray.includes(item.name)">
+                                                    <option [ngValue]="null" selected disabled>{{item.vname}}</option>
+                                                </ng-container>
+                                                <option *ngFor="let sOption of item.fvalue; let sOptIdx = index;"
+                                                    [value]="item.value[sOptIdx]" [ngValue]="item.value[sOptIdx]">
+                                                    {{sOption}}
+                                                </option>
+                                            </select>
+                                        </ng-container>
+                                    </ng-container>
+                                    <mat-error *ngIf="oFormGroup.get(sForm.name).invalid">{{onShowErrMsg(sForm.name)}}
+                                    </mat-error>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </ng-container>
+                <!-- (formdataArray) 여러 열로 표시되는 팝업 -->
+                <ng-container *ngIf="hColSize > 1">
+
+                    <form [formGroup]="oFormGroup">
+                        <div class="wpmodal-body-column">
+                            <div class="row defualt">
+                                <div *ngFor="let sFormData of oData.formdataArray" class="column">
+                                    <ng-container *ngFor="let sForm of sFormData">
+                                        <div *ngIf="sForm.type == 'colTitle'" class="input-item type-label">
+                                            <div class="input-item-inner grid">
+                                                <div class="settings-tit left">{{sForm.vname}}</div>
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="sForm.type != 'colTitle' && sForm.visible" class="input-item">
+                                            <label [for]="sForm.vname" class="like-label"
+                                                *ngIf="!hHideLabelArray.includes(sForm.name)">{{sForm.vname}}</label>
+                                            <div class="input-item-inner"
+                                                *ngIf="sForm.type!='password' && sForm.type!='button_toggle'">
+                                                <!-- SELECT BOX -->
+                                                <select *ngIf="sForm.type=='select'" [formControlName]="sForm.name"
+                                                    (change)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">
+                                                    <ng-container *ngIf="hHideLabelArray.includes(sForm.name)">
+                                                        <option [ngValue]="null" selected disabled>{{sForm.vname}}</option>
+                                                    </ng-container>
+                                                    <option *ngFor="let sOption of sForm.fvalue; let sOptIdx = index;"
+                                                        [value]="sForm.value[sOptIdx]" [ngValue]="sForm.value[sOptIdx]">
+                                                        {{sOption}}</option>
+                                                </select>
+                                                <!-- TEXT BOX -->
+                                                <input *ngIf="sForm.type=='text'" type="text" [formControlName]="sForm.name"
+                                                    [placeholder]="hHideLabelArray.includes(sForm.name)?sForm.vname:''">
+                                                <!-- DATETIME 추가 수정 필요-->
+                                                <div class="dx-field" *ngIf="sForm.type=='date'">
+                                                    <div class="dx-field-value">
+                                                        <div id="date-time"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- PASSWORD -->
+                                            <div class="input-item-inner type-ico" *ngIf="sForm.type=='password'">
+                                                <input type="password" [formControlName]="sForm.name">
+                                                <a (click)="onPasswordVisible($event)"
+                                                    class="ico visibility on">visibility</a>
+                                            </div>
+                                            <!-- BUTTON TOGGLE -->
+                                            <div class="input-item-inner toggle" *ngIf="sForm.type=='button_toggle'">
+                                                <label class="radio" *ngFor="let sOption of sForm.fvalue;">
+                                                    <input type="radio" name="option"
+                                                        (click)="onToggleChecked(sForm.name,sOption)"
+                                                        [checked]="oFormGroup.get(sForm.name).value==sOption">
+                                                    <span>{{sOption}}</span>
+                                                </label>
+                                            </div>
+                                            <!-- BUTTON -->
+                                            <div class="input-item-inner" *ngIf="sForm.type=='button'">
+                                                <a class="btn positive line"
+                                                    (click)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">{{sForm.vname}}</a>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </ng-container>
+            </div>
+        </div>
+        <div class="wpmodal-footer">
+            <div class="grid-div">
+                <div class="right">
+                    <a class="btn sm" (click)="onConfirm()">{{hConfirmBtnText}}</a>
+                    <a class="btn sm natural wpmodalClose" (click)="onCancel()" *ngIf="oData.flag"
+                        style="margin-left: 10px;">{{'BUTTON.Cancel' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="wpmodal-controller">
+            <a class="ico close wpmodalClose" (click)="onCancel()">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="wpmodal-dim on"></div> -->
+</div>

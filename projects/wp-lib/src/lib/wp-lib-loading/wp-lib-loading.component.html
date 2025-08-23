@@ -1,0 +1,8 @@
+<ngx-spinner [name]="iName" 
+              bdColor = "rgba(0,0,0,0.8)" 
+              size = "medium" 
+              type="ball-climbing-dot"
+              [fullScreen] = "iFullScreen" >
+              <!-- 하이브에서 사용. 쿼리 중단.-->
+              <a *ngIf="cWpLoadingSvc.oJobName!=''" class="btn natural" (click)= "onCancel()" style="border:1px solid rgba(0, 0, 0, 0.25)">Cancel</a>
+</ngx-spinner>

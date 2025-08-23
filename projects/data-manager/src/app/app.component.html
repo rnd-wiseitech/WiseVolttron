@@ -1,0 +1,40 @@
+<div class="tab type-header">
+  <ul>
+    <li [ngClass]="oActiveTab == 'dm-dataset' || oActiveTab == 'dm-dataset-profile'? 'on':''">
+      <a (click)="onTabClick('dm-dataset')"><span>{{'WPP_DATA_MANAGER.MENU.menu1' | translate }}</span></a>
+    </li>
+    <li [ngClass]="oActiveTab == 'dm-connection' ? 'on':''">
+      <a (click)="onTabClick('dm-connection')" ><span>{{'WPP_DATA_MANAGER.MENU.menu2' | translate }}</span></a>
+    </li>
+    <!-- SPARK이고 HIVE 쓸 때만 보이도록 설정-->
+    <ng-container  *ngIf="o_apiType == 'SPARK' && o_hiveCheck == true">
+      <li [ngClass]="oActiveTab == 'dm-hive-query' ? 'on':''">
+        <a (click)="onTabClick('dm-hive-query')"><span>{{'WPP_DATA_MANAGER.MENU.menu3' | translate }}</span></a>
+      </li>
+    </ng-container> 
+    <li [ngClass]="oActiveTab == 'dm-hdfs-viewer' ? 'on':''">
+      <a (click)="onTabClick('dm-hdfs-viewer')"><span>{{'WPP_DATA_MANAGER.MENU.menu4' | translate }}</span></a>
+    </li>
+    <li [ngClass]="oActiveTab == 'dm-schedule' ? 'on':''">
+      <a (click)="onTabClick('dm-schedule')"><span>{{'WPP_DATA_MANAGER.MENU.menu5' | translate }}</span></a>
+    </li>
+    <li [ngClass]="oActiveTab == 'dm-volttron' ? 'on':''">
+      <a (click)="onTabClick('dm-volttron')"><span>{{'WPP_DATA_MANAGER.MENU.menu7' | translate }}</span></a>
+    </li>
+    <!-- <li [ngClass]="oActiveTab == 'dm-history' ? 'on':''" *ngIf="oUserMode =='ADMIN'">
+      <a (click)="onTabClick('dm-history')"><span>{{'WPP_DATA_MANAGER.MENU.menu6' | translate }}</span></a>
+    </li> -->
+  </ul>
+</div>
+<div class="container">
+  <dm-dataset *ngIf="oActiveTab == 'dm-dataset'"></dm-dataset>
+  <dm-connection *ngIf="oActiveTab == 'dm-connection'"></dm-connection>
+  <dm-hive-query *ngIf="oActiveTab == 'dm-hive-query'"></dm-hive-query>
+  <dm-hdfs-viewer *ngIf="oActiveTab == 'dm-hdfs-viewer'"></dm-hdfs-viewer>
+  <dm-dataset-profile *ngIf="oActiveTab == 'dm-dataset-profile'" [oProfileData]="oProfileData"></dm-dataset-profile>  
+  <dm-schedule *ngIf="oActiveTab == 'dm-schedule'"></dm-schedule>
+  <dm-volttron *ngIf="oActiveTab == 'dm-volttron'"></dm-volttron>
+  <dm-history *ngIf="oActiveTab == 'dm-history'"></dm-history>
+  
+</div>
+<lib-wp-loading [iName]="'wdspin'" [iFullScreen]="true" (callBack)="onLoadingCallback($event)"></lib-wp-loading>
