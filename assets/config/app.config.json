@@ -36,7 +36,7 @@
     "LICENSE":"U2FsdGVkX19ha3g0LCXiXkUTgZt14vJUP64Nb4SpF/+QcjNU1TkPqvdgrKhpmki2uuxNeA8qDVubguy05f/mYXszFD2imZusk7pvNNhyOcs=",
     "ML_PATH": "C:/wisePlatform/develop/wp-platform.v1/projects/wp-ml/",
     "MLFLOW":true,
-    "DBLIST": ["db2", "mysql", "mssql", "oracle", "postgresql","tibero"],
+    "DBLIST": ["db2", "mysql", "mssql", "oracle", "postgresql"],
     "FILE_FORMAT": "delta",
     "OFFER_MODEL": ["classification_model", "regression_model", "cluster_model", "image_model"]
 }

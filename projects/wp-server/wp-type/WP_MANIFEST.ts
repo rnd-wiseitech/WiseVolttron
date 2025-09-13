@@ -1,12 +1,9 @@
-import { DP_VAR_MSTR } from "../metadb/model/DP_VAR_MSTR";
+
 import { DS_VIEW_MSTR_ATT } from "../metadb/model/DS_VIEW_MSTR";
 import { DS_VIEW_TBL_MSTR_ATT } from "../metadb/model/DS_VIEW_TBL_MSTR";
 import { WP_DATASET_TYPE, WP_STATISTIC_DATA } from "./WP_DATASET_ATT";
 
 export type WP_MANIFEST = WP_STRUCTURE_MANIFEST_ATT | WP_IMAGE_MANIFEST_ATT | WP_DOCUMENT_MANIFEST_ATT;
-
-// tbl_nm, tbl_desc???
-// 일단 tbl_nm tbl_desc삭제
 
 interface WP_MANIFEST_ATT extends Pick<DS_VIEW_MSTR_ATT, "DS_VIEW_ID">, Pick<DS_VIEW_TBL_MSTR_ATT, "VIEW_IDX" | "TBL_TYPE"> {
     REG_DT: string; // 파일 생성일자
@@ -37,7 +34,7 @@ interface SchemaInfo {
     type: string
 }
 
-// db 컬럼명을 ㅗ할 경우
+// db 컬럼명을 정할 경우
 // ds_view_col_mstr 사용안하는 컬럼 
 // PK_YN,  LENGTH, COL_ID,       
 // DP_VAR_MSTR 컬럼으로 통일 컬럼
@@ -58,8 +55,6 @@ export interface VarInfo {
     q1: number,
     q2: number,
     q3: number,
-    // 10PER: number,
-    // 90PER:number,
     max: number,
     null_count: number,
     total_count: number,
@@ -84,18 +79,10 @@ export const wp_structure_att:WP_STRUCTURE_MANIFEST_ATT = {
     DS_VIEW_ID:null,
     VIEW_IDX:null,
     TBL_TYPE:null,
-    // TBL_NM:null,
-    // TBL_DESC:null,
     REG_DT:null,
     REG_USER_NO:null,
     UPD_DT:null,
     schema: null,
-    // [{        
-    //     metadata:{},
-    //     name:null,
-    //     nullable:null,
-    //     type: null
-    // }],
     row_count: null,
     column_count: null, 
 
@@ -103,28 +90,7 @@ export const wp_structure_att:WP_STRUCTURE_MANIFEST_ATT = {
     cell_null_count: null,
     cell_outlier_count: null,
     statistics: null
-    // [{        
-    //     // job statistic과 동일
-    //     column : null,
-    //     datatype : null,
-    //     count: null,
-    //     mean: null,
-    //     stddev: null,
-    //     min: null,
-    //     q1: null,
-    //     q2: null,
-    //     q3: null,
-    //     // 10PER: number,
-    //     // 90PER:number,
-    //     max: null,
-    //     null_count: null,
-    //     total_count: null,
-    //     duplicate_count:null,
-    //     distinct_count: null,
-    //     outlier_count: null,
-    //     outliers: null,
-    //     distribution: null
-    // }]
+    
 }
 
 // 타입에 따라 다른 인터페이스를 반환하는 함수
@@ -137,28 +103,22 @@ export function getManifestObj(type:  keyof typeof WP_DATASET_TYPE): WP_MANIFEST
                 DS_VIEW_ID:null,
                 VIEW_IDX:null,
                 TBL_TYPE:null,
-                // TBL_NM:null,
-                // TBL_DESC:null,
                 REG_DT:null,
                 UPD_DT:null,
                 REG_USER_NO:null,
                 fileInfo: {},
                 labelInfo: {},
-                // create_time: new Date()
             };
         case WP_DATASET_TYPE.document:
             return {
                 DS_VIEW_ID:null,
                 VIEW_IDX:null,
                 TBL_TYPE:null,
-                // TBL_NM:null,
-                // TBL_DESC:null,
                 REG_DT:null,
                 UPD_DT:null,
                 REG_USER_NO:null,
                 fileInfo: {},
                 labelInfo: {},
-                // create_time: new Date()
             };
         default:
             return { ...wp_structure_att };

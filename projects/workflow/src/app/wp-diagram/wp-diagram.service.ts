@@ -32,15 +32,14 @@ export class WpDiagramService extends WpSeriveImple {
   @Output() chkConnectFilterTextEmit: EventEmitter<any> = new EventEmitter();
   @Output() selectComponentByIdEmit: EventEmitter<any> = new EventEmitter();
   @Output() clearWpDiagramEmit: EventEmitter<any> = new EventEmitter();
-  @Output() sendReinforcementResultEmit: EventEmitter<any> = new EventEmitter(); //280강화학습
-  
+    
   private oTrainModelComIdList: number[] = [];
   private oComNameMap: { [index: string]: string }; // 컴포넌트 type으로 name 조회하도록 추가
   oUrl = this.cAppConfig.getServerPath("NODE");
   oWpDiagramPushFlag: boolean = false; // ArrayStore push로 직접 데이터 변경한 경우
   oWpDiagramLoadFlag: boolean = false; // 워크플로우 불러온 경우
   oWpComTemplateData: any = [];
-  // oTempFtpFileNameList: string[] = []; // ftp 컴포넌트에서 조회한 파일명
+
   constructor(
     private cAppConfig: WpAppConfig,
     private cAppSvc: WorkflowAppService,
@@ -670,23 +669,4 @@ export class WpDiagramService extends WpSeriveImple {
   getFromPoint(pType: number): Observable<any> {
     return this.cHttp.post(this.cAppConfig.getServerPath('NODE') + '/wkservice/getComConnLimit', { ID: pType });
   }
-  // 280강화학습
-  sendReinforcementResult(pData: any) {
-    this.sendReinforcementResultEmit.emit(pData);
-  }
-  // 미사용 주석처리
-  // getTempFtpFileNameList() {
-  //   return this.oTempFtpFileNameList
-  // }
-  // setTempFtpFileNameList(pList: string[]) {
-  //   this.oTempFtpFileNameList = pList;
-  // }
-  // removeFtpTempFile(pFileList: string[]) {
-  //   return this.cHttp.post(this.oNodeUrl + '/ftp/removeFtpTempFile', {
-  //     groupId: 'Temp',
-  //     jobId: '0',
-  //     location: 'workflow',
-  //     filename: pFileList
-  //   });
-  // }
 }
