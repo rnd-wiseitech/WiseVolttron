@@ -13,8 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "@jupyterlab/services": "^6.6.1",
-    "@kubernetes/client-node": "^0.18.1",
-    "@slack/web-api": "^6.9.0",
     "@types/gm": "^1.25.1",
     "@types/tedious": "^4.0.9",
     "@types/winston": "^2.4.4",

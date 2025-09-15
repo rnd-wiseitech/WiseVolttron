@@ -24,9 +24,7 @@ export class DMAppComponent implements OnInit {
     this.oTabClickSubscribe.unsubscribe();
   }
   ngOnInit(): void {
-    // API TYPE --> COMMON일 경우나 HIVE 사용 안할 경우 HIVE QUERY 가리기
     this.o_apiType = this.cWpAppConfig.getConfig('API_TYPE');
-    this.o_hiveCheck = this.cWpAppConfig.getUseConfig('HIVE_DB');
     this.oActiveTab = this.oActiveTab + 'dataset';
     this.oTabClickSubscribe = this.cDmAppSvc.changeTabEmit.subscribe(pRes=>{
       this.onTabClick(pRes.tabNm);

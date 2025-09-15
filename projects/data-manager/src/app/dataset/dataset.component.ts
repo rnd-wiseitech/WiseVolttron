@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DmAppService } from '../app.service';
 import { DataSetSerivce } from './dataset.service';
-import { DmHdfsPopUpComponent } from './hdfs-popup/hdfs-popup.component';
+// import { DmHdfsPopUpComponent } from './hdfs-popup/hdfs-popup.component';
 import { WpAppConfig } from 'projects/wp-lib/src/lib/wp-lib-config/wp-lib-config';
 import { FileSystemItem, WP_DATASET_ATT, WP_DATASET_TYPE_ATT, getWpConnectType, getWpConnectInfo } from 'projects/wp-server/wp-type/WP_DATASET_ATT';
 import { TranslateService } from '@ngx-translate/core';
@@ -99,8 +99,7 @@ export class DataSetComponent implements OnInit {
   ngOnInit(): void {
     // COMMON일 경우나 HIVE 사용 안할 때에는 HIVE 관련내용 빼야함.
     this.o_apiType = this.cWpAppConfig.getConfig('API_TYPE');
-    let sHiveCheck = this.cWpAppConfig.getUseConfig('HIVE_DB');
-    if(this.o_apiType == 'COMMON' || !sHiveCheck) {
+    if(this.o_apiType == 'COMMON') {
       this.oDisplayedColumnNms = this.oDisplayedColumnNms.filter((element) => element !== this.cTransSvc.instant("WPP_DATA_MANAGER.DATASET.GRID.grid8"));
       this.oDisplayedColumns = this.oDisplayedColumns.filter((element) => element !== 'HIVESTATUS');
       this.oFunctionList = this.oFunctionList.filter((element) => element !== 'hiveadd');
@@ -346,18 +345,18 @@ export class DataSetComponent implements OnInit {
       if(this.o_SelectedFormData.CONNECTION_TYPE != 'db'){
         this.resetSelectedForm(this.o_SelectedFormData.CONNECTION_TYPE);
 
-        const dialogRef = this.cDialog.open(DmHdfsPopUpComponent, {data:pDsData.DS_ID});
-        dialogRef.afterClosed().subscribe(pRes => {
-          if (pRes) {
-            if (pRes.result) {
-              let sResult = pRes.data;
-              this.oSelectedFile = sResult;
-              // console.log(sResult)
-              // this.oWpPopupDialogRef.componentInstance.patchValue({ 'TABLE_INFO': sResult });
-              this.oWpPopupDialogRef.componentInstance.patchValue({ 'TBL_NM': sResult.name });
-            }
-          }
-        });
+        // const dialogRef = this.cDialog.open(DmHdfsPopUpComponent, {data:pDsData.DS_ID});
+        // dialogRef.afterClosed().subscribe(pRes => {
+        //   if (pRes) {
+        //     if (pRes.result) {
+        //       let sResult = pRes.data;
+        //       this.oSelectedFile = sResult;
+        //       // console.log(sResult)
+        //       // this.oWpPopupDialogRef.componentInstance.patchValue({ 'TABLE_INFO': sResult });
+        //       this.oWpPopupDialogRef.componentInstance.patchValue({ 'TBL_NM': sResult.name });
+        //     }
+        //   }
+        // });
 
       } else {
         this.resetSelectedForm(this.o_SelectedFormData.CONNECTION_TYPE);

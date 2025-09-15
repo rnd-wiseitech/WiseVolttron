@@ -7,6 +7,6 @@ export class WpSeriveImple {
     oHeaders = { 'content-type': 'application/json'};
     constructor(cAppConfig:  WpAppConfig) {
         this.oNodeUrl = cAppConfig.getServerPath("NODE");
-        this.oPyUrl = cAppConfig.getServerPath("PY");
+        // this.oPyUrl = cAppConfig.getServerPath("PY");
     }
 }

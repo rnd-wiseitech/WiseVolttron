@@ -35,7 +35,6 @@ export class WpComponentViewerService extends WpSeriveImple {
     oCurrentComId = '';
     oUrl = this.cAppConfig.getServerPath("NODE");
     o_apiType = this.cAppConfig.getConfig('API_TYPE');
-    o_hiveCheck = this.cAppConfig.getUseConfig('HIVE_DB');
     o_fileFormat = this.cAppConfig.getConfig('FILE_FORMAT')
     setComId(pComId:string){
       this.oCurrentComId = pComId;
@@ -55,17 +54,10 @@ export class WpComponentViewerService extends WpSeriveImple {
             let sTmpFileList = []
             // #23 출력 관련 수정(통계 분석이 완료된 데이터만 선택 가능하도록 수정)
             for(let sRow of sFileList){
-                // if(sRow.STATUS_CODE == 40){   
-                // #121 VIEW_IDX null 일 경우를 제외하고 리스트 표시
-                // if (sRow.VIEW_IDX && sRow.AUTHORITY == '소유') {
+                
                 // VIEW_IDX가 0 이면 기능 작동 안해서 수정
                 if (sRow.VIEW_IDX !== null && sRow.VIEW_IDX !== undefined) {   
-                // 나중에 바꿔야됨       
-                    // if(sRow.TYPE == 'db')
-                    //   sTmpFileList.push(sRow.DS_VIEW_NM+'.csv');
-                    // else
-                    //   sTmpFileList.push(sRow.DS_VIEW_NM);
-                    // #95. 파일 형식 추가.
+               // #95. 파일 형식 추가.
                     // 파일이름만 넣는 것이 아닌 json으로 filename과 filetype을 push
                     // #109 VIEW_ID 저장
                     sTmpFileList.push({
