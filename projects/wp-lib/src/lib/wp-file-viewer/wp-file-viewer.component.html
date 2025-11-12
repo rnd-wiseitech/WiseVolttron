@@ -1,0 +1,90 @@
+<!-- <div class="panel-app" style="padding-top:40px;"> -->
+  <div class="panel-grid" style="height: 100%;">
+    <div class="panel" style="height: 100%;">
+      <div class="component-directory" style="height: 100%;">
+          <!-- <div id="file-manager" class="dxComp"></div> -->
+        <dx-file-manager #hFileMng id="hFileMng"
+          [fileSystemProvider]="oCustomFileProvider"
+          (onContextMenuItemClick)="onItemClick($event)"
+          (onCurrentDirectoryChanged)="onSetDirectory($event)"
+          (onSelectionChanged)="onSelectionChanged($event)"
+          (onToolbarItemClick)="onToolbarItemClick($event)"
+          height="100%">
+          <dxo-permissions
+              [create]="true"
+              [delete]="true"
+              [rename]="true"
+              [download]="true"
+              [move]="true"
+              [copy]="true">             
+          </dxo-permissions>
+          <!-- #72 -->
+          <!-- <dxo-notifications 
+              [showPanel]="false"
+              [showPopup]="false">
+          </dxo-notifications> -->
+          <dxo-item-view [showParentFolder]="false">
+              <dxo-details>
+                  <dxi-column dataField="thumbnail"></dxi-column>
+                  <dxi-column dataField="name" [width]="'68%'" caption="{{'DATA-MANAGER.COL-NAME' | translate }}"></dxi-column>
+                  <dxi-column dataField="owner" *ngIf="cAppConfig.getConfig('STORAGE_TYPE') != 'LOCAL' || cAppConfig.getConfig('STORAGE_TYPE') != 'OBJECT'" [width]="'13%'" caption="{{'DATA-MANAGER.COL-OWNER' | translate }}"></dxi-column>
+                  <!-- <dxi-column dataField="category" caption="Category" width="95"></dxi-column> -->
+                  <dxi-column dataField="dateModified" [width]="'9%'" caption="{{'DATA-MANAGER.COL-MODIFY' | translate }}"></dxi-column>
+                  <dxi-column dataField="size" [width]="'6%'" caption="{{'DATA-MANAGER.COL-SIZE' | translate }}" [alignment]="'center'"></dxi-column>
+              </dxo-details>
+          </dxo-item-view>
+          <dxo-toolbar>
+              <dxi-item name="showNavPane" visible="true"></dxi-item>
+              <dxi-item name="separator"></dxi-item>
+              <dxi-item name="create" location="before" locateInMenu="never" text="{{'DATA-MANAGER.CREATE-FOLDER' | translate }}"></dxi-item>
+              <!-- <dxi-item name="create" widget="dxButton" [width]="500" locateInMenu="never" showText="always" location="before" text="{{'DATA-MANAGER.CREATE-FOLDER' | translate }}"></dxi-item> -->
+              <dxi-item widget="dxMenu" location="before" [options]="newFileMenuOptions"></dxi-item>
+              <!-- #13 검색 -->
+              <dxi-item name="separator"></dxi-item>
+              <dxi-item name="" >
+                  <div class="input" style="display: flex;">
+                    <input type="text" class="side-search" style="height: 30px;" [(ngModel)]="h_SearchWord" placeholder="{{'DATA-MANAGER.SEARCH' | translate }}" (keyup.enter)="onApplyFilter()">
+                    <a class="ico search" style="width: 35px;height: 30px;" (click)="onApplyFilter()">search</a>
+                  </div>
+              </dxi-item>
+              <dxi-item name="separator" location="after"></dxi-item>
+              <!-- <dxi-item widget="dxButton" location="after" [options]="refreshOptions"></dxi-item> -->
+              <dxi-item name="refresh"></dxi-item>
+              <dxi-item name="separator" location="after"></dxi-item>
+              <dxi-item name="switchView"></dxi-item>
+              iProjectName
+              <dxi-file-selection-item name="rename" text="{{'DATA-MANAGER.RENAME' | translate }}"></dxi-file-selection-item>
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <dxi-file-selection-item name="move" text="{{'DATA-MANAGER.MOVE' | translate }}"></dxi-file-selection-item>
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <dxi-file-selection-item name="copy" text="{{'DATA-MANAGER.COPY' | translate }}" *ngIf="h_showBtn"></dxi-file-selection-item>
+              <!-- <dxi-file-selection-item widget="dxMenu" location="before" [options]="newFileMenuOptions"></dxi-file-selection-item> -->
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <dxi-file-selection-item name="delete" text="{{'DATA-MANAGER.DELETE' | translate }}"></dxi-file-selection-item>
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <dxi-file-selection-item name="download" text="{{'DATA-MANAGER.DOWNLOAD' | translate }}"></dxi-file-selection-item>
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <dxi-file-selection-item widget="dxMenu" location="before" [options]="selectFileMenuOptions"  *ngIf="iProjectName=='wiseprophet'&&h_showBtn"></dxi-file-selection-item>
+              <dxi-file-selection-item name="separator"></dxi-file-selection-item>
+              <!-- <dxi-file-selection-item name="refresh"></dxi-file-selection-item> -->
+              <dxi-file-selection-item name="clearSelection" text="{{'DATA-MANAGER.CANCEL' | translate }}"></dxi-file-selection-item>
+          </dxo-toolbar>
+          <!-- #72 -->
+          <!-- <dxo-context-menu>
+              <dxi-item name="rename" text="이름 변경"></dxi-item>
+              <dxi-item name="move" text="이동"></dxi-item>
+              <dxi-item name="delete" text="삭제"></dxi-item>
+              <dxi-item name="download" text="다운로드"></dxi-item>
+          </dxo-context-menu> -->
+          <dxo-context-menu [items]='h_ctxtMenuList'></dxo-context-menu>
+        </dx-file-manager>
+        
+        <wp-lib-data-uploader (callBack)="onRefresh($event)" [iService]="iService" [iType]="h_popup.uploadType" [iPath]="oCurrPath" *ngIf="h_popup.flag && iProjectName =='wpplatform'"></wp-lib-data-uploader>
+
+
+
+      </div>
+      
+    </div>
+  </div>
+<!-- </div> -->

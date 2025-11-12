@@ -21,16 +21,11 @@
     <li [ngClass]="oActiveTab == 'dm-volttron' ? 'on':''">
       <a (click)="onTabClick('dm-volttron')"><span>{{'WPP_DATA_MANAGER.MENU.menu7' | translate }}</span></a>
     </li>
-    <!-- <li [ngClass]="oActiveTab == 'dm-history' ? 'on':''" *ngIf="oUserMode =='ADMIN'">
-      <a (click)="onTabClick('dm-history')"><span>{{'WPP_DATA_MANAGER.MENU.menu6' | translate }}</span></a>
-    </li> -->
   </ul>
 </div>
 <div class="container">
   <dm-dataset *ngIf="oActiveTab == 'dm-dataset'"></dm-dataset>
   <dm-connection *ngIf="oActiveTab == 'dm-connection'"></dm-connection>
-  <dm-hive-query *ngIf="oActiveTab == 'dm-hive-query'"></dm-hive-query>
-  <dm-hdfs-viewer *ngIf="oActiveTab == 'dm-hdfs-viewer'"></dm-hdfs-viewer>
   <dm-dataset-profile *ngIf="oActiveTab == 'dm-dataset-profile'" [oProfileData]="oProfileData"></dm-dataset-profile>  
   <dm-schedule *ngIf="oActiveTab == 'dm-schedule'"></dm-schedule>
   <dm-volttron *ngIf="oActiveTab == 'dm-volttron'"></dm-volttron>

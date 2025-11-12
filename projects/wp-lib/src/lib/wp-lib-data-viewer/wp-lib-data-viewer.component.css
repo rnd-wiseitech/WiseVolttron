@@ -1,0 +1,23 @@
+/* #220 */
+/* .matCol{
+    min-width: 150px;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 5px;
+} */
+
+/* .cdk-virtual-scroll-viewport::-webkit-scrollbar{
+  width: 4px;
+  height: 4px;
+}
+.cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb{
+  height: 17%;
+  background-color: #d1d4db;
+  border-radius: 10px;  
+} */
+.typeIcon{
+  float: left;
+  margin-top: -2px;
+  color: #323e45;
+}
+  

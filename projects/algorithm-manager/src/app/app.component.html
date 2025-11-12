@@ -1,0 +1,13 @@
+<div class="tab type-header">
+  <ul>
+    <li [ngClass]="oActiveTab == 'model-manager' || (oActiveTab == 'model-profile' && oProfile=='wp-model')? 'on':''">
+      <a (click)="onTabClick('model-manager')"><span>모델 이력
+      </span></a>
+    </li>
+  </ul>
+</div>
+<div class="container">
+  <wp-model-manager *ngIf="oActiveTab == 'model-manager'"></wp-model-manager>
+  <wp-model-profile *ngIf="oActiveTab == 'model-profile'" [iProfileData]="oProfileData"></wp-model-profile>
+  <lib-wp-loading [iName]="'algorithmspin'" [iFullScreen]="true"></lib-wp-loading>  
+</div>

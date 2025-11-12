@@ -1,0 +1,42 @@
+.modal{
+    position: fixed;
+    top:15%;    
+}
+.fileContent{    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+/* .statusMark{
+    position: absolute;
+    margin-top: 18px;
+    display: none;
+    opacity: 0.6;
+}
+.statusMark.dz-success-mark{
+    color: #0474ff;
+}
+.statusMark.dz-error-mark{
+    color: #c90707;
+}
+.statusMark span{
+    font-size: 38px;
+} */
+
+.fileNmText{    
+    max-width: 100px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+    margin: 0 5px 0 5px;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fileNmText:hover{
+    overflow: visible; 
+    white-space: normal;
+}

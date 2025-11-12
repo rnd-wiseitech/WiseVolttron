@@ -1,0 +1,136 @@
+<div class="panel-app">
+    <div class="panel-single" style="display: flex;">
+        <div style="padding-left: 21px;padding-top: 20px;width: 350px;height:100%;border-right: 3px solid #f0f1f7;">
+            <div style="margin-bottom:20px;">
+                <div class="tab type-file left">
+                  <ul style="padding: 0px;">
+                    <li class="button" style="margin-right: 5px;">
+                      <a (click)="loadFormData('group','new')"><span>{{'WPP_USER_MANAGER.USER_MANAGE.BUTTON.button1' | translate }}</span></a>
+                    </li>
+                    <li class="button">
+                      <a (click)="loadFormData('user','new')"><span>{{'WPP_USER_MANAGER.USER_MANAGE.BUTTON.button2' | translate }}</span></a>
+                    </li>
+                    <!-- WPLAT-361 9번-->
+                    <li class="button" *ngIf="o_LdapUse">
+                        <a (click)="onSyncLdap()"><span>동기화</span></a>
+                    </li>
+                    <!-- <li class="button setting">
+                      <a (click)="onSelectModeToggle()"><span>조직도 편집</span></a>
+                    </li> -->
+                  </ul>
+                </div>
+            </div>
+
+            <!-- <dx-tree-view
+                [items]="oOrgChart"
+                [searchEnabled]="true"
+                [showCheckBoxesMode]="h_selectionMode"
+                [selectionMode]="'multiple'"
+                [selectNodesRecursive]="true"
+                [selectByClick]="true"
+                searchMode="contains"
+                dataStructure="plain"
+                keyExpr="key"
+                displayExpr="name"
+                parentIdExpr="parent_id"
+                expandedExpr="false">
+            </dx-tree-view> -->
+            
+            <dx-sortable
+                filter=".dx-treeview-item"
+                group="shared"
+                data="orgChart"
+                [allowDropInsideItem]="true"
+                [allowReordering]="false"
+                (onDragChange)="onDragChange($event)"
+                (onDragEnd)="onDragEnd($event)"
+            >
+                <dx-tree-view
+                #treeviewOrgChart
+                id="treeviewOrgChart"
+                [items]="oOrgChart"
+                dataStructure="plain"
+                keyExpr="key"
+                displayExpr="name"
+                parentIdExpr="parent_id"
+                (onItemClick)="onSelectItem($event)"
+                [expandNodesRecursive]="false"
+                >
+                </dx-tree-view>
+            </dx-sortable>
+
+        </div>
+        
+        <div>
+            <!-- <div style="width:500px;height:500px;"> -->
+            <div style="margin:20px 100px;width: 800px;"  *ngIf="objectKeys(oPopData).length!=0">
+                <div class="" [ngStyle]="objectKeys(oPopData).length==0 ?  {'opacity': 0} : {'opacity': 1}">
+                    <div class="modal-header" style="height: 60px;font-size: 24px;text-align: center;padding-top: 20px;margin-bottom: 20px;">
+                        {{oPopData.title}}
+                        <!-- <div class="tit">
+                        </div> -->
+                    </div>
+                    <div class="modal-body">
+                        <!-- (formData) -->
+                        <ng-container>
+                            <form [formGroup]="oFormGroup">
+                                <div class="app-inner">
+                                    <div class="input-item" *ngFor="let sForm of oPopData.formdata" style="padding-bottom: 20px;">
+                                        <div *ngIf="sForm.visible">
+                                            <div class="input-item-inner" *ngIf="sForm.type!='password'">
+                                                <label [for]="sForm.vname" class="like-label">{{sForm.vname}}</label>
+                                                <!-- SELECT BOX -->
+                                                <select *ngIf="sForm.type=='select'" [formControlName]="sForm.name"
+                                                    (change)="sForm.callbak != null ? onSelectChanged(oFormGroup.get(sForm.name).value,sForm.callbak.name) :  null">
+                                                    <option *ngFor="let sOption of sForm.fvalue; let sOptIdx = index;"
+                                                        [ngValue]="sForm.fvalue[sOptIdx]">{{sOption}}
+                                                    </option>
+                                                </select>
+                                                <dx-select-box *ngIf="sForm.type=='select_group'"
+                                                    [dataSource]="oGroupBoxData"
+                                                    displayExpr="name"
+                                                    valueExpr="key"
+                                                    [value]="oSelectGroupId"
+                                                    (onValueChanged)="onSelectChanged2($event)"
+                                                ></dx-select-box>
+                                                <!-- TEXT BOX -->
+                                                <input *ngIf="sForm.type=='text' && sForm.name != 'CRON_INFO'" type="text"
+                                                    [formControlName]="sForm.name"
+                                                    [placeholder]="" appForbiddenName="bob">
+                                            </div>
+                                            <!-- PASSWORD -->
+                                            <ng-container *ngIf="sForm.type=='password'">
+                                                <label [for]="sForm.vname" class="like-label">{{sForm.vname}}</label>
+                                                <div class="input-item-inner type-ico">
+                                                    <input type="password" [formControlName]="sForm.name">
+                                                    <a (click)="onPasswordVisible($event)" class="ico visibility on">visibility</a>
+                                                </div>
+                                            </ng-container>
+                        
+                                            <mat-error *ngIf="oFormGroup.get(sForm.name).invalid">{{onShowErrMsg(sForm.name)}}</mat-error>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </form>            
+                        </ng-container>
+                    </div>
+                    <div class="modal-footer" style="text-align: center;padding-top: 30px;">
+                        <div class="grid-div">
+                            <div class="right">
+                                <a class="btn big" (click)="onConfirm()">{{oFormTitle[h_mode]}}</a>
+                                <a class="btn big natural modalClose" (click)="onDelete($event)" *ngIf="h_mode=='modify'"
+                                    style="margin-left: 30px;">삭제</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="modal-controller">
+                        <a class="ico close modalClose" (click)="onCancel()">닫기</a>
+                    </div> -->
+                </div>
+                <div class="modal-dim on"></div>
+            </div>
+        </div>
+        
+    </div>
+</div>

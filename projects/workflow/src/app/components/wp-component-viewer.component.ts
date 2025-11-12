@@ -153,7 +153,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = undefined;
       }
       // 공통 사용으로 아래로 뺌
-      if (![COM_ID['I-HDFS'], COM_ID['I-DATASOURCE'], COM_ID['I-STREAMING'], COM_ID['I-HIVE'], COM_ID['I-DATABASE'], COM_ID['T-MERGE'], COM_ID['T-JOIN'], COM_ID['A-COMPARE_MODEL'], COM_ID['A-FILTER_MODEL']].includes(sInitSize.currentValue.type)) {
+      if (![COM_ID['I-DATASOURCE'], COM_ID['I-STREAMING'], COM_ID['I-HIVE'], COM_ID['I-DATABASE'], COM_ID['T-MERGE'], COM_ID['T-JOIN'], COM_ID['A-COMPARE_MODEL'], COM_ID['A-FILTER_MODEL']].includes(sInitSize.currentValue.type)) {
         if (this.oParentCnt > 0) {
           let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
           if (sComData && this.h_EditFlag) {
@@ -490,36 +490,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
     let s_result:any = await this.cComViewSvc.getArgInfo(pModelType);
     return s_result[0]
   }
-  // getModelArgNm(pModelType: string) {
-  //   let sModelType = pModelType;
-  //   switch (pModelType) {
-  //     case 'DecisionTree':
-  //       sModelType = "Decision Tree";
-  //       break;
-  //     case 'RandomForest':
-  //       sModelType = "Random Forest";
-  //       break;
-  //     case 'GradientBoosting':
-  //       sModelType = "Gradient Boosting";
-  //       break;
-  //     case 'ElasticNet':
-  //       sModelType = "Elastic Net";
-  //       break;
-  //     case 'LogisticRegression':
-  //       sModelType = "Logistic Regression";
-  //       break;
-  //     case 'Kmeans':
-  //       sModelType = "K-means";
-  //       break;
-  //     case 'GaussianMixture':
-  //       sModelType = "Gaussian Mixture";
-  //       break;
-  //     case 'KMedoids':
-  //       sModelType = "K-Medoids";
-  //       break;
-  //   }
-  //   return sModelType;
-  // }
+  
   public getItemIndexByElem(pElem: Element) {
     return Array.from(pElem.parentNode.children).indexOf(pElem)
   }

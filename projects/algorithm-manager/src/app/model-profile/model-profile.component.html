@@ -1,0 +1,322 @@
+<div class="panel-app col-2" style="height: 100%;">
+  <div class="panel-group" style="padding-top: 40px;">
+    <div class="panel-head grid-pos">
+      <div class="tab type-file left">
+        <ul>
+          <li class="button natural line">
+            <a class="ico back" (click)="cAppSvc.changeTab(h_activeTab)">back</a>
+          </li>
+          <!-- <li class="button line">
+            <a class="ico modify">modify</a>
+          </li> -->
+          <li class="readonly">
+            <a class="name"><span>{{iProfileData.MODEL_NM}} <em class="gray"> | {{iProfileData.MODEL_EVAL_TYPE}}</em></span></a>
+            <!-- <div><dx-tooltip [(visible)]="h_tooltipVisible"><p>Tooltip content</p></dx-tooltip></div> -->
+          </li>
+        </ul>
+      </div>
+      <div class="side-control right">
+        <ul class="page-tab-ui">
+          <li *ngIf="h_deployHistoryList[0]" class="button" id="model-predict-btn">
+            <div class="button" style="width:120px">
+              <a (click)="onClickHeaderBtn('model-predict')">
+                <span style="white-space: pre-line;">{{'WPP_MODEL_MANAGER.MANAGE.POPUP.popup4' | translate }}</span>
+              </a>
+            </div>
+          </li>
+          <!-- <li rel="tabPanel_1" class="on" (click)="togglePanel($event)">
+            <div class="button">
+              <a class="ico alram active">
+                alram
+              </a>
+            </div>
+          </li> -->
+          <li rel="tabPanel_2" (click)="togglePanel($event)">
+            <div class="button">
+              <a class="ico history">
+                history
+                <span class="ico-status"></span>
+              </a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="panel-single" style="padding-top: 0px;">
+      <div class="panel model-info">
+
+        <div class="model-info-grid" style="width: 40%;">
+          <div class="model-info-inner">
+            <div class="row">
+              <div class="column">
+                <!-- 모델 정보  -->
+                <div class="title">
+                  {{'WPP_MODEL_MANAGER.MANAGE.INFO.info1' | translate }}
+                </div>
+                <ng-container *ngIf="oModelInfoForm">
+                  <lib-wp-grid (callBack)="oModelInfoForm.gridCallback($event)" [iComptNm]="oModelInfoForm.comptNm"
+                    [iRowEvt]="oModelInfoForm.gridRowEvt" [iHoverEffect]="oModelInfoForm.hoverEffect"
+                    [iGridData]="oModelInfoForm.gridData" [iColInfo]="oModelInfoForm.gridCol" [iHead]="oModelInfoForm.gridHeader"
+                    >
+                  </lib-wp-grid>
+                </ng-container>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="model-info-grid"  style="width: 60%;">
+          <div [id]="oModelParamForm"  class="model-info-inner" style="width:59%;float:left;">
+            <div class="row">
+              <div class="column">
+                <!-- 파라미터  -->
+                <div class="title">
+                  {{'WPP_MODEL_MANAGER.MANAGE.INFO.info9' | translate }}
+                </div>
+                <ng-container *ngIf="oModelParamForm">
+                  <!-- 일반 모델 -->
+                  <ng-container *ngIf="iProfileData.tags.ensemble == 'N'">
+                  <lib-wp-grid (callBack)="oModelParamForm.gridCallback($event)" [iComptNm]="oModelParamForm.comptNm"
+                    [iRowEvt]="oModelParamForm.gridRowEvt" [iHoverEffect]="oModelParamForm.hoverEffect"
+                    [iGridData]="oModelParamForm.gridData" [iColInfo]="oModelParamForm.gridCol" [iHead]="oModelParamForm.gridHeader"
+                    [iPage]="oModelParamForm.page" [iPageSize]="oModelParamForm.pageSize">
+                  </lib-wp-grid>
+                  </ng-container>
+                  <!-- 앙상블 모델 -->
+                  <ng-container *ngIf="iProfileData.tags.ensemble == 'Y'">
+                    <div class="row scrollbar" *ngIf="h_ensembleKeyList">
+                      <a *ngFor="let sKey of h_ensembleKeyList" [class]="h_ensembleSelectModel == sKey? 'btn positive line':'btn normal line'" (click)="clickModelNmBtn(sKey)">{{sKey}}</a>
+                    </div>
+                    <lib-wp-grid (callBack)="oModelParamForm.gridCallback($event)" [iComptNm]="oModelParamForm.comptNm"
+                      [iRowEvt]="oModelParamForm.gridRowEvt" [iHoverEffect]="oModelParamForm.hoverEffect"
+                      [iGridData]="oModelParamForm.gridData" [iColInfo]="oModelParamForm.gridCol" [iHead]="oModelParamForm.gridHeader"
+                      [iPage]="oModelParamForm.page" [iPageSize]="oModelParamForm.pageSize">
+                    </lib-wp-grid>
+                  </ng-container>
+
+                </ng-container>
+              </div>
+            </div>
+          </div>
+          <!--WPLAT-358 -->
+          <div [id]="oModelScoreForm? 'modelTable': ''" class="model-info-inner modelEvaluation" style="width: 40%;">
+            <div class="row">
+              <div class="column">
+                <!-- 평가지표  -->
+                <div class="title" *ngIf="o_customYn =='N'">
+                  {{'WPP_MODEL_MANAGER.MANAGE.INFO.info12' | translate }}
+                </div>
+                <div class="title" *ngIf="o_customYn =='Y'">
+                  업로드 모델 정보
+                </div>
+                <ng-container *ngIf="oModelScoreForm">
+                  <lib-wp-grid (callBack)="oModelScoreForm.gridCallback($event)" [iComptNm]="oModelScoreForm.comptNm"
+                    [iRowEvt]="oModelScoreForm.gridRowEvt" [iHoverEffect]="oModelScoreForm.hoverEffect"
+                    [iGridData]="oModelScoreForm.gridData" [iColInfo]="oModelScoreForm.gridCol"
+                    [iHead]="oModelScoreForm.gridHeader" [iPage]="oModelScoreForm.page" [iPageSize]="oModelScoreForm.pageSize">
+                  </lib-wp-grid>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-info-grid" *ngIf="o_customYn =='N'">
+          <div class="model-info-inner">
+            <!-- 차트 영역 -->
+            <div class="title" *ngIf="oModelType != 'Language'" style="font-weight:500;">
+              {{'WPP_MODEL_MANAGER.MANAGE.INFO.info19' | translate }}
+            </div>
+            <div class="chart" [ngStyle]="{'height': oModelType == 'Language' ? '85%' : 'auto'}">
+              <!-- CHART -->
+              <ng-container *ngIf="oModelType && oModelResultChart">
+                <!-- Classification 차트 --> <!--280강화학습--> <!-- 이미지 추가 -->
+                <ng-container *ngIf="oModelType=='Classification' || oModelType=='Reinforcement'  || oModelType=='Image'">
+                  <wp-lib-confusion-chart [targetId]="'confusionChart'"
+                    [chartData]="oModelResultChart"></wp-lib-confusion-chart>
+                </ng-container>
+                <!-- Regression 차트 -->
+                <ng-container *ngIf="oModelType == 'Regression' || oModelType=='Recommend'">
+                  <wp-lib-common-chart [targetId]="'evalutionChart'"
+                    [chartData]="oModelResultChart"></wp-lib-common-chart>
+                </ng-container>
+                <!-- Cluster 차트 -->
+                <ng-container *ngIf="oModelType == 'Clustering'">
+                  <wp-lib-common-chart [targetId]="'evalutionClusterChart'"
+                    [chartData]="oModelResultChart"></wp-lib-common-chart>
+                </ng-container>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-info-grid" *ngIf="o_customYn =='N'">
+          <!--WPLAT-358 -->
+          <div class="model-info-inner" id="model-table" *ngIf="h_deepModel==false">
+            <!-- 차트 영역 -->
+            <ng-container *ngIf="oModelType!='Clustering'">
+              <!--이미지 조건 추가-->
+              <ng-container *ngIf="oModelInfluenceChart && oModelType!='Recommend' && oModelType!='Reinforcement' && oModelType!='Language' && oModelType!='Image'">
+                <div class="title">
+                  {{'WPP_MODEL_MANAGER.MANAGE.INFO.info13' | translate }}
+                </div>
+                <div class="chart">
+                  <wp-lib-common-chart [targetId]="'influeceChart'" [chartData]="oModelInfluenceChart"></wp-lib-common-chart>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="oModelInfluenceChart && oModelType=='Recommend'">
+                <div class="title">
+                  추천 유사도 분석 결과
+                </div> 
+                <div class="chart">
+                  <wp-lib-confusion-chart [targetId]="'influeceChart'" [chartData]="oModelInfluenceChart"></wp-lib-confusion-chart>
+                </div>
+              </ng-container>
+              <!-- YOLO PR CURVE 차트 나중엔 이미지모델에서 타입별로 차트 그려야할수도-->
+              <ng-container *ngIf="oModelInfluenceChart && oModelType=='Image'">
+                <div class="title">
+                  Precision-Recall Curve
+                </div> 
+                <div class="chart">
+                  <wp-lib-common-chart [targetId]="'influeceChart'" [chartData]="oModelInfluenceChart"></wp-lib-common-chart>
+                </div>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="oModelType=='Clustering'">
+                <ng-container *ngIf="oClusterCenterForm">
+                  <div class="title">
+                    {{'WPP_MODEL_MANAGER.MANAGE.INFO.info22' | translate }}
+                  </div>
+                  <lib-wp-grid (callBack)="oClusterCenterForm.gridCallback($event)" [iComptNm]="oClusterCenterForm.comptNm"
+                    [iRowEvt]="oClusterCenterForm.gridRowEvt" [iHoverEffect]="oClusterCenterForm.hoverEffect"
+                    [iGridData]="oClusterCenterForm.gridData" [iColInfo]="oClusterCenterForm.gridCol"
+                    [iHead]="oClusterCenterForm.gridHeader" [iPage]="oClusterCenterForm.page"
+                    [iPageSize]="oClusterCenterForm.pageSize">
+                  </lib-wp-grid>
+                </ng-container>
+            </ng-container>
+          </div>
+          <!--WPLAT-358 -->
+          <div class="model-info-inner" *ngIf="h_deepModel==true">
+            <div class="title">
+              모델 정의
+            </div>
+            <div style="white-space: pre-wrap; padding-left: 20px;">
+              {{o_modelCode}}
+            </div>
+          </div>
+        </div>
+        <div class="model-info-grid" *ngIf="o_customYn =='Y' && h_layer==true" style="width: 99.6%;">
+          <div class="model-info-inner" style="padding-right: 10px; padding-left: 10px;">
+          <div class="title">
+            모델 레이어 정보
+          </div>
+          <ng-container *ngIf="o_layerGridForm">
+            <div style="height: 60%;">
+            <lib-wp-grid (callBack)="o_layerGridForm.gridCallback($event)" [iComptNm]="o_layerGridForm.comptNm"
+              [iRowEvt]="o_layerGridForm.gridRowEvt" [iHoverEffect]="o_layerGridForm.hoverEffect"
+              [iGridData]="o_layerGridForm.gridData" [iColInfo]="o_layerGridForm.gridCol"
+              [iHead]="o_layerGridForm.gridHeader" [iPage]="o_layerGridForm.page" [iPageSize]="o_layerGridForm.pageSize">
+            </lib-wp-grid>
+          </div>
+          </ng-container>
+          <div *ngIf="o_layerParam" style="padding-top: 10px;">
+            <div *ngFor="let key of objectKeys(o_layerParam)" style="padding-bottom: 2px;">
+              <strong style="color:#807d7d;">{{ key }}</strong>: {{ o_layerParam[key] }}
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="panel-tab">
+        <div id="tabPanel" class="tab-component">
+          <div class="panel tabPanel_1 tab-content on">
+            <div class="component-table scrollbar" style="position: relative;">
+              <div class="component-alram" *ngIf="h_ModelHistoryList.length > 1">
+                <ul>
+                  <li>
+                    <label for="" class="like-label">{{'WPP_MODEL_MANAGER.MANAGE.POPUP.popup1' | translate }}</label>
+                    <div class="alram-item history-item" (click)="showHistoryPopup()">
+                      <div class="alram-item-inner">
+                        <p class="message">
+                          {{'WPP_MODEL_MANAGER.MANAGE.INFO.info15' | translate }}
+                        </p>
+                        <span class="time"></span>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="history-item-li" *ngFor="let sHistoryIdx of h_ModelHistoryList">
+                    <div class="current-tit" *ngIf="sHistoryIdx.MODEL_IDX == iProfileData.MODEL_IDX">
+                      <em class="positive">({{'WPP_MODEL_MANAGER.MANAGE.INFO.info16' | translate }})</em> {{sHistoryIdx.MODEL_ID}}-{{sHistoryIdx.MODEL_IDX}}
+                    </div>
+                    <div (click)="onClickHistoryItem(sHistoryIdx)" class="old-tit"
+                      *ngIf="sHistoryIdx.MODEL_IDX != iProfileData.MODEL_IDX">
+                      {{sHistoryIdx.MODEL_ID}}-{{sHistoryIdx.MODEL_IDX}}
+                    </div>
+                    <span class="time">{{sHistoryIdx.REG_DATE | date:'YYYY/MM/dd hh:mm:ss' }}</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="component-history">
+                <ul *ngIf="h_deployHistoryList.length!=0">
+                  <li>
+                    <label for="" class="like-label">{{'WPP_MODEL_MANAGER.MANAGE.INFO.info20' | translate }}</label>
+                    <div *ngIf="h_deployHistoryList.length==0" class="history-item">
+                      <div class="nodata">
+                        <div class="el-table">
+                          <div class="el-cell" style="top: 0;">
+                            <p>No data to display</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="history-item">
+                      <ol>
+                        <li *ngFor="let sHistoryIdx of h_deployHistoryList">
+                          <div class="change-tit">{{'WPP_MODEL_MANAGER.MANAGE.INFO.info21' | translate }} &nbsp;
+                            {{sHistoryIdx.VALUE}}</div>
+                          <span class="time">{{sHistoryIdx.UPD_DT | date:'MM/dd hh:mm' }}</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </li>
+                </ul>
+                <ul *ngIf="h_pipelist.length!=0">
+                  <li>
+                    <label for="" class="like-label">{{'WPP_DATA_MANAGER.DATASET.INFO.info19' | translate }}</label>
+                    <div *ngIf="h_pipelist.length==0" class="component-table" style="margin-top: 15px;height: 20px;">
+                      <div class="nodata">
+                        <div class="el-table">
+                          <div class="el-cell" style="top: 0;">
+                            <p>No data to display</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="history-item">
+                      <ol>
+                        <li *ngFor="let sPipeIdx of h_pipelist">
+                          <div class="change-tit" (click)="onLoadWorkFlow(sPipeIdx.WF_ID, 'workflow')">{{sPipeIdx.WF_NM}}</div>
+                          <span class="time">{{sPipeIdx.REG_DT | date:'MM/dd hh:mm' }}</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+  <div style="height: 100%;">
+      <wp-lib-data-uploader (callBack)="onRefresh($event)" *ngIf="h_popup.flag" [iService]="cAppSvc" [iType]="h_popup.uploadType"
+        [iPath]="oCurrPath" [iSingleUpload]="h_popup.singleUpload" [iBtnText]="h_btnText" [iFileType]="h_popup.fileType" [iModelURL]="h_popup.modelURL"></wp-lib-data-uploader>
+    </div>
+  </div>
+</div>

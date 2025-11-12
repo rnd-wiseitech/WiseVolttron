@@ -9,17 +9,17 @@ import { WploginRoutingModule } from './app-routing.module';
 
 import { WpLoginAppComponent } from './app.component';
 import { AppConfig } from './app.config';
-import { WpForgotPasswdComponent } from './login/forgot-passwd/forgot-passwd.component';
+// import { WpForgotPasswdComponent } from './login/forgot-passwd/forgot-passwd.component';
 import { WpLoginService } from './login/login.service';
 import { WpSigninComponent } from './login/signin/signin.component';
-import { WpSignupComponent } from './login/signup/signup.component';
+// import { WpSignupComponent } from './login/signup/signup.component';
 
 @NgModule({
   declarations: [
     WpLoginAppComponent,
     WpSigninComponent,
-    WpForgotPasswdComponent,
-    WpSignupComponent
+    // WpForgotPasswdComponent,
+    // WpSignupComponent
   ],
   imports: [
     FormsModule,

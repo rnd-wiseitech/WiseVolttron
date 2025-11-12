@@ -1,0 +1,62 @@
+
+<cdk-virtual-scroll-viewport class="component-table scrollbar dataView-scroll" itemSize="h_itemSize">
+
+  
+  <!-- // #64 -->
+<!-- [style.height.px]="380" -->
+<!-- #220 아이콘 및 그래프 헤더 추가 -->
+  <table matTableExporter  #exporter="matTableExporter" mat-table [dataSource]="iDataSource" class="mat-elevation-z8  download_table" style="width: 100%;border-collapse: separate;">
+    <ng-container *ngFor="let schmIdx of iColumnsInfo;let colIdx = index" [matColumnDef]="schmIdx.name">
+      <!-- #220 -->
+        <th class="matCol" mat-header-cell *matHeaderCellDef >
+          <!-- header 컬럼명 여러줄로 나오는거 수정 -->
+          <div style="display: flex;width: max-content;" class="ico-tit">
+            <mat-icon class="material-icons-round typeIcon" *ngIf="iGraphColInfo.length!=0 && iGraphColInfo[colIdx]['datatype']=='numerical'">numbers</mat-icon> 
+            <mat-icon class="material-icons-round typeIcon" *ngIf="iGraphColInfo.length!=0 && iGraphColInfo[colIdx]['datatype']=='categorical'">category</mat-icon> 
+            <mat-icon class="material-icons-round typeIcon" *ngIf="iGraphColInfo.length!=0 && iGraphColInfo[colIdx]['datatype']=='text'">title</mat-icon> 
+            <span style="margin:0px 10px 0px 10px;width: 100%;">{{ schmIdx.name }}</span>
+          </div>
+        </th>        
+        <!-- <td mat-cell *matCellDef="let transaction"> {{transaction.item}} </td>
+        <td mat-footer-cell *matFooterCellDef> Total </td> -->
+
+        <!-- <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ schmIdx.name }} </th> -->
+        <!-- <td class="matCol" mat-cell *matCellDef="let element" style="padding-left: 10px;padding-right: 5px;"> {{ element[schmIdx.name] }} </td> -->
+        <!-- 이미지데이터셋 수정중 -->
+        <td class="matCol" mat-cell *matCellDef="let element" style="padding-left: 10px;padding-right: 5px;">
+          <ng-container *ngIf="schmIdx.name === 'base64'; else normalText">
+            <img [src]="element[schmIdx.name]" style="width: 200px; height: 200px;">
+          </ng-container>
+          <ng-template #normalText>
+            {{ element[schmIdx.name] }}
+          </ng-template>
+        </td>
+    </ng-container>
+    
+    <ng-container *ngFor="let graphIdx of iDisplayedGraphColumns;let colIdx = index" [matColumnDef]="graphIdx">
+      <th class="matCol" mat-header-cell *matHeaderCellDef style="border: 1px solid #ebebeb;padding-left: 10px;padding-right: 5px; text-align: center;"> 
+        
+        <div *ngIf="iGraphColInfo.length!=0" class="tbl-chart"><iframe class="chartjs-hidden-iframe" style="width: 100%; display: block; border: 0px; height: 0px; margin: 0px; position: absolute; inset: 0px;"></iframe>          
+          <canvas  class="chart_obj" id="h_{{iGraphColInfo[colIdx].column}}" [ngClass]="iGraphColInfo[colIdx].datatype == 'categorical' ? 'tblBarChart':'tblLineChart'" *ngIf="iGraphColInfo[colIdx].datatype=='numerical' || (iGraphColInfo[colIdx].datatype=='categorical' && 11 > iGraphColInfo[colIdx].distinct_count)" style="display: block;"></canvas>  
+        <!-- <div *ngIf="iGraphColInfo.length!=0" style="margin-top: 10px;"> -->
+            <!-- <canvas id="h_{{iGraphColInfo[colIdx].COL_NM}}" *ngIf="iGraphColInfo[colIdx].DATA_TYPE=='numerical' || (iGraphColInfo[colIdx].DATA_TYPE=='categorical' && 11 > iGraphColInfo[colIdx].COL_UNI_CNT)" style="width: 100%;height: 70px;"></canvas>
+            <div style="height: 20px;margin-bottom: 10px;" [ngStyle]="iGraphColInfo[colIdx].DATA_TYPE=='categorical' && iGraphColInfo[colIdx].COL_UNI_CNT >= 11 ?{'font-size': '20px', 'margin-top':'-10px'} : {'font-size':'13px'}">
+              <span *ngIf="iGraphColInfo[colIdx].DATA_TYPE=='categorical'" > {{iGraphColInfo[colIdx].COL_UNI_CNT}} types </span> 
+              <span *ngIf="iGraphColInfo[colIdx].DATA_TYPE=='numerical'" style="font-size: 13px;"> {{iGraphColInfo[colIdx].COL_MIN | number}} - {{iGraphColInfo[colIdx].COL_MAX | number}} </span>              
+            </div> -->
+        </div>
+        <span *ngIf="iGraphColInfo.length!=0 && iGraphColInfo[colIdx]['datatype']=='categorical'" > {{iGraphColInfo[colIdx].distinct_count}} types </span> 
+        <span *ngIf="iGraphColInfo.length!=0 && iGraphColInfo[colIdx]['datatype']=='numerical'" style="font-size: 13px;"> {{iGraphColInfo[colIdx].min | number}} - {{iGraphColInfo[colIdx].max | number}} </span>         
+      </th>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="iDisplayedColumns;sticky:true;"></tr>
+    <!-- #220 그래프 -->
+    <ng-container *ngIf="iDisplayedGraphColumns.length > 0">
+    <tr mat-header-row *matHeaderRowDef="iDisplayedGraphColumns;sticky:true;"></tr>
+  </ng-container>
+    <ng-template let-row matRowDef cdkVirtualFor [matRowDefColumns]="iDisplayedColumns" [cdkVirtualForOf]="iDataSource">
+      <tr mat-row></tr>
+    </ng-template>
+  </table>
+</cdk-virtual-scroll-viewport>
+

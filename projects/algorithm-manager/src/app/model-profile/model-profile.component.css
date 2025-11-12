@@ -1,0 +1,160 @@
+.panel.model-info {
+    background: #f4f7f9;
+}
+
+.model-info-grid:nth-child(even) {
+    padding: 8px 10px 0px 4px;
+    height: 47%;
+    max-height: 500px;
+    width: 50%;
+    display: inline-block;
+}
+.model-info-grid:nth-child(odd) {
+    padding: 8px 4px 0px 10px;
+    height: 47%;
+    max-height: 500px;
+    width: 50%;
+    display: inline-block;
+}
+
+.model-info-inner {
+    float: right;
+    width: 100%;
+    background: white;
+    height: 100%;
+    border-radius: 6px;
+    border: 1px solid #f0f1f7;
+}
+
+.model-info-inner .title {
+    display: flex;
+    justify-content: center;
+    color: #677380;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: 800;
+    font-size: large;
+}
+
+.model-info-inner .column {
+    margin: 0px 5px 0px 5px;
+    width: 100%;
+    height: 100%;
+    max-height: 400px;
+}
+
+::ng-deep .model-info-inner .chart canvas {
+    max-width: 730px;
+    max-height: 350px;
+    width: 97%;
+    height: 97%;
+}
+
+::ng-deep table.mat-elevation-z8 {
+    box-shadow: none;
+}
+
+li#model-predict-btn .button {
+  border-radius: 10px;
+  bottom: 3px;
+  height: 30px;
+  border: 2px solid #f0f1f7;
+  background: #fafafa;
+  min-width: 32px;
+}
+
+li#model-predict-btn .button .ico {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+li#model-predict-btn .button .ico:before {
+    width: 20px;
+    height: 20px;
+}
+
+li#model-predict-btn .button:hover {
+    opacity: 0.8;
+}
+
+li#model-predict-btn .button a {
+    border-radius: 6px 6px 0 0;
+}
+
+li#model-predict-btn .button a span {
+    display: block;
+    color: #3751ff;
+    font-weight: 600;
+    position: relative;
+    padding-left: 24px;
+    line-height: 30px;
+    padding-right: 10px;
+    font-size: 1.2rem;
+    line-height: 28px;
+}
+
+li#model-predict-btn .button a span:before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("assets/images/ico-added-on@3x.png") no-repeat;
+    background-size: contain;
+    vertical-align: middle;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    margin: auto;
+}
+
+.history-item, .history-item-li>.old-tit {
+    cursor: pointer;
+}
+
+.history-item-li>.current-tit {
+    color: #323e45;
+}
+
+li.history-item-li {
+    display: block;
+    border: 1px solid #f0f1f7;
+    border-radius: 6px;
+    padding: 16px;
+    background: #fff;
+}
+
+li.history-item-li .change-tit {
+    font-size: 1.2rem;
+    color: #323e45;
+    font-weight: 500;
+}
+
+li.history-item-li .time {
+    display: block;
+    font-size: 1.1rem;
+    color: #c3c6c7;
+}
+
+li.history-item-li+li {
+    margin-top: 10px;
+}
+
+::ng-deep .model-info-grid .model-info-inner#model-table .scroll-wrapper.component-table.scrollbar {
+    height: 80%;
+}
+/* 앙상블 상단 버튼 스크롤바가 있어서 하단 테이블 높이 조정*/
+::ng-deep .model-info-grid .model-info-inner#ensemble-table .scroll-wrapper.component-table.scrollbar {
+    height: 70%;
+}
+::ng-deep .model-info-grid#ensemble .scroll-wrapper.row.scrollbar {
+    height: auto;
+    width: 98%;
+}
+::ng-deep .model-info-grid#ensemble .model-info-inner#page-table .scroll-wrapper.component-table.scrollbar {
+    height: 70%;
+}
+

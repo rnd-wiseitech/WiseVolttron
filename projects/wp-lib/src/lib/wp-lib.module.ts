@@ -1,27 +1,26 @@
 import {  } from '@angular/compiler/src/core';
 import { NgModule,APP_INITIALIZER,ModuleWithProviders } from '@angular/core';
 import { WpChartModule } from './chart/wp-chart.module';
-// import { WpFileViewerModule } from './wp-file-viewer/wp-file-viewer.module';
+import { WpFileViewerModule } from './wp-file-viewer/wp-file-viewer.module';
 import { WpGridModule } from './wp-grid/wp-grid.module';
 import { WpAppConfig } from './wp-lib-config/wp-lib-config';
 import { WpLoadingModule } from './wp-lib-loading/wp-lib-loading.module';
 import { WpModalModule } from './wp-lib-modal/wp-lib-modal.module';
 import { WpLibComponent } from './wp-lib.component';
 import { WpPopupModule } from './wp-popup/wp-popup.module';
-// import { WpSwitchComponent } from './wp-switch/wp-switch.component';
-// import { WpPopupProphetModule } from './wp-popup/wp-popup-prophet.module';
+import { WpSwitchComponent } from './wp-switch/wp-switch.component';
+import { WpPopupProphetModule } from './wp-popup/wp-popup-prophet.module';
 
 
 @NgModule({
   declarations: [
     WpLibComponent,
-    // WpSwitchComponent,
+    WpSwitchComponent,
   ],
   imports: [
-    // WpFileViewerModule,
-    // WpPopupDiagramSharedModule.forRoot(),
+    WpFileViewerModule,
     WpPopupModule,
-    // WpPopupProphetModule,
+    WpPopupProphetModule,
     WpModalModule,
     WpLoadingModule,
     WpGridModule,
@@ -34,10 +33,10 @@ import { WpPopupModule } from './wp-popup/wp-popup.module';
     multi: true 
   }],
   exports: [
-    // WpSwitchComponent,
-    // WpFileViewerModule,
+    WpSwitchComponent,
+    WpFileViewerModule,
     WpPopupModule,
-    // WpPopupProphetModule,    
+    WpPopupProphetModule,    
     WpModalModule,
     WpLoadingModule,
     WpGridModule,

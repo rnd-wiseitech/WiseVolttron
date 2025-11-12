@@ -1,0 +1,42 @@
+<div [class]="'modal on'" *ngIf="h_popup == true">
+  <div class="modal-inner" style="max-width: 1200px; width:1200px; height: 100%;">
+    <div class="modal-header">
+      <div class="tit">
+        {{oData.title}}
+      </div>
+    </div>
+
+    <div class="modal-body" id="model_history_pop" style="height: 100%">
+      <div class="tab">
+        <ul>
+          <li [class]="h_type == 'metrics'? 'on' : ''">
+            <a (click)="onChangeType('metrics')"><span>성능 히스토리</span></a>
+          </li>
+          <li [class]="h_type == 'params'? 'on' : ''">
+            <a (click)="onChangeType('params')"><span>파라미터 히스토리</span></a>
+          </li>
+        </ul>
+      </div>
+      <!-- 모델 성능 line chart -->
+      <ng-container *ngIf="h_type=='metrics'">
+        <!-- <div class="title">
+                    Metrics History Chart
+                </div> -->
+        <div class="chart">
+          <ng-container *ngIf="h_chartData">
+            <wp-lib-common-chart [targetId]="'metricsChart'" [chartData]="h_chartData"></wp-lib-common-chart>
+          </ng-container>
+        </div>
+      </ng-container>
+      <!-- 모델 파라미터 grid -->
+      <ng-container *ngIf="h_type=='params'">
+        <lib-wp-grid id="model_profile_grid" [iGridData]="h_paramGridData" [iColInfo]="h_paramGridCol" [iPage]="true"
+          style="height: auto;"></lib-wp-grid>
+      </ng-container>
+    </div>
+    <div class="modal-controller">
+      <a class="ico close modalClose" (click)="onCancel()">닫기</a>
+    </div>
+  </div>
+  <!-- <div class="modal-dim on"></div> -->
+</div>

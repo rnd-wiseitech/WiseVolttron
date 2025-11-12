@@ -1,0 +1,31 @@
+::ng-deep.mat-dialog-container#wp-model-history-popup {
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width: 1300px;
+}
+
+::ng-deep#model_profile_grid .scroll-wrapper.component-table.scrollbar {
+    min-height: 600px;
+    height: 100%;
+}
+
+::ng-deep#wp-model-history-popup .chart canvas {
+    max-width: 1100px;
+    min-height: 600px;
+    max-height: 800px;
+    width: 97%;
+    height: 97%;
+    margin: 0 auto
+}
+
+::ng-deep#wp-model-history-popup .tab {
+    border-bottom: 1px solid #d1d4db;
+    margin: 10px 0 10px 0;
+}
+
+::ng-deep#wp-model-history-popup .tab ul {
+    display: flex;
+    position: static;
+    cursor: pointer;
+}
