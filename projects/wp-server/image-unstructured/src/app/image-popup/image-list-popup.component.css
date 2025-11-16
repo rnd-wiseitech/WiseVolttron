@@ -1,0 +1,83 @@
+::ng-deep #wp-list-popup.mat-dialog-container{
+    box-shadow: none;
+    color: inherit;
+    background: transparent;
+    width:80vw;
+}
+
+.button-gap {
+    margin-right: 5px;
+}
+.button-gap:last-child {
+    margin-right: 0;
+}
+
+.modal.large .modal-inner {
+    max-width: 80vw;
+}
+
+.image-list{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    /* float:left; */
+    padding:25px;
+    display: flex;
+    column-gap: 50px;
+    row-gap: 10px;
+    flex-wrap: wrap;
+    /* justify-content: center; */
+}
+
+.image-view{
+    width:80%; 
+    height: 100%;
+    overflow:auto;
+    float: left;
+}
+
+.image-func{
+    width: 20%;
+    height: 40vw;
+    overflow: auto;
+    border-left:1px solid #f0f1f7;
+    padding: 10px;
+}
+
+.btn.positive.line {
+    color: #3751ff;
+    background: #fff;
+    padding: 0 0px;
+}
+
+.image-item{
+    width: 150px;
+    text-align: center;
+}
+
+.image-item p{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.image-select:not([hidden]){
+    width:100%;
+    height: 40vw;
+    overflow:auto;
+    float:left;
+    display : flex;
+    justify-content:center;
+    align-items : center;
+}
+
+.image-label{
+    border-bottom: 1px solid #f0f1f7;
+}
+
+.pagenator{
+    display: flex;
+    justify-content: center;
+    float:left;
+    width: 80%;
+}
