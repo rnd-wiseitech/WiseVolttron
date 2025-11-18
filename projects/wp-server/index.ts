@@ -28,9 +28,9 @@ exports.moment = moment;
 const app: Express = express();
 const port = 8800;
 const platFormPath = path.join(__dirname, './main');
-app.get(['/', '/workflow', '/dm/?', '/rm/?','/login',
+app.get(['/', '/workflow', '/dm/?', '/login',
     '/usermng/?', '/modelmng/?', '/favicon.ico'],
-    // '/image'
+  
 
     function (req, res) {
         res.sendFile(path.join(platFormPath, 'index.html'));
