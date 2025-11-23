@@ -3,7 +3,6 @@ import { WpDiagramPreviewService } from "../../../wp-menu/wp-diagram-preview/wp-
 import { WpComponentViewerService } from "../../wp-component-viewer.service";
 import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
 import { WpComponent } from "../../wp-component";
-import { HiveQueryService } from "projects/data-manager/src/app/hive-query/hive-query.service";
 import { WorkflowAppService } from "../../../app.service";
 // @ts-ignore
 import * as dataFormatJson from "../../../../../../../assets/resource/json/date_format.json";
@@ -44,7 +43,6 @@ export class WpOOdbcComponent extends WpComponent {
   oDbInfoList: any[] = []; // RDBMS DB List
   oHiveDbInfoList: any = []; // 하이브 DB List
   oDsInfoList: any[] = []; // 선택한 DB의 List
-  oHiveSvc: HiveQueryService;
   oWpAppSvc: WorkflowAppService;
   o_apiType = 'SPARK';
   cTransSvc: TranslateService;
@@ -58,7 +56,6 @@ export class WpOOdbcComponent extends WpComponent {
     pWpData: WpOOdbcData,
     pDiagramPreviewSvc: WpDiagramPreviewService,
     pMetaSvc: WpMetaService,
-    pHiveSvc: HiveQueryService,
     pWpAppSvc: WorkflowAppService,
     pWpComSvc: WpComponentService,
     pWpSocketSvc: WpSocket,
@@ -153,7 +150,6 @@ export class WpOOdbcComponent extends WpComponent {
     this.oComViewerSvc = pComViewerSvc;
     this.oDiagramPreviewSvc = pDiagramPreviewSvc;
     this.oMetaSvc = pMetaSvc;
-    this.oHiveSvc = pHiveSvc;
     this.oWpAppSvc = pWpAppSvc;
     this.oDialog = pDiaglog;
     this.oWpSocketSvc = pWpSocketSvc;
@@ -162,7 +158,7 @@ export class WpOOdbcComponent extends WpComponent {
     // hive와 dbms의 테이블 정보를 받아온 후 form value 설정하기 위해 비동기처리
     let sOriginWpData: any = Object.assign({}, pWpData['o_data']);
     this.o_apiType = this.oComViewerSvc.o_apiType;
-    if(this.o_apiType == 'COMMON' || !this.oComViewerSvc.o_hiveCheck) {
+    if(this.o_apiType == 'COMMON') {
       this.oFormData[0].visible=false;
     }
 
@@ -170,12 +166,6 @@ export class WpOOdbcComponent extends WpComponent {
       this.oComViewerSvc.showProgress(true);
       // get HIVE LIST
       // WPLAT-361 6번
-      if(this.o_apiType != 'COMMON' && this.oComViewerSvc.o_hiveCheck) { // 하이브 사용 여부추가
-        let sDbInfoList = await this.oHiveSvc.getHiveDbInfo().toPromise()
-        this.setHiveDbInfoList(sDbInfoList);
-      }
-      // let sDbInfoList = await this.oHiveSvc.getHiveDbInfo().toPromise()
-      // this.setHiveDbInfoList(sDbInfoList);
       // get DBMS LIST
       let sDsData = await this.oMetaSvc.getDsInfo().toPromise()
       let sDbList = sDsData.filter((sDs: any) => sDs.TYPE === 'db' && getEnumValues(DB_SUPPORT_TYPE).includes(sDs.DBMS_TYPE));
@@ -479,14 +469,7 @@ export class WpOOdbcComponent extends WpComponent {
       let sSelectedDb = this.oDsInfoList[sSeletecIdx];
       Object.assign(this.oWpData, sSelectedDb);
 
-      if (this.oWpData.dbOpt == 'HIVE') {
-        let sTableInfoList = await this.oHiveSvc.getHiveTableInfo().toPromise()
-        for (let sIdx of sTableInfoList) {
-          if (sIdx.DB_ID === this.oDsInfoList[sSeletecIdx].dsId) {
-            sTmpFvalue.push(sIdx['TBL_NAME']);
-          }
-        }
-      }
+      
       if (this.oWpData.dbOpt == 'DBMS') {
         let sResult = await this.oMetaSvc.getTableInfo(this.oDsInfoList[sSeletecIdx].dsId).toPromise()
         for (let sIdx of sResult) {
@@ -548,44 +531,7 @@ export class WpOOdbcComponent extends WpComponent {
               다른 테이블을 선택하거나 신규 테이블을 생성해주세요`, false);
               this.oWpData.tablename = '';
               pEvent ? pEvent.component._clearValue() : undefined
-            } else {
-              // hive는 partition column 조회
-              if (this.oWpData.dbOpt == 'HIVE') {
-                let sParam = {
-                  action: 'hive',
-                  method: 'QUERY',
-                  groupId: 'Temp',
-                  jobId: '0',
-                  location: 'workflow',
-                  data: {
-                    dataArray: [
-                      { query: `DESCRIBE ${this.oWpData.dsname}.${this.oWpData.tablename}` }
-                    ]
-                  }
-                };
-                let sTableInfo = await this.oHiveSvc.getHiveQueryExecute(sParam).toPromise();
-                let sColumnInfo = JSON.parse(sTableInfo)['data'][0]['result'].map((sRes: any) => JSON.parse(sRes));
-                let sPartitionIndex: number = sColumnInfo.findIndex((sCol: { col_name: string, data_type: string }) => sCol.col_name == "# Partition Information");
-                if (sPartitionIndex == -1) {
-                  // 파티션 하지 않는 경우
-                  this.oWpData.partition = '(선택안함)';
-                } else {
-                  // 파티션 하는 경우
-                  // { col_name: '# Partition Information', data_type: '', comment: '' }
-                  // { col_name: '# col_name', data_type: 'data_type', comment: 'comment' }
-                  // { col_name: '파티션 컬럼명', data_type: '파티션 컬럼 타입' }
-                  let sPartitionInfo = sColumnInfo.splice(sPartitionIndex);
-                  let sPartitionCol = '';
-                  if (sPartitionInfo[1].col_name == '# col_name') {
-                    sPartitionCol = sPartitionInfo[2].col_name;
-                  }
-                  this.oWpData.partition = sPartitionCol;
-                }
-                this.setHivePartitionOption()
-                // this.setFormValue('partition', [{ key: 'edit', value: false }]);
-              }
-
-            }
+            } 
           }
           else if (this.oWpData.mode === 'query') {
             this.oWpData.popup_data.outputschema = sSelectData.schema;

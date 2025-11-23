@@ -2,33 +2,17 @@ import { dxSelectChangeEvent, IWpProperties, WpPropertiesWrap, WpToggleEvent } f
 import { WpDiagramPreviewService } from '../../../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { WpComponentViewerService } from '../../wp-component-viewer.service';
 import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
-import { HiveQueryService } from 'projects/data-manager/src/app/hive-query/hive-query.service';
 import { MonacoEditorConstructionOptions, MonacoStandaloneCodeEditor } from '@materia-ui/ngx-monaco-editor';
 import { COM_ODBC_ATT } from 'projects/wp-server/wp-type/WP_COM_ATT';
 import { WpOdbcData } from 'projects/wp-server/util/component/data/wp-odbc';
 import { TranslateService } from '@ngx-translate/core';
-// export interface WkOdbcData extends WkCommonData {
-//   [index: string]: any
-//   dbOpt: 'RDBMS' | 'HIVE' | '';
-//   selectOpt: string;
-//   dbname: string;
-//   tablename: string;
-//   selectDb: {
-//     DBMS_TYPE: 'db' | 'hive' | '',
-//     DB_NM: string,
-//     DS_ID: string,
-//     IP: string,
-//     PORT: string
-//   };
-//   query: string;
-// }
+
 export class WpOdbcComponent implements IWpProperties  {
   oFormData: WpPropertiesWrap[];
   public oComViewerSvc: WpComponentViewerService;
   public oDiagramPreviewSvc: WpDiagramPreviewService;
   public oMetaSvc: WpMetaService;
   oWpData: COM_ODBC_ATT;
-  oHiveSvc: HiveQueryService;
   oDsInfoList: Partial<COM_ODBC_ATT>[] = [];
 
   oDbOpt: 'hive' | 'odbc';
@@ -52,7 +36,6 @@ export class WpOdbcComponent implements IWpProperties  {
     pComponentData: WpOdbcData,
     pDiagramPreviewSvc: WpDiagramPreviewService,
     pMetaSvc: WpMetaService,
-    pHiveSvc: HiveQueryService,
     pType: 'hive' | 'odbc',
     pDbInfoList: any[]
   ) {
@@ -100,7 +83,6 @@ export class WpOdbcComponent implements IWpProperties  {
     this.oDiagramPreviewSvc = pDiagramPreviewSvc;
     this.oWpData = (pComponentData['o_data'] as COM_ODBC_ATT);
     this.oMetaSvc = pMetaSvc;
-    this.oHiveSvc = pHiveSvc;
     this.oDbOpt = pType;
 
     // db접속정보 목록 설정
@@ -224,19 +206,9 @@ export class WpOdbcComponent implements IWpProperties  {
   }
   public async setTbNmList() {
     let sTmpFvalue: any = [];
-    if (this.oWpData.dbOpt == 'hive') {
-      let sTableInfoList = await this.oHiveSvc.getHiveTableInfo().toPromise();
-      for (let sIdx of sTableInfoList) {
-        if (sIdx.DB_ID == this.oWpData.dsId) {
-          sTmpFvalue.push(sIdx['TBL_NAME']);
-        }
-      }
-    }
-    else {
-      let sTableInfoList = await this.oMetaSvc.getTableInfo(this.oWpData.dsId).toPromise();
-      for (let sIdx of sTableInfoList) {
-        sTmpFvalue.push(sIdx['TBL_NM']);
-      }
+    let sTableInfoList = await this.oMetaSvc.getTableInfo(this.oWpData.dsId).toPromise();
+    for (let sIdx of sTableInfoList) {
+      sTmpFvalue.push(sIdx['TBL_NM']);
     }
     this.setFormValue('tablename', [{ key: 'fvalue', value: sTmpFvalue }]);
     this.oComViewerSvc.showProgress(false);
@@ -261,7 +233,7 @@ export class WpOdbcComponent implements IWpProperties  {
   }
   onTableChange(pChangeTableEvent: dxSelectChangeEvent) {
     // try {
-    let s_method = this.oDbOpt == 'hive' ? 'I-HIVE' : 'I-DATABASE';
+    let s_method = 'I-DATABASE';
     let sParam = {
       action: 'input',
       method: s_method,
@@ -280,9 +252,6 @@ export class WpOdbcComponent implements IWpProperties  {
         type: this.oWpData.selectOpt
       },
     };
-    // if (sParam.data.query) {
-    //   sParam.data.type = 'query';
-    // } 
     
     this.oComViewerSvc.showProgress(true);
     this.oComViewerSvc.getDataSchema(sParam).subscribe((response: any) => {
