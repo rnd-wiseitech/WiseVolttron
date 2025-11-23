@@ -16,7 +16,7 @@ import { DataSetProfileComponent } from './dataset-profile/dataset-profile.compo
 import { DataSetProfileSerivce } from './dataset-profile/dataset-profile.service';
 import { WpLibDataViewerModule } from 'projects/wp-lib/src/lib/wp-lib-data-viewer/wp-lib-data-viewer.module';
 import { DxFileManagerModule, DxTooltipModule } from 'devextreme-angular';
-// import { DmHdfsPopUpComponent } from './dataset/hdfs-popup/hdfs-popup.component';
+import { DmHdfsPopUpComponent } from './dataset/hdfs-popup/hdfs-popup.component';
 import { WpLibDataUploaderModule } from 'projects/wp-lib/src/lib/wp-lib-data-uploader/wp-lib-data-uploader.module';
 import {DxTreeViewModule } from 'devextreme-angular';
 import { ScheduleService } from './schedule/schedule.service';
@@ -36,6 +36,7 @@ import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-
     ConectionComponent,
     HdfsViewerComponent,
     DataSetProfileComponent,
+    DmHdfsPopUpComponent,
     DmImagePopUpComponent,
     ScheduleComponent,
     VolttronComponent,
@@ -70,7 +71,7 @@ import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-
     ScheduleService
   ],
   bootstrap: [DMAppComponent],
-  exports:[SchedulePopupComponent]
+  exports:[DmHdfsPopUpComponent, SchedulePopupComponent]
 })
 export class DMAppModule { }
 
