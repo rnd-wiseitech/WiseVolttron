@@ -114,115 +114,18 @@ class JobExecutor(wpJob):
                 s_df = s_df[0]
                 s_uuid = [f'{s_uuid}_true', f'{s_uuid}_false']
             
-            # # common이면 메모리 관리를 위해 전단계 워크플로우 컴퍼넌트의 뷰테이블은 삭제함
-            # if self.o_type == 'common':
-            #     if 'usetable' in kwargs['data']:
-            #         self.o_dataSourceMng.deleteDataSet(kwargs['data']['usetable'])
         
         if self.o_type == 'common':
             from job.common.io import result
             s_result = result.excute(s_df, s_action, self.o_funcNm, s_method, s_uuid, s_batch, s_code_result)
-        else:
-            from job.spark.io import result
-            s_result = result.excute(s_df, s_action, self.o_funcNm, s_method, s_uuid, s_batch, s_code_result)
-        # if s_batch == False:
-        #     # ['correlation', 'statistics'] 아닌 경우 result 정리
-        #     if self.o_funcNm not in ['correlation', 'statistics', 'hive', 'upload', "spark", "model-filter", "model-compare", "workflow", "manifest" ,"stream"]:
-        #         # COMMON API
-        #         if self.o_type == 'common':
-        #             s_schema = []
-
-        #             for s_colName in s_df.columns :
-        #                 if is_integer_dtype(s_df.dtypes[s_colName]) == True:
-        #                     s_type = 'integer'
-        #                 elif is_float_dtype(s_df.dtypes[s_colName]) == True:
-        #                     s_type = 'float'
-        #                 elif is_bool_dtype(s_df.dtypes[s_colName]) == True:
-        #                     s_type = 'boolean'
-        #                 else: 
-        #                     s_type = 'string'
-                        
-        #                 s_schema.append({
-        #                     "metadata":{},
-        #                     "name":s_colName,
-        #                     "nullable":'true',
-        #                     "type": s_type
-        #                     # "type":str(s_df.dtypes[s_colName])
-        #                 })
- 
-                        
-        #             if self.o_funcNm == 'api':
-        #                 s_data = s_df.to_json(orient='records', lines=True, force_ascii=False).splitlines()
-        #             else:
-        #                 s_data = s_df.head(20).to_json(orient='records', lines=True, force_ascii=False).splitlines()
-                        
-        #             s_result = {
-        #                 "action" : self.o_funcNm,
-        #                 "method": s_method,
-        #                 "data" : s_df.head(20).to_json(orient='records', lines=True, force_ascii=False).splitlines(),
-        #                 "schema" : s_schema,
-        #                 "viewname": s_uuid,
-        #                 "count":  len(s_df)
-        #             }
-        #         # SPARK API
-        #         else :
-        #             if self.o_funcNm == 'api':
-        #                 s_data = s_df.toJSON().collect()
-        #             else:
-        #                 s_data = s_df.limit(20).toJSON().collect()
-                        
-        #             s_result = {
-        #                 "action" : self.o_funcNm,
-        #                 "method": s_method,
-        #                 "data" : s_data,
-        #                 "schema" : json.loads(s_df.schema.json())['fields'],
-        #                 "viewname": s_uuid,
-        #                 "count":  s_df.count()
-        #             }
-        #         if self.o_funcNm in ['python', 'feature-importance', 'model-process']:
-        #             s_result['code_result'] = s_code_result
-                    
-        #     # ['correlation', 'statistics']는 파일에서 실행한 결과값을 그대로 return 적용
-        #     else:
-        #         if s_df == None:
-        #             s_df = []
-                    
-        #         if self.o_funcNm not in ['statistics', 'hive']:
-        #             s_count = s_df
-        #         else:
-        #             s_count = len(s_df)
-        #         s_result = {
-        #                     "action" : self.o_funcNm,
-        #                     "method": s_method,
-        #                     "data" : s_df,
-        #                     "schema" : [],
-        #                     "viewname": s_uuid,
-        #                     "count":  s_count
-        #                 }  
-        # # 배치 일 경우
-        # else:
-        #     s_result = {
-        #                     "action" : self.o_funcNm,
-        #                     "method": s_method,
-        #                     "data" : [],
-        #                     "schema" : [],
-        #                     "viewname": s_uuid,
-        #                     "count":  0
-        #                 }
-            
-        # # 배치 일 때에도 모델 학습은 결과값 넘김
-        # if self.o_funcNm == 'model-train':
-        #     s_result.update(s_code_result)
 
         return s_result
 
     # 사용자 매개변수 파싱(원 API 파라미터를 받아서 사용자 매개변수가 있을 경우 값을 변경함.)
     # p_data 안에 있는 키값을 돌면서 user_param 값이 포함되어있으면 바꿈
     def parseUserParams(self, p_df, p_data, p_type=None):
-        if self.o_type == 'spark':
-            from job.spark.util.user_param import getUserParamValue
-        else :
-            from job.common.util.user_param import getUserParamValue
+        
+        from job.common.util.user_param import getUserParamValue
         s_data = copy.deepcopy(p_data)
         # 입력 받은 사용자 파라미터들
         s_user_param_names = list(s_data['user_param'].keys())

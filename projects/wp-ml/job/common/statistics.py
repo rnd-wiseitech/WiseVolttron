@@ -127,7 +127,7 @@ def execute(p_dataSource, **kwargs):
             s_currentCol['dataArray'][0]['type'] = "numerical"
            
             s_boxPlotData = boxplot_.execute(p_dataSource,df=s_df, data=s_currentCol)
-            s_tempJson['outlier_count'] = len(s_boxPlotData[0]['outlier'])
+            s_tempJson['outlier_count'] = len(json.loads(s_boxPlotData[0]['outlier']))
             # s_tempJson['outliers'] = s_boxPlotData[0]
             # s_tempJson['outlier_count'] = s_df.loc[(s_df[col] < lowRange) | (s_df[col] > upperRange), col].count()
             if s_tempJson['distinct_count'] <= 10:
