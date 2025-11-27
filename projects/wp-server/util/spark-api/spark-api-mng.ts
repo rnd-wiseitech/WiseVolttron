@@ -12,19 +12,13 @@ const { PassThrough } = require('stream');
     export const STATISTICS = `/statistics`;
     export const LOAD_MEMORY = `/select`;
     export const ODBC = `/odbc`;
-    export const HDFS = `/hdfs`;
-    export const FTP = `/ftp`;
     export const SELECTALL = `/selectAll`;
     export const SELECT = `/select`;
     export const CORRELATION = `/correlation`;
     export const OUTPUT = `/output`;
     export const TRANSFORM = `/transform`;
-    export const KAFKA = `/kafka`;
-    export const SPARK = `/spark`;
     export const SUMMARY = `/summary`;
-    export const HIVE = `/hive`;
     export const UPLOAD = `/upload`;
-    export const PROPHET = `/prophet`;
 };
 
 /**
@@ -280,32 +274,6 @@ export class WpSparkApiManager {
         });
     }
     
-    getProcessUsage(p_type:string){
-        return new Promise<WiseReturn>((resolve, reject) => {
-            let sUrl = '';
-
-            if (p_type == 'COMMON')
-                sUrl = `http://${this.o_config.WP_API.host}:${this.o_config.WP_API.port}/getResourceUsage`;
-            else 
-                sUrl = `http://${this.o_config.WP_API.host}:${this.o_config.WP_API.monitoring_port}/metrics/executors/prometheus`;
-            request.get(sUrl, (p_err:any, res:request.Response, body:any) =>{
-                if (p_err) {
-                    reject(new WpError({ 
-                        httpCode:WpHttpCode.PY_API_UNKOWN_ERR, message:p_err.message
-                    }));
-                }
-                else if (res.statusCode != 200) {
-                    reject(new WpError({ 
-                        httpCode:WpHttpCode.PY_API_UNKOWN_ERR, message:p_err
-                    }));
-
-                } else {
-                    resolve(body);
-                }
-            });
-
-        });
-    }
     getJobs(p_userMode:string, p_userno: number){
         return new Promise<WiseReturn>((resolve, reject) => {
             let s_returnJobs:any = [];
@@ -481,57 +449,6 @@ export class WpSparkApiManager {
                             }
                         });
                     }
-                }
-            });
-        });
-    }
-    getPlatformUsage(p_body:any){
-        return new Promise<WiseReturn>((resolve, reject) => {
-            let s_date = Date.now();
-            let s_startTime = s_date / 1000;
-            let s_body = p_body; 
-              
-            let s_query = '';
-        
-            let s_type = s_body.type;
-            
-            let s_selectType = s_body.select_type;
-            let s_selectNm = s_body.select_name;
-        
-            if(s_type == 'CPU' && s_selectType == 'POD')
-            {
-                s_query = `sum(rate(container_cpu_usage_seconds_total{pod="${s_selectNm}"}[1m]))`;
-            }
-            else if(s_type == 'CPU' && (s_selectType == 'SERVER' || s_selectType == 'MSERVER')){
-                s_query = `sum(rate(container_cpu_usage_seconds_total{instance="${s_selectNm}"}[1m]))`;
-            }
-            else if(s_type == 'Memory' && s_selectType == 'POD')
-            {
-                s_query = `sum(rate(container_memory_usage_bytes{pod="${s_selectNm}"}[1m]))`;
-            }
-            else if(s_type == 'Memory' && (s_selectType == 'SERVER' || s_selectType == 'MSERVER')){
-                s_query = `sum(rate(container_memory_usage_bytes{instance="${s_selectNm}"}[1m]))`;
-            }
-            else if(s_type == 'Disk' && s_selectType == 'POD')
-            {
-                // s_query = `sum(rate(container_fs_io_current{pod="${s_selectNm}"}[1m]))`;
-                s_query = `%28sum%28rate%28container_fs_reads_bytes_total%7Bpod%3D%27${s_selectNm}%27%7D%5B1m%5D%29%29%20%2B%20sum%28rate%28container_fs_writes_bytes_total%7Bpod%3D%27${s_selectNm}%27%7D%5B1m%5D%29%29%29%20`
-            }
-            else if(s_type == 'Disk' && (s_selectType == 'SERVER' || s_selectType == 'MSERVER')){
-                // s_query = `sum(rate(container_fs_io_current{instance="${s_selectNm}"}[1m]))`;
-                // s_query = `(sum(rate(container_fs_reads_bytes_total{instance="${s_selectNm}"}[1m])) + sum(rate(container_fs_writes_bytes_total{instance="${s_selectNm}"}[1m]))) * 60`
-                s_query = `%28sum%28rate%28container_fs_reads_bytes_total%7Binstance%3D%22${s_selectNm}%22%7D%5B1m%5D%29%29%20%2B%20sum%28rate%28container_fs_writes_bytes_total%7Binstance%3D%22${s_selectNm}%22%7D%5B1m%5D%29%29%29%20` 
-                // *%2060
-            }
-
-            request.get(`http://${this.o_config.WP_API.host}:30003/api/v1/query?query=${s_query}`,async (p_err1:any, p_res1:request.Response, p_body1:any) => {
-                if(p_err1){
-                    reject(new WpError({
-                        httpCode:WpHttpCode.PROMETHEUS_API_UNKOWN_ERR, message:p_err1 
-                    }));
-                }
-                else{
-                    resolve(p_body1);
                 }
             });
         });

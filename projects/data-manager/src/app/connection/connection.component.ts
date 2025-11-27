@@ -111,16 +111,6 @@ export class ConectionComponent implements OnInit {
         }
       }
     });
-    // 밑에 resetFormData() 기능과 중복되어서 주석처리
-    // this.onConnTypeChanged(pEv.TYPE, )
-    // if(pEv.TYPE =='db') {
-    //   this.oAddCnnctFormData = this.oAddCnnctFormData.concat(this.getConnectDbFormData());
-    // } else  if (pEv.TYPE == 'ftp' || pEv.TYPE == 'sftp') {
-    //   this.oAddCnnctFormData = this.oAddCnnctFormData.concat(this.getConnectFTPFormData());
-    // } else if (pEv.TYPE == 'object') {
-    //   this.oAddCnnctFormData = this.oAddCnnctFormData.concat(this.getConnectObjectFormData());
-    // }
-
     const dialogRef = this.cDialog.open(WpPopupComponent,{
       data: {
         'title': this.cTransSvc.instant("WPP_DATA_MANAGER.CONNECTION.POPUP.popup13"),
@@ -141,7 +131,6 @@ export class ConectionComponent implements OnInit {
           username: pEv.USER_ID,
           password: pEv.PASSWD,
         }
-        // 'colWidthOption': 'tight'
       }
     });
     const dialogSubscription = dialogRef.componentInstance.selectionChanged
@@ -241,9 +230,6 @@ export class ConectionComponent implements OnInit {
   // 기본적으로 db form을 사용하고 pType이 있을 경우 그에 맞는 form으로 reset
     // WPLAT-365
     resetFormData(pType?: DS_CONNECT_TYPE, pDbType?:DB_SUPPORT_TYPE) {
-    // this.oDsList = [];
-    // this.oTblList = [];
-    // this.oSelectedDs = {};
     let sFormVisible = true;
     let sObjFormVisible = false;
     let sSchMmFormVisible = false;
@@ -301,12 +287,6 @@ export class ConectionComponent implements OnInit {
         });
       }
 
-    }      
-    else if(pType == DS_CONNECT_TYPE.FTP || pType == DS_CONNECT_TYPE.SFTP){
-      this.oAddCnnctFormData = this.oAddCnnctFormData.concat(this.getConnectFTPFormData());
-    }
-    else if(pType == DS_CONNECT_TYPE.OBJECT){
-      this.oAddCnnctFormData = this.oAddCnnctFormData.concat(this.getConnectObjectFormData());
     }
   }
   delConnection(pEl:any){   
@@ -347,101 +327,7 @@ export class ConectionComponent implements OnInit {
 
     if(pValue == DS_CONNECT_TYPE.DB)
       sTemp = sTempConnctFormData.concat(this.getConnectDbFormData());
-    else if(pValue == DS_CONNECT_TYPE.FTP || pValue == DS_CONNECT_TYPE.SFTP)
-      sTemp = sTempConnctFormData.concat(this.getConnectFTPFormData());    
-    else if(pValue == DS_CONNECT_TYPE.OBJECT)
-      sTemp = sTempConnctFormData.concat(this.getConnectObjectFormData());
-    else 
-      sTemp = sTempConnctFormData.concat(this.getConnectFTPFormData()); 
-
     pCompInstance.patchFormData(sTemp);
-  }
-  getConnectObjectFormData(){    
-    return [{
-      vname:'스토리지 종류',
-      name:'database',
-      value: '',
-      type:'select_single',
-      fvalue: getJson(OBJECT_SUPPORT_TYPE),
-      visible: true,
-      edit:true,
-      callbak: { name: 'onObjectTypeChanged' }
-    },{
-      vname:'스토리지명',
-      name:'ip',
-      value:'',
-      type:'text',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    }, {
-      vname:'지역',
-      name:'port',
-      value: '',
-      type:'text',
-      fvalue: '',
-      visible: true,
-      edit:true,
-      callbak: null
-    },{
-      vname:'접근키',
-      name:'username',
-      value:'',
-      type:'text',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    },{
-      vname:'접근비밀키',
-      name:'password',
-      value:'',
-      type:'password',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    }] as any;
-  }
-  getConnectFTPFormData(){    
-    return [{
-      vname:'아이피',
-      name:'ip',
-      value:'',
-      type:'text',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    },{
-      vname: this.cTransSvc.instant("WPP_DATA_MANAGER.CONNECTION.POPUP.popup8"),
-      name:'port',
-      value:'',
-      type:'text',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    },{
-      vname: this.cTransSvc.instant("WPP_DATA_MANAGER.CONNECTION.POPUP.popup9"),
-      name:'username',
-      value:'',
-      type:'text',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    },{
-      vname: this.cTransSvc.instant("WPP_DATA_MANAGER.CONNECTION.POPUP.popup10"),
-      name:'password',
-      value:'',
-      type:'password',
-      fvalue:'',
-      visible:true,
-      edit:true,
-      callbak:null
-    }] as any;
   }
   getConnectDbFormData(){    
     return [{

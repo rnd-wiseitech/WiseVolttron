@@ -7,11 +7,6 @@
       <a (click)="onTabClick('dm-connection')" ><span>{{'WPP_DATA_MANAGER.MENU.menu2' | translate }}</span></a>
     </li>
     <!-- SPARK이고 HIVE 쓸 때만 보이도록 설정-->
-    <ng-container  *ngIf="o_apiType == 'SPARK' && o_hiveCheck == true">
-      <li [ngClass]="oActiveTab == 'dm-hive-query' ? 'on':''">
-        <a (click)="onTabClick('dm-hive-query')"><span>{{'WPP_DATA_MANAGER.MENU.menu3' | translate }}</span></a>
-      </li>
-    </ng-container> 
     <li [ngClass]="oActiveTab == 'dm-hdfs-viewer' ? 'on':''">
       <a (click)="onTabClick('dm-hdfs-viewer')"><span>{{'WPP_DATA_MANAGER.MENU.menu4' | translate }}</span></a>
     </li>

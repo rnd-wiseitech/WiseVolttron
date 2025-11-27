@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ILoadArgMstrData } from 'projects/algorithm-manager/src/app/layer-create/popup/load-layer-popup.component';
+// import { ILoadArgMstrData } from 'projects/algorithm-manager/src/app/layer-create/popup/load-layer-popup.component';
 import { WpAppConfig } from 'projects/wp-lib/src/lib/wp-lib-config/wp-lib-config';
 import { WpSeriveImple } from 'projects/wp-lib/src/lib/wp-meta/service-imple';
 import { DP_ARG_MSTR_ATT } from 'projects/wp-server/metadb/model/DP_ARG_MSTR';
@@ -117,17 +117,6 @@ export class WpTrainModelService extends WpSeriveImple {
         })
     }
     // 사용자 알고리즘 리스트
-    getWpUserAlgorithmList(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.cHttp.post(this.oNodeUrl + '/model/argList', { 'USER_MODEL_YN': 'Y' })
-                .toPromise().then((response: any) => {
-                    let sUserModel = (response as ILoadArgMstrData[]).filter((sModel) => sModel.LAYER_YN === 'Y');
-                    resolve(sUserModel);
-                }, pError => {
-                    reject(pError);
-                });
-        })
-    }
     // 모델별 파라미터 리스트
     getWpArgParameterList(pWhere?:any): Promise<DP_ARG_PARAM_ATT[]> {
         let sWhere = pWhere ? pWhere : {};

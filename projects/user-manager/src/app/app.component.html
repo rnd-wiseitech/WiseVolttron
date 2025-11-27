@@ -7,15 +7,6 @@
     <li [ngClass]="oActiveTab == 'um-login' ? 'on':''">
       <a (click)="onTabClick('um-login')" ><span>{{'WPP_USER_MANAGER.MENU.menu2' | translate }}</span></a>
     </li>
-    <!--WPLAT-345-->
-    <ng-container *ngIf="o_apiType == 'SPARK'">
-    <li [ngClass]="oActiveTab == 'um-history-used' ? 'on':''">
-      <a (click)="onTabClick('um-history-used')"><span>{{'WPP_USER_MANAGER.MENU.menu3' | translate }}</span></a>
-    </li> 
-    <!-- <li [ngClass]="oActiveTab == 'um-jira' ? 'on':''">
-      <a (click)="onTabClick('um-jira')"><span>Jira 보드</span></a>
-    </li>  -->
-  </ng-container>
   </ul>
 </div>
 <div class="container">
