@@ -5,12 +5,8 @@ import { WpComponentPropertiesComponent } from './wp-component-properties.compon
 import { WpComponentViewerComponent } from '../../components/wp-component-viewer.component';
 import { WpPropertiesService } from './wp-component.properties.servie';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { WpDerivedColumnSetComponent } from '../../components/popup/wp-derived-column-set.component';
 import { WpResultViewerComponent } from '../../components/resultview/wp-result-viewer.component';
-// import { WpMathColumnSetComponent } from '../../components/popup/wp-math-column-set.component';
-// import { WpDateColumnSetComponent } from '../../components/popup/wp-date-column-set.component';
 import { WpResultViewerService } from '../../components/resultview/wp-result-viewer.service';
-// import { WpKafkaConnectorComponent } from '../../components/popup/wp-kafka-connector.component';
 import { WpDerivedCondionalSetComponent } from '../../components/popup/wp-derived-condional-set.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MaterialModule } from 'projects/wp-lib/src/lib/meterial-module/material-module';
@@ -19,15 +15,13 @@ import { NgWizardConfig, NgWizardModule, THEME } from 'ng-wizard';
 import { WpGridSharedModule } from 'projects/wp-lib/src/lib/wp-grid/wp-grid.module';
 import { WpTrainResultviewComponent } from '../../components/resultview/wp-train-result-viewer.component';
 import { DxChartModule, DxDataGridModule, DxListModule, DxSelectBoxModule, DxTagBoxModule, DxTemplateModule, DxTextAreaModule } from 'devextreme-angular';
-// import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
+import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
 import { MonacoEditorModule, MONACO_PATH } from '@materia-ui/ngx-monaco-editor';
-// import { WpPythonPopupComponent } from '../../components/popup/wp-python-popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-// import { WpChartModule } from 'projects/wp-lib/src/lib/chart/wp-chart.module';
-// import { WpEnsemblePopupComponenet } from '../../components/popup/wp-ensemble-popup.component';
+import { WpChartModule } from 'projects/wp-lib/src/lib/chart/wp-chart.module';
 import { WpInfoPopupComponent } from '../../components/popup/wp-info-popup.component';
 import { WpTranslateSharedModule } from 'projects/wp-lib/src/lib/wp-lib-translate/wp-lib-translate.module';
-// import { WpOodbcUpdatePopupComponent } from '../../components/popup/wp-oodbc-update-popup.component';/
+import { WpOodbcUpdatePopupComponent } from '../../components/popup/wp-oodbc-update-popup.component';
 const ngWizardConfig: NgWizardConfig = {
     theme: THEME.default
   };
@@ -35,14 +29,13 @@ const ngWizardConfig: NgWizardConfig = {
     declarations: [
         WpComponentPropertiesComponent,        
         WpComponentViewerComponent,
-        WpDerivedColumnSetComponent,
         WpDerivedCondionalSetComponent,
         // WpPythonPopupComponent,
         WpResultViewerComponent,
         WpTrainResultviewComponent,
         // WpEnsemblePopupComponenet,
         WpInfoPopupComponent,
-        // WpOodbcUpdatePopupComponent
+        WpOodbcUpdatePopupComponent
     ],
     imports: [
         CommonModule,
@@ -56,14 +49,14 @@ const ngWizardConfig: NgWizardConfig = {
         DxChartModule,
         NgWizardModule.forRoot(ngWizardConfig),
         WpGridSharedModule.forRoot(),
-        // WpLoadingSharedModule.forRoot(),
+        WpLoadingSharedModule.forRoot(),
         DxListModule,
         DxTemplateModule,
         DxTagBoxModule,
         DxSelectBoxModule,
         DxTextAreaModule,
         NgxPaginationModule,
-        // WpChartModule,
+        WpChartModule,
         WpTranslateSharedModule.forRoot(),
     ],
     providers: [
@@ -80,7 +73,6 @@ const ngWizardConfig: NgWizardConfig = {
         WpComponentViewerComponent
     ],
     entryComponents:[
-        // WpDerivedColumnSetComponent,
         WpResultViewerComponent
     ]
   })
