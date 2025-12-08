@@ -69,7 +69,6 @@ export class ScheduleComponent implements OnInit {
     console.log("o_lang : ", this.o_lang);
     // COMMON일 경우에는 CORE 관련내용 빼야함.
     this.o_apiType = this.cWpAppConfig.getConfig('API_TYPE');
-    this.o_kafkaUse = this.cWpAppConfig.getConfig('KAFKA')['use'];
     
     if(this.o_kafkaUse == true) {
       this.o_gridHeader.btnNmList.push(this.cTransSvc.instant("WPP_DATA_MANAGER.SCHEDULE.BUTTON.button2"))

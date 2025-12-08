@@ -119,7 +119,6 @@ export class VolttronComponent implements OnInit {
               this.o_gridData[i].SCH_FUNC = ['play', 'modify', 'trash'];
             }
             if(this.o_gridData[i]['REALTIME_INFO'] != null) {
-              console.log('실시간~~~');
               this.o_gridData[i].SCH_FUNC =  this.o_gridData[i].SCH_FUNC.filter((item:any) => item !== 'modify');
             }
             // let test = cronstrue.toString(this.o_gridData[i]['CRON_PARAM'], {locale:this.o_lang});
