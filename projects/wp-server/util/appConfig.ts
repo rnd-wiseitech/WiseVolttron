@@ -26,7 +26,7 @@ import { Dialect } from "sequelize";
  *           "type": "mysql"
  *       },
  *       "WP_API": {
- *           "host": "54.180.83.158",
+ *           "host": "localhost",
  *           "port": "1337"
  *       },
 *        "STORAGE_TYPE":"LOCAL",
@@ -34,9 +34,6 @@ import { Dialect } from "sequelize";
 *        "BACKGROUND": false,
 *        "PLATFORM_ID": 1010,
 *        "ADVANCE": true,
-*        "CLOUD": false,
-*        "CRON": false,
-*        "LICENSE": "U2FsdGVkX19vVNpbWKr9k1p2+Nvx5MBwS8qd7/WYHuJA+OGIZGHd2f1U8CUs8UYQ"
 *    }
 * ```
 */
