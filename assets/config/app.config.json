@@ -10,7 +10,7 @@
         "monitoring_port":"30095"
     },
     "META_DB": {
-        "host": "127.0.0.1",
+        "host": "localhost",
         "port": "3306",
         "id": "root",
         "passwd": "0000",
@@ -33,7 +33,7 @@
     "CRYPTO_TYPE":"",
     "APP_NO": 1,
     "LIB_PATH": "C:/prophet/wp-platform.v1/projects/wp-server/lib/instantclient_21_3",
-    "LICENSE":"U2FsdGVkX19ha3g0LCXiXkUTgZt14vJUP64Nb4SpF/+QcjNU1TkPqvdgrKhpmki2uuxNeA8qDVubguy05f/mYXszFD2imZusk7pvNNhyOcs=",
+    "LICENSE":"",
     "ML_PATH": "C:/wisePlatform/develop/wp-platform.v1/projects/wp-ml/",
     "MLFLOW":true,
     "DBLIST": ["db2", "mysql", "mssql", "oracle", "postgresql"],
