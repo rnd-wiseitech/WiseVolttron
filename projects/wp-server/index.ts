@@ -2,6 +2,7 @@ import express, { Express, NextFunction, Request, Response } from 'express';
 import { commonRoute } from './router/common-api';
 import { userRoute } from './router/user-api';
 import { authRoute } from './router/auth';
+import { modelRoute } from './router/model-api';
 import { dataMngRoute } from './router/data-api';
 import { pyApiRoute } from './router/py-api';
 import { WpError, WpErrorArgs, WpHttpCode } from './exception/WpError';
@@ -89,7 +90,7 @@ app.use(express.urlencoded({ limit: '500mb',extended: true }));
 app.use('/metaservice',commonRoute);
 app.use('/wd',dataMngRoute);
 app.use('/userMng',userRoute);
-
+app.use('/model',modelRoute);
 app.use('/auth',authRoute);
 app.use('/jobexcute',pyApiRoute);
 app.use('/sm',schRoute);

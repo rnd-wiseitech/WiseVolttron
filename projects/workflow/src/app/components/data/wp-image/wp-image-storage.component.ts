@@ -3,7 +3,7 @@ import { IWpProperties, WpPropertiesWrap } from '../../../wp-menu/wp-component-p
 import { WpDiagramPreviewService } from '../../../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DmImagePopUpComponent } from 'projects/data-manager/src/app/dataset/image-popup/image-popup.component';
-// import { WpStorageData } from 'projects/wp-server/util/component/data/wp-storage'; 
+import { WpStorageData } from 'projects/wp-server/util/component/data/wp-storage'; 
 import { COM_IMAGE_ATT } from 'projects/wp-server/wp-type/WP_COM_ATT';
 import { TranslateService } from '@ngx-translate/core';
 import { WpDiagramService } from '../../../wp-diagram/wp-diagram.service';
@@ -24,7 +24,7 @@ export class WpImageStorageComponent implements IWpProperties {
     constructor(
         pTransSvc: TranslateService,
         pComViewerSvc: WpComponentViewerService,
-        // pComponentData: WpStorageData,
+        pComponentData: WpStorageData,
         pDiagramPreviewSvc: WpDiagramPreviewService,
         pDiaglog: MatDialog,
         p_dsStorage: DS_MSTR_ATT[],
@@ -32,7 +32,7 @@ export class WpImageStorageComponent implements IWpProperties {
     ) {
         this.oComViewerSvc = pComViewerSvc;
         this.oDiagramPreviewSvc = pDiagramPreviewSvc;
-        // this.oWpData = (pComponentData['o_data'] as COM_IMAGE_ATT);
+        this.oWpData = (pComponentData['o_data'] as COM_IMAGE_ATT);
         this.oDialog = pDiaglog;
         this.oWpDiagramSvc = pWpDiagramSvc;
         this.oFormData = [{

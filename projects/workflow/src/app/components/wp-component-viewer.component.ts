@@ -2,8 +2,6 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleCha
 import { WpDataSourceComponent } from './data/wp-data-source/wp-data-source.component';
 import { WpTypeComponent } from './conversion/wp-type/wp-type.component';
 import { WpColumnSelectorComponent } from './conversion/wp-column-selector/wp-column-selector.component';
-import { WpAggregateComponent } from './conversion/wp-aggregate/wp-aggregate.component';
-import { WpMergeComponent } from './conversion/wp-merge/wp-merge.component';
 import { WpJoinComponent } from './conversion/wp-join/wp-join.component';
 import { WpSortComponent } from './conversion/wp-sort/wp-sort.component';
 import { WpComponentViewerService } from './wp-component-viewer.service';
@@ -18,11 +16,11 @@ import { WpComponentService } from './wp-component.service';
 import { WpDiagramPreviewService } from '../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { WpResultViewerComponent } from './resultview/wp-result-viewer.component';
 import { WpOdbcComponent } from './data/wp-odbc/wp-odbc.component';
+import { WpTrainModelComponent } from './analytic-model/wp-train-model/wp-train-model.component'
 import { WpOOdbcComponent } from './data/wp-odbc/wp-oodbc.component';
 import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
 import { WpColumnNameComponent } from './conversion/wp-column-name/wp-column-name.component';
 import { WpPropertiesWrap } from '../wp-menu/wp-component-properties/wp-component-properties-wrap';
-// import { WpPythonComponent } from './conversion/wp-python/wp-python.component';
 import dxSelectBox from 'devextreme/ui/select_box';
 import { WpSocket } from 'projects/wp-lib/src/lib/wp-socket/wp-socket';
 import { WpTrainModelService } from './analytic-model/wp-train-model/wp-train-model.service';
@@ -180,13 +178,15 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = new WpStorageComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.matDialog, s_dsStorage);
       }else if (sInitSize.currentValue.type == COM_ID['I-IMAGE-STORAGE']) {
         let s_dsStorage: DS_MSTR_ATT[] = await this.cMetaSvc.getDsInfo({ DS_ID: this.cWpAppConfig.getConfig('DS_ID') }).toPromise();
-        this.oComponent = new WpImageStorageComponent(this.cTransSvc, this.cComViewSvc, this.cWpDiagramPreviewSvc, this.matDialog, s_dsStorage, this.cWpDiagramSvc);
+        this.oComponent = new WpImageStorageComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.matDialog, s_dsStorage, this.cWpDiagramSvc);
       }else if (sInitSize.currentValue.type == COM_ID['I-IMAGE-DATASOURCE']) {
         this.oComponent = new WpImageDataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpSocketSvc, this.cWpDiagramSvc);
         let sTableType = {params :{TBL_TYPE: 'image'}}
         let tmp = await this.cComViewSvc.getDataSourceList(sTableType);
         let tmpShared = await this.cComViewSvc.getSharedDataList();
         this.oComponent.setFileNm(tmp, tmpShared);
+      }else if (sInitSize.currentValue.type == COM_ID['T-IMAGE-CLASSIFY']) {
+        // this.oComponent = new WpImageClassifyComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.matDialog, this.cWpDiagramSvc, this.cMetaSvc);
       }
       else if (sInitSize.currentValue.type == COM_ID['O-IMAGE-DATASOURCE']) {
         this.oComponent = new WpImageODataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc);
@@ -204,44 +204,8 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = new WpOOdbcComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cMetaSvc, this.cWpAppSvc,this.cWpComSvc,this.cWpSocketSvc,this.cWpDiagramSvc,this.matDialog);
       }else if (sInitSize.currentValue.type == COM_ID['T-TYPE']) {
         this.oComponent = new WpTypeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      } else if (sInitSize.currentValue.type == COM_ID['T-MERGE']) {
-        let sNodes = this.cWpDiagramSvc.getWpNodes();
-        this.oComponent = new WpMergeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, sNodes);
-
-        if (this.oParentCnt > 1) {
-          let sComData = [];
-          let sFlag = true;
-          for (let sParentId of sInitSize.currentValue.parentId) {
-            if (this.cWpAppSvc.getComData(sParentId) == undefined) {
-              sFlag = false;
-            }
-            let sTempComData = this.cWpAppSvc.getComData(sParentId);
-            if (sTempComData) {
-              sComData.push(this.cWpDiagramSvc.getDeriveSchema(sTempComData));
-            } else {
-              this.h_EditFlag = false;
-            }
-          }
-          if (sFlag)
-            this.oComponent.setSchema(sComData);
-        }
       } else if (sInitSize.currentValue.type == COM_ID['T-SORT']) {
         this.oComponent = new WpSortComponent(this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-SPLIT']) {
-      //   this.oComponent = new WpSplitComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // }
-      // // #28 슬라이스 추가
-      // else if (sInitSize.currentValue.type == COM_ID['T-SLICE']) {
-      //   this.oComponent = new WpSliceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-NULL']) {
-      //   this.oComponent = new WpNullComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-SAMPLEING']) {
-      //   this.oComponent = new WpSamplingComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-OUTLIER']) {
-      //   this.oComponent = new WpAnomalyComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-GROUPING']) {
-      //   this.h_componentTabData = this.oComponentData['o_data']['groupby']
-      //   this.oComponent = new WpGroupingComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
       } else if (sInitSize.currentValue.type == COM_ID['T-SELECT']) {
         this.oComponent = new WpColumnSelectorComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpAppSvc);
       // }
@@ -268,13 +232,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
           if (sFlag)
             this.oComponent.setSchema(sComData);
         }
-      } else if (sInitSize.currentValue.type == COM_ID['T-AGGREGATE']) {
-        this.h_componentTabData = this.oComponentData['o_data']['aggKey']
-        this.oComponent = new WpAggregateComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-MATH']) {
-      //   this.oComponent = new WpMathComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpComSvc, this.matDialog);
-      // } else if (sInitSize.currentValue.type == COM_ID['T-DATE']) {
-      //   this.oComponent = new WpDateComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpComSvc, this.matDialog);
       } else if (sInitSize.currentValue.type == COM_ID['T-WINDOW']) {
         this.oComponent = new WpWindowComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
         // 컬럼명 변경 컴포넌트 추가
@@ -340,15 +297,14 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.cWpDiagramSvc.getDeriveSchema(sComData);
         this.oComponent.setSchema(sComData);
       } 
-      // else if (sInitSize.currentValue.type == COM_ID['A-PREDICT_MODEL']) {
-      //   this.oComponent = new WpPredictModelComponenet(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
-      // }  // #179 알고리즘별 분석 모델 컴포넌트
-      // else if (getCOM_IDListByPrefix('A-').includes(sInitSize.currentValue.type)) { // sInitSize.currentValue.text.slice(0, 2) == 'A-'
-      //   let s_argId = sInitSize.currentValue.type;
-      //   let s_argInfo = await this.getArgInfo(s_argId);
-      
-      //   this.oComponent = new WpTrainModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpTrainModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, s_argInfo, this.cWpComSvc, this.cWpDiagramToolbarSvc);
-      // }
+      else if (sInitSize.currentValue.type == COM_ID['A-PREDICT_MODEL']) {
+        this.oComponent = new WpPredictModelComponenet(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
+      }  // #179 알고리즘별 분석 모델 컴포넌트
+      else if (getCOM_IDListByPrefix('A-').includes(sInitSize.currentValue.type)) {
+        let s_argId = sInitSize.currentValue.type;
+        let s_argInfo = await this.getArgInfo(s_argId);
+        this.oComponent = new WpTrainModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpTrainModelSvc, this.cWpDiagramSvc, this.cWpAppSvc, this.cWpDiagramPreviewSvc, s_argInfo, this.cWpComSvc, this.cWpDiagramToolbarSvc);
+      }
       else {
         this.oComponent = undefined;
       }
