@@ -2,6 +2,7 @@ import { WpComponentViewerService } from '../../wp-component-viewer.service';
 import { IWpProperties, WpPropertiesWrap } from '../../../wp-menu/wp-component-properties/wp-component-properties-wrap';
 import { WpDiagramPreviewService } from '../../../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { MatDialog } from '@angular/material/dialog';
+import { DmHdfsPopUpComponent } from 'projects/data-manager/src/app/dataset/hdfs-popup/hdfs-popup.component';
 import { WpStorageData } from 'projects/wp-server/util/component/data/wp-storage'; 
 import { COM_STORAGE_ATT } from 'projects/wp-server/wp-type/WP_COM_ATT';
 import { TranslateService } from '@ngx-translate/core';

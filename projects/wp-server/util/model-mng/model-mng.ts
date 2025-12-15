@@ -10,7 +10,6 @@ import { DP_VAR_MSTR_ATT } from "../../metadb/model/DP_VAR_MSTR";
 import { WP_IMPORT_DATA, WP_MODEL, WP_MODEL_INFO } from "../../wp-type/WP_MODEL";
 import { WP_SESSION_USER } from "../../wp-type/WP_SESSION_USER";
 import { WpAlgorithmManagement } from "../analytic/algorithm-mng";
-import { WpAnalyticScript } from "../livy/livy-script";
 import { WiseStorageManager } from "../data-storage/WiseStorageManager";
 import { Sequelize } from 'sequelize-typescript';
 const moment = require('moment');
@@ -1440,17 +1439,17 @@ export class WpModelManagement {
                         "scaleType": s_DP_MODEL_MSTR['MODEL_FEATURE_TYPE'], 
                         "layerModelYn": "None"
                     };
-                    let s_wpScript = new WpAnalyticScript(s_argInfo,s_uuid,s_modelType,JSON.stringify(sDpVarMstrData),'');
+                    // let s_wpScript = new WpAnalyticScript(s_argInfo,s_uuid,s_modelType,JSON.stringify(sDpVarMstrData),'');
                     
-                    let s_code = s_wpScript.setFileInfo(JSON.stringify(s_fileInfo));
-                    console.log(s_code);
+                    // let s_code = s_wpScript.setFileInfo(JSON.stringify(s_fileInfo));
+                    // console.log(s_code);
 
-                    let s_wpSm = new WiseStorageManager(p_userInfo,global.WiseStorage);
+                    // let s_wpSm = new WiseStorageManager(p_userInfo,global.WiseStorage);
 
-                    let s_filePath = `/${p_userInfo.USER_NO}/workflow`
-                    let s_filename = s_filePath + `/${s_modelId}.py`
-                    await s_wpSm.onMakeDir(s_filePath,'755',true);
-                    await s_wpSm.onWriteFile(s_filename, s_code,'buffer');
+                    // let s_filePath = `/${p_userInfo.USER_NO}/workflow`
+                    // let s_filename = s_filePath + `/${s_modelId}.py`
+                    // await s_wpSm.onMakeDir(s_filePath,'755',true);
+                    // await s_wpSm.onWriteFile(s_filename, s_code,'buffer');
                 } catch (p_error) {
                     pT.rollback();
                     throw new WpError({ httpCode: WpHttpCode.ANALYTIC_MODEL_ERR, message: p_error });
