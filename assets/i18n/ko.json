@@ -687,7 +687,6 @@
       "COL-STORAGE-MODE": "저장 방식",
       "COL-DS-NAME": "저장 DB 위치",
       "COL-DB-NAME": "저장 DB 명",
-      "COL-HIVEDB-NAME": "하이브 DB 명",
       "COL-EDIT": "도구",
       "COL-SCH-CRON": "일정",
       "COL-LOG-DT": "등록 날짜",
@@ -832,7 +831,6 @@
     "MENU": {
       "menu1": "데이터셋 관리",
       "menu2": "연결 관리",
-      "menu3": "하이브 쿼리",
       "menu5": "스케줄 관리",
       "menu4": "스토리지 뷰어",
       "menu6": "데이터 이력",
@@ -850,7 +848,6 @@
         "grid5": "만든 날짜",
         "grid6": "수정 날짜",
         "grid7": "통계 상태",
-        "grid8": "하이브 테이블명",
         "grid9": "저장 방식",
         "grid10": "데이터 타입"
       },
@@ -862,7 +859,6 @@
         "popup5": "연결 목록",
         "popup6": "데이터셋 {{value}}을 삭제하시겠습니까?",
         "popup7": "startRow : 숫자\nendRow : 숫자\n한번에 1000개씩 조회가 가능합니다.",
-        "popup8": "하이브 테이블 등록",
         "popup9": "생성 방법",
         "popup10": "테이블명",
         "popup11": "데이터셋 권한 설정",
@@ -870,7 +866,6 @@
         "popup13": "사용자명",
         "popup14": "데이터셋 수정",
         "popup15": "테이블 목록",
-        "popup16": "하이브 테이블 수정",
         "popup17": "테이블명 변경",
         "popup18": "테이블 삭제"
       },
@@ -1052,11 +1047,8 @@
     "COMPONENT": {
       "COM": {
         "I-STORAGE": "스토리지",
-        "I-HIVE": "하이브",
         "I-DATABASE": "데이터베이스",
         "I-DATASOURCE": "데이터셋",
-        "I-STREAMING": "스트리밍",
-        "I-FTP": "FTP/SFTP",
         "I-WORKFLOW": "워크플로우",
         "I-API": "API",
         "I-IMAGE-STORAGE": "스토리지",
@@ -1090,10 +1082,8 @@
         "O-DATASOURCE": "데이터셋",
         "A-COMPARE_MODEL": "모델 비교",
         "A-FILTER_MODEL": "모델 필터링",
-        "A-DEPLOY_MODEL": "모델 배포",
         "A-PREDICT_MODEL": "모델 예측",
-        "A-PROMPT": "동적 프롬프트",
-        "A-TRANSFER_MODEL": "전이학습"
+        "T-IMAGE-CLASSIFY": "이미지 분류"
       },
       "INFO": {
         "info1": "스토리지 파일 선택",
@@ -1108,7 +1098,6 @@
         "info10": "공유된 데이터셋",
         "info11": "토픽 명",
         "info12": "연결 명",
-        "info13": "SFTP/FTP 파일 선택",
         "info14": "워크플로우명",
         "info15": "파라미터 설정",
         "info16": "파라미터 명",
@@ -1205,8 +1194,6 @@
         "info108": "파이썬 코드 실행중 오류가 발생하였습니다",
         "info109": "파이썬 코드 데이터 조회 중 오류가 발생하였습니다",
         "info110": "파이썬 코드 조회 완료",
-        "info111": "프롬프트 선택",
-        "info112": "동적변수 할당",
         "info113": "할당 위치",
         "info114": "칼럼 할당",
         "info115": "이미지 파일 선택",
@@ -1215,9 +1202,7 @@
       "BUTTON": {
         "button1": "스토리지 열기",
         "button2": "실행",
-        "button3": "카프카 Connector 생성",
         "button4": "DB 연결테스트",
-        "button5": "SFTP/FTP 열기",
         "button6": "정규표현식",
         "button7": "날짜표현식",
         "button9": "API 실행",
@@ -1354,9 +1339,6 @@
       "button2": "플랫폼 설정",
       "button3": "플랫폼 재시작",
       "button4": "스파크 재시작",
-      "button5": "하둡 로그",
-      "button6": "스파크 로그",
-      "button7": "하이브 로그",
       "button8": "관리서버 터미널"
     },
     "INFO": {
@@ -1422,8 +1404,7 @@
   "WPP_MODEL_MANAGER": {
     "MENU": {
       "menu1":"모델 관리",
-      "menu2":"알고리즘 관리",
-      "menu3":"프롬프트 관리"
+      "menu2":"알고리즘 관리"
     },
     "MANAGE": {
       "GRID": {
