@@ -13,6 +13,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 // import { WpImageResizeComponent } from 'projects/workflow/src/app/components/conversion/wp-image-resize/wp-image-resize.component';
 // import { WpImageODataSourceComponent } from 'projects/workflow/src/app/components/data/wp-image/wp-image-odata-source.component';
 import { WpImageListPopUpComponent } from 'projects/image-unstructured/src/app/image-popup/image-list-popup.component';
+import { ImgTagComponent } from './image-annotation/img-tag/img-tag.component';
 import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp
     // WpImageResizeComponent,
     // WpImageODataSourceComponent,
     WpImageListPopUpComponent,
+    ImgTagComponent
   ],
   imports: [
     BrowserModule,

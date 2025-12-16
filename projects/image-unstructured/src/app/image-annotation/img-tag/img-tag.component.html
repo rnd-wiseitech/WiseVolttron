@@ -1,0 +1,112 @@
+<!-- label.component.html -->
+<!-- (A) LIST 뷰: 라벨 태그 편집 전담 -->
+<div *ngIf="o_view==='list'">
+  <div style="overflow:auto;">
+    <label class="like-label image-label" style="float:left; width:80%;">이미지 라벨 태그</label>
+    <a class="ico added inputAddedBtn" style="float:right; width:20%;" (click)="onAddTagValue()">added</a>
+
+    <div *ngFor="let sTag of o_tags | keyvalue" style="align-items:center; padding-bottom:10px;">
+      <input [id]="sTag.key"
+             [value]="sTag.value"
+             type="text"
+             style="width:80%; border-style:solid; border-width:6px;"
+             (change)="onSetTagValueChange($event)">
+      <button style="width:10%;">
+        <img [id]="sTag.key" src="assets/images/ico-trash@3x.png" style="width:25px; height:25px;"
+             (click)="onTagRemove($event)">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- (B) PROFILE 뷰: 라벨 도구/목록/명칭 편집 + 컨텍스트메뉴 -->
+<div *ngIf="o_view==='profile'">
+  <!-- 라벨링 종류 -->
+  <!-- <div id="label-button" style="text-align:center; padding-bottom:20px;">
+    <label class="like-label image-label">라벨링 종류</label>
+
+    <button class="btn positive line button-gap"
+      [style.border]="h_drawType === 'rectangle' ? '2px solid #2196f3' : '1px solid #ccc'">
+      <img src="assets/images/icon-rectangle.png" width="50" height="50" (click)="setDrawType('rectangle')">
+    </button>
+  </div> -->
+
+  <!-- 라벨 목록 -->
+  <label class="like-label image-label">태그 목록</label>
+  <div style="overflow-y:auto;">
+    <div class="label-list-container">
+      <div  *ngFor="let sTag of o_tags; let sIdx = index">
+        <label class="tag-button">
+          <input
+            type="checkbox"
+            [checked]="h_buttonIndex == sIdx"
+            (change)="onSelectTag(sTag, sIdx)">
+            <span class="color-chip" [style.background-color]="h_colorMap[sTag]"></span>
+            {{ sTag }}
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 라벨링 명칭/값 -->
+  <!-- <div
+    style="border-bottom:1px solid #f0f1f7; display:flex; justify-content:space-between; padding-bottom:5px; margin-bottom:5px; align-items:flex-end;">
+    <label class="like-label" style="margin-bottom:0;">라벨링 명칭</label>
+    <button class="btn redbtn" (click)="onRemoveAll()"
+      style="width:85px; height:40px; margin-bottom:6px; background:#e14c4c;">전체 삭제</button>
+  </div> -->
+
+  <!-- <ng-container *ngIf="h_labelMap">
+    <div id="inputDiv"
+         *ngFor="let kv of (h_labelMap | keyvalue: h_orderBy)"
+         style="display:flex; align-items:center; padding-bottom:5px; width:100%; gap:8px;">
+      {{ kv.value['order'] }}
+      <dx-select-box
+        style="width:80%; border-style:solid; border-width:6px;"
+        [id]="kv.key"
+        [(value)]="kv.value['value']"
+        [dataSource]="o_tags"
+        (mouseenter)="onFocusLabel(kv.key)"
+        (onSelectionChanged)="onLabelValueChange(kv.key, kv.value['value'])">
+      </dx-select-box>
+      <button style="width:10%;">
+        <img [id]="kv.key" src="assets/images/ico-trash@3x.png" style="width:25px; height:25px;"
+          (click)="onRemoveLabel(kv.key)">
+      </button>
+    </div>
+  </ng-container> -->
+
+  <!-- ============================= -->
+  <!--   ★ 우클릭 컨텍스트 메뉴 ★    -->
+  <!-- ============================= -->
+  <div
+    class="custom-context-menu"
+    *ngIf="h_ctx.visible"
+    [style.left.px]="h_ctx.x"
+    [style.top.px]="h_ctx.y"
+    (contextmenu)="$event.preventDefault()"
+    style="
+      position:fixed; z-index:1000001;
+      background:#fff; border:1px solid #ddd; border-radius:8px;
+      box-shadow:0 8px 24px rgba(0,0,0,.12);
+      padding:10px; min-width:220px;
+    "
+  >
+    <div class="context-menu-section" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+      <label style="font-weight:600;">라벨 선택</label>
+      <select
+        [(ngModel)]="h_ctx.selectedLabel"
+        (change)="onContextMenuLabelChange($event)"
+        style="padding:6px 8px; border:1px solid #ccc; border-radius:6px;">
+        <option *ngFor="let tag of o_tags" [value]="tag">{{ tag }}</option>
+      </select>
+    </div>
+
+    <div class="context-menu-buttons" style="display:flex; justify-content:flex-end; gap:8px;">
+      <button (click)="onContextMenuDelete()"
+        style="padding:6px 10px; border:1px solid #ddd; background:#fff; border-radius:6px; cursor:pointer;">🗑️ 제거</button>
+      <button (click)="onContextMenuClose()"
+        style="padding:6px 10px; border:1px solid #ddd; background:#fff; border-radius:6px; cursor:pointer;">❌ 닫기</button>
+    </div>
+  </div>
+</div>

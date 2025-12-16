@@ -1,158 +1,165 @@
-<div id="wp-list-popup" class="modal large on" style="display: flex;gap: 30px
-;">
-  <!-- <div role="botton" tabindex="0" (click)="onViewImageChange('prev')" (keydown)="onKeyDownEvent($event)" tabindex="0">
-    <img *ngIf="h_display!='list' && h_prevButton" width="75" height="75" src= "assets/images/ico-prev@3x.png">
-  </div> -->
+<!-- image-list-popup.component.html -->
+<div id="wp-list-popup" class="modal large on" style="display:flex; gap:30px;">
   <div class="modal-inner">
     <div class="modal-header">
       <div class="tit">
-        
-        {{'WPP_COMMON.POPUP.popup3' | translate }}
-        <button (click)="onBackList()" >
-          <img *ngIf="h_display!='list'" width="35" height="35" src= "assets/images/ico-prev@3x.png" >
+        {{ 'WPP_COMMON.POPUP.popup3' | translate }}
+        <button (click)="onBackList()">
+          <img *ngIf="h_display!='list'" width="35" height="35" src="assets/images/ico-prev@3x.png">
         </button>
       </div>
     </div>
-    <div id='modaldiv' class="modal-body full">
-      <!-- 이미지 창 -->
+
+    <div id="modaldiv" class="modal-body full">
+      <!-- 좌측: 이미지 뷰 -->
       <div class="image-view">
-        <!-- 이미지 목록 창 -->
-        <div *ngIf ="h_display=='list'" id='imageDiv' class="image-list" >
+        <!-- 목록 -->
+        <div *ngIf="h_display=='list'" id="imageDiv" class="image-list">
           <div *ngFor="let sImgItem of h_ImageList; let sImgIndex = index" class="image-item">
-            <img [src]="sImgItem['base64']" [alt]="sImgItem['filename']" (mouseenter)="onHoverStart($event, sImgItem['filename'])" 
-            (mouseleave)="onHoverEnd()" (click)="onImageClick(sImgItem, sImgIndex)" style="display:block; border-radius: 6px;width : 150px; height : 150px;"
-            (load)="onImageLoad($event, sImgIndex)"
-            [ngStyle]="{'border' : oLabelData[sImgItem['filename']] ? '7px solid #00ff00' : 'none'}"
+            <img *ngIf="h_type=='label' || h_type=='tag'"
+                 [src]="sImgItem['base64']"
+                 [alt]="sImgItem['filename']"
+                 (mouseenter)="onHoverStart($event, sImgItem['filename'])"
+                 (mouseleave)="onHoverEnd()"
+                 (click)="onImageClick(sImgItem, sImgIndex)"
+                 (load)="onImageLoad($event, sImgIndex)"
+                 style="display:block; border-radius:6px; width:150px; height:150px;"
+                 [ngStyle]="{
+                   border: (oLabelData[sImgItem['filename']]?.label) ? ((oLabelData[sImgItem['filename']]?.label?.tagColor) ? '7px solid ' + (oLabelData[sImgItem['filename']]?.label?.tagColor): '7px solid #00ff00') : 'none'
+                 }"
             >
-            <p [title]="sImgItem['filename']">{{sImgItem['filename']}}</p>
           </div>
         </div>
-        <!-- 선택한 이미지 창 -->
-        <div class="image-select" [hidden]="!oShowCanvas">
-          <canvas #imgCanvas [hidden]="!oShowCanvas" style = "width:100%; height:100% auto; z-index: 1000000;"></canvas>
+
+        <!-- 선택(프로필) : 캔버스는 공통이 소유/관리 -->
+        <div class="image-select" [hidden]="!(h_display==='profile')">
+          <!-- 줌/드래그 툴바 -->
+          <div class="zoom-toolbar">
+            <button type="button" (click)="zoomIn()" title="크게">＋</button>
+            <button type="button" (click)="zoomOut()" title="작게">−</button>
+            <button type="button" (click)="toggleDrag()" [class.active]="h_dragChk" title="드래그">🖐</button>
+            <button type="button" (click)="fitToScreen()" title="초기화">초기화</button>
+          </div>
+          <canvas #imgCanvas style="width:100%; height:100% auto; z-index:1000000;"></canvas>
         </div>
       </div>
-      <!-- 오른쪽 이미지 정보나 태그, 라벨, 조정 기능 창 -->
+
+      <!-- 우측: (LIST) 태그 편집 / (PROFILE) 라벨링 -->
       <div class="image-func">
+        <!-- LIST 모드: 태그 편집을 '자식'이 담당 -->
         <div *ngIf="h_display=='list'">
-          <!-- <button class="btn positive line">
-            라벨 다운로드
-          </button> -->
-          <div style="height: 15vw;">
-            <label class="like-label image-label"> 이미지 정보</label>
+          <div style="height:10vw;">
+            <label class="like-label image-label">이미지 정보</label>
             <div [hidden]="!h_imgDataDisplay">
-              <p>파일명 : {{h_ImageInfo.fileName}}</p>
-              <p>파일 해상도 : {{h_ImageInfo.fileResolution}}</p>
-              <p>파일 크기 : {{h_ImageInfo.fileSize}}</p>
-              <!-- <p *ngIf="oLabelData[h_ImageInfo.fileName]" >라벨 정보 : {{getLabelFirstLabelValue(h_ImageInfo.fileName)}} -->
+              <p>파일명 : {{ h_ImageInfo.fileName }}</p>
+              <p>파일 해상도 : {{ h_ImageInfo.fileResolution }}</p>
+              <p>파일 크기 : {{ h_ImageInfo.fileSize }}</p>
             </div>
           </div>
-          <div style="overflow: auto;">
-            <label class="like-label image-label" style="float: left; width: 80%;">이미지 라벨 태그</label>
-            <a class="ico added inputAddedBtn" style="float: right; width: 20%;" (click)="onAddLabelValue()">added</a>
-            <div *ngFor="let sTag of oLabelTag | keyvalue" style=" align-items: center; padding-bottom: 10px;">
-              <input [id]=sTag.key [value]=sTag.value type="text" style="width:80%; border-style:solid; border-width :6px;" (change)="onSetLabelTagValue($event)">
-              <button style="width :10%;">
-                <img [id]=sTag.key src="assets/images/ico-trash@3x.png" style="width:25px; height:25px;" (click)="onLabelTagRemove($event)" >
-              </button>
+
+          <!-- 태그 편집 (list view) -->
+          <!-- 라벨이면 img-bbox에서 처리하고 분류면 img-tag에서 처리하게 변경 -->
+
+          <img-tag *ngIf="h_type=='tag'"
+            [o_view]="'list'"
+            [o_tags]="o_labelList"
+            (tagsChange)="tagRemove($event)">
+          </img-tag>
+           <ng-container *ngIf="h_type=='validate'">
+            <div style="padding-top: 20px;">
+              <label class="like-label image-label" style="float: left; width: 80%;">신규 라벨링파일 저장</label>
+              <a class="btn positive line" style="width: 100%;" (click)="saveLabelFile($event)">라벨링파일 저장</a>
             </div>
-          </div>
-        </div>
-        <div *ngIf="h_display=='label'">
-          <div id="label-button" style="text-align: center; padding-bottom: 20px;">
-            <label class="like-label image-label"> 라벨링 종류 </label>
-            <!-- 키 포인트 -->
-            <!-- <button class="btn positive line button-gap">
-              <img src="assets/images/icon-keypoint.png" width="50" height="50" (click)="setLabelShape('keypoint')" >
-            </button> -->
-            <button class="btn positive line button-gap">
-              <img src="assets/images/icon-rectangle.png" width="50" height="50" (click)="setLabelShape('rectangle')" >
-            </button>
-            <!-- 폴리곤 -->
-            <!-- <button class="btn positive line button-gap">
-              <img src="assets/images/icon-polygon.png" width="50" height="50" (click)="setLabelShape('polygon')" >
-            </button> -->
-            <!-- <button class="btn positive line button-gap">
-              <img src="assets/images/icon-cancel.png" width="50" height="50" (click)="setLabelShape('none')" >
-            </button> -->
-          </div>
-          <label class="like-label image-label"> 라벨 목록 </label> 
-          <div style="height:10vw; overflow-y: auto;">
-              <button [ngClass]="h_buttonIndex == sIdx ? ['btn', 'positive'] : ['btn', 'positive', 'line']"
-                      *ngFor="let sTag of oLabelTag; let sIdx = index" 
-                      style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis; width: 50px; max-width: 150px; margin-right: 10px; margin-bottom: 10px;" 
-                      (click)="onSetLabelTag($event, sIdx)" [value] = sTag>{{sTag}}</button>
-          </div>
-          <div style="border-bottom: 1px solid #f0f1f7; display: flex; justify-content: space-between; padding-bottom: 5px; margin-bottom: 5px; align-items: flex-end;">
-            <label class="like-label" style="margin-bottom: 0px;"> 라벨링 명칭 </label> 
-            <button class="btn redbtn" (click)="removeAllLabel()" style="width:85px; height:40px; margin-bottom:6px; background-color: #e14c4c;">전체 삭제</button>
-          </div>
-          <ng-container *ngIf="oLabelData[oImageData.fileName]?.label">
-            <div id="inputDiv" *ngFor="let sLabel of oLabelData[oImageData['fileName']]['label'] | keyvalue" style="display: flex; align-items: center; padding-bottom: 5px; width: 100%;">
-              <!-- <input [id]="sLabel.key" [value]="sLabel.value['value'] || ''" type="text" style="width:80%; border-style:solid; border-width :6px; margin-bottom: 10px;" (click)="labelFocus($event)" (change)="setLabelValue($event)">
-                -->
-              <dx-select-box  style="width:80%; border-style:solid; border-width :6px; float:left"
-                              [id]="sLabel.key"
-                              [(value)]="sLabel.value['value']"
-                              [dataSource]="oLabelTag"
-                              (mouseenter)="labelFocus($event, sLabel.key)"
-                              (onSelectionChanged)="setLabelValue($event, sLabel.key, sLabel.value['value'])" 
-              ></dx-select-box>
-              <button style="width :10%;">
-                <img [id]="sLabel.key" src="assets/images/ico-trash@3x.png" style="width:25px; height:25px;" (click)="labelRemove($event)" >
-              </button>
+            <div style="padding-top: 20px;">
+              <label class="like-label image-label" style="float: left; width: 80%;">재학습 모델 선택</label>
+              <select  [(ngModel)]="h_relearnModel" (change)="selectModel(h_relearnModel)">
+                  <option *ngFor="let model of h_modelList" [ngValue]="model">{{ model.MODEL_NM }}</option>
+              </select>
+            </div>
+            <div style="padding-top: 20px;">
+              <div class="param-section">
+                <label class="like-label image-label section-title">모델 파라미터 설정</label>
+                <div class="param-row" *ngFor="let param of h_paramlist">
+                  <ng-container *ngIf="param.name !== 'model'">
+                    <div class="param-input-wrapper">
+                      <label class="param-label">{{ param.name }}</label>
+                      <ng-container [ngSwitch]="param.type">
+                        <select *ngSwitchCase="'string'" [(ngModel)]="param.value" class="param-input">
+                          <option *ngFor="let opt of param.options" [value]="opt">{{ opt }}</option>
+                        </select>
+
+                        <ng-container *ngSwitchDefault>
+                          <input
+                            type="text"
+                            [(ngModel)]="param.value"
+                            (blur)="validateParam(param)"
+                            class="param-input" />
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                    <div class="error-msg" *ngIf="param.error">
+                      {{ param.error }}
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <a class="btn positive line" style="width: 100%;" (click)="executeRelearnModel($event)">재학습 실행</a>
             </div>
           </ng-container>
         </div>
-        <div *ngIf="h_display=='resize'">
-          <div id="label-button" style="text-align: center; padding-bottom: 20px;">
-            <div style="text-align: center; padding-bottom: 40px;">
-              <label class="like-label" style="border-bottom: 1px solid #f0f1f7;" > 회전 </label>
-              <label class="like-label"> 각도 </label>
-              <input type="number" min="0" max="360" value="0" [(ngModel)]="h_Rotate" (ngModelChange)="onRotate()">
-            </div>
-            <div>
-              <label class="like-label" style="border-bottom: 1px solid #f0f1f7;"> 확대 및 축소 </label>
-              <label class="like-label" style="padding-bottom: 10px;"> 가로 </label>
-              <input type="number" value="1" step="any" [(ngModel)]="h_ResizeX" (ngModelChange)="onResize()">
-              <label class="like-label"> 세로 </label>
-              <input type="number" value="1" step="any" [(ngModel)]="h_ResizeY" (ngModelChange)="onResize()">
-            </div>
-            <div style="text-align: center; padding-bottom: 40px;">
-              <label class="like-label" style="border-bottom: 1px solid #f0f1f7;" > 기울기 </label>
-              <label class="like-label"> 가로 각도 </label>
-              <input type="number" min="-30" max="30" value="0" [(ngModel)]="h_SkewX" (ngModelChange)="onReskew()">
-              <label class="like-label"> 세로 각도 </label>
-              <input type="number" min="-30" max="30" value="0" [(ngModel)]="h_SkewY" (ngModelChange)="onReskew()">
-            </div>
-          </div>
+
+        <!-- PROFILE 모드: 라벨링/오버레이 (자식) -->
+        <!-- ★ 상태 유지용: 현재 선택된 도구/라벨/버튼인덱스 전달 -->
+        <!-- ★ 자식에서 바뀌면 부모에 저장  -->
+        <div *ngIf="h_display=='profile'">
+          <img-tag *ngIf="h_type=='tag'"
+            [o_view]="'profile'"
+            [o_canvas]="oImage"
+            [o_fileName]="oImageData?.fileName"
+            [o_imageSize]="oImageData?.images"
+            [o_tags]="o_labelList"
+            [o_initialLabelMap]="oLabelData[oImageData?.fileName]?.label || null"
+            [o_refreshTick]="h_refreshTick"
+
+            [o_currentTag]="o_currTag"
+            [o_buttonIndex]="h_currBtnIdx" 
+
+            [o_baseImgW]="o_baseImgW"
+            [o_baseImgH]="o_baseImgH"
+
+            (currentTagChange)="o_currTag = $event; h_currBtnIdx = o_labelList.indexOf($event)"
+            (labelMapChange)="onLabelDataChange($event)"
+            (warn)="onWarn($event)" 
+            > 
+          </img-tag>
         </div>
       </div>
+
       <lib-wp-loading [iName]="'wppopupspin'" [iFullScreen]="false"></lib-wp-loading>
     </div>
-    <div class="modal-footer" style="display: flex; align-items: center; width: 100%;">
-        <!-- 페이지 기능 -->
-        <div *ngIf ="h_display=='list'" class = 'pagenator' >
-          <!-- mat-paginator 일때 -->
-          <!-- <mat-paginator *ngIf="h_ImageCount > h_pageSize" [length]="h_ImageCount" [hidePageSize]="true" [pageSize]="h_pageSize" [pageIndex]="h_pageIndex" showFirstLastButtons (page)="onPageSetIndex($event.pageIndex)" ></mat-paginator> -->
-          <!-- ngx-paginator 일때 -->
-          <ul>
-            <li *ngFor="let sImage of h_Pagenate | paginate: { itemsPerPage: h_pageSize, currentPage: h_pageIndex }"></li>
-          </ul>
-          <pagination-controls [directionLinks]=true class="wp-grid-paging" *ngIf="h_ImageCount > h_pageSize" (pageChange)="onPageSetIndex($event);"> </pagination-controls>
-        </div>
-        
-        <!-- 닫기 버튼 -->
-        <div class="right" [ngStyle]="h_display=='list'?{ 'width': '20%' } : { 'width': '100%' }">
-          <a (click)="onClose()" class="btn sm natural modalClose">{{'WPP_COMMON.BUTTON.button9' | translate }}</a>
-        </div>
+
+    <div class="modal-footer" style="display:flex; align-items:center; width:100%;">
+      <!-- 페이지 기능 -->
+      <div *ngIf="h_display=='list'" class="pagenator">
+        <ul>
+          <li *ngFor="let sImage of h_Pagenate | paginate: { itemsPerPage: h_pageSize, currentPage: h_pageIndex }"></li>
+        </ul>
+        <pagination-controls
+          [directionLinks]="true"
+          class="wp-grid-paging"
+          *ngIf="h_ImageCount > h_pageSize"
+          (pageChange)="onPageSetIndex($event)">
+        </pagination-controls>
+      </div>
+
+      <!-- 닫기 -->
+      <div class="right" [ngStyle]="h_display=='list'?{ 'width':'20%' } : { 'width':'100%' }">
+        <a (click)="onClose()" class="btn sm natural modalClose">{{ 'WPP_COMMON.BUTTON.button9' | translate }}</a>
+      </div>
     </div>
-    <!-- 오른쪽 위 X 버튼 -->
+
     <div class="modal-controller">
       <a (click)="onClose()" class="ico close modalClose"></a>
     </div>
   </div>
-  <!-- <div role="botton" tabindex="0" (click)="onViewImageChange('next')" (keydown)="onKeyDownEvent($event)" >
-    <img *ngIf="h_display!='list' && h_nextButton" width="75" height="75" src= "assets/images/ico-next@3x.png">
-  </div> -->
 </div>
