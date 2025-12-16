@@ -1,0 +1,31 @@
+.label-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  flex-direction: column;
+}
+
+.color-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 8px 0 8px;
+  border: 1px solid #888;
+}
+
+.tag-button {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tag-button.selected {
+  border: 2px solid #2196f3;
+}
