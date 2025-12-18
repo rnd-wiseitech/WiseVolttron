@@ -475,10 +475,12 @@ export class WpFileViewerComponent implements OnInit {
       sRenamePath = item.pathKeys[0]
     }
     sRenamePath = this.iRootPath? this.iRootPath+sRenamePath: sRenamePath;
-    // if(this.iRootPath == 'un-analytic-model') {
-    //   sRenamePath = 'tmp_upload/' + item.path;
-    // }
-    // item: FileSystemItem, newName: string
+
+    if (item.isDirectory && newName == 'wp_dataset' && sRenamePath == ''){
+      this.cLibSvc.showMsg('해당 폴더명은 사용할 수 없습니다.', false);     
+      return;
+    }
+
     // 교체할 이름이 현재 이름과 다를 경우에만 실행
     if (newName != item.name){
       // newName = 새로 지정할 이름, sRenamePath = 새로 지정할 이름이 있는 경로
@@ -508,10 +510,11 @@ export class WpFileViewerComponent implements OnInit {
   async createDirectory(parentDirectory:any, name:any) {      
     let sNewDirPath = parentDirectory.path
     sNewDirPath = this.iRootPath? this.iRootPath+sNewDirPath: sNewDirPath;
-    // if(this.iRootPath == 'un-analytic-model') {
-    //   sNewDirPath = 'tmp_upload/' + parentDirectory.path;
-    // }
-    // parentDirectory: FileSystemItem, name: string 
+
+    if (name == 'wp_dataset' && sNewDirPath == ''){
+      this.cLibSvc.showMsg('해당 폴더명은 사용할 수 없습니다.', false);     
+      return;
+    }
     let sDuplicateFlag = await this.chkDuplicateSingleFile([name],sNewDirPath,true);       
     if(sDuplicateFlag){  
       this.cHdfsViewSvc.makeDir(sNewDirPath, name).subscribe(pResult=>{   
