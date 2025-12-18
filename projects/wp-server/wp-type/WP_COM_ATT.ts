@@ -408,6 +408,9 @@ export interface COM_IMG_ODATASOURCE_ATT extends WkCommonData {
     overwrite_filename: string;
     streamInputJobList: string[]
 }
+export interface COM_VOLTTRON_ATT extends WkCommonData {
+    topic: string;
+}
 
 export type WkSaveData = {
     wkCompData: WpComData[],
@@ -449,7 +452,7 @@ export type WiseComData = {
     Array<COM_SPLIT_ATT> | Array<COM_SORT_ATT> | Array<COM_SLICE_ATT> | COM_SAMPLE_ATT | Array<COM_NULL_ATT> | COM_MERGE_ATT |
     Array<COM_MATH_ATT> | COM_JOIN_ATT | COM_GROUP_ATT | COM_DERV_COND_ATT | Array<COM_DERV_ATT> | Array<COM_DATE_ATT> | COM_PYTHON_ATT | COM_PREDICT_MODEL_ATT |
     COM_SELECT_ATT | Array<COM_NAME_ATT> | Array<COM_ANOMAL_ATT> | COM_AGG_ATT | COM_ANALYTIC_ATT | COM_COMPARE_MODEL_ATT | COM_FILTER_MODEL_ATT | COM_FEATURE_IMPORTANCE_ATT | COM_ENSEMBLE_MODEL_ATT  |
-    COM_IMAGE_ATT | COM_IMG_LABEL_ATT  | COM_IMG_DATASOURCE_ATT | COM_IMG_ODATASOURCE_ATT);
+    COM_IMAGE_ATT | COM_IMG_LABEL_ATT  | COM_IMG_DATASOURCE_ATT | COM_IMG_ODATASOURCE_ATT | COM_VOLTTRON_ATT);
 
 // 모든 컴포넌트 타이핑
 export type WiseComType = { [index: string]: any; } & ( WpDataSourceData | WpODataSourceData );

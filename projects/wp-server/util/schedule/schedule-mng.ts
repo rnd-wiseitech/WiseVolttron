@@ -5,9 +5,7 @@ import { WF_COM_MSTR_ATT } from "../../metadb/model/WF_COM_MSTR";
 import { WK_SCH_MSTR_ATT } from "../../metadb/model/WK_SCH_MSTR";
 import { WP_SESSION_USER } from "../../wp-type/WP_SESSION_USER";
 import { JOB_ATT, JobMstr } from "../job/job";
-// import { WpLivyManagement } from "../livy/livy-api-mng";
 import { WpModelManagement } from "../model-mng/model-mng";
-// import { WpSlackManagement } from "../slack/slack-mng";
 import * as request from "request";
 import { WpSparkApiManager } from "../spark-api/spark-api-mng";
 import { JOB_DATA_ATT, JOB_LOCATION_ATT } from "../../wp-type/WP_COM_ATT";
@@ -75,7 +73,58 @@ export class WpScheduleManagement {
                         INNER JOIN WF_MSTR B ON A.WF_ID = B.WF_ID 
                         LEFT OUTER JOIN WF_USE_DATASET C ON B.WF_ID = C.WF_ID 
                         LEFT OUTER JOIN DS_VIEW_MSTR D ON C.DS_VIEW_ID = D.DS_VIEW_ID 
-                        WHERE A.DEL_YN='N'`;
+                        WHERE A.DEL_YN='N'and A.SCH_STATUS NOT LIKE ('REALVOLTTRON%')`;
+
+            if (this.o_userInfo.USER_MODE  != 'ADMIN') {
+                s_sql += ` AND A.REG_USER_NO = ${this.o_userInfo.USER_NO}`;
+            }
+            if (p_schId != '' && p_schId != undefined) {
+                s_sql += ` AND A.SCH_ID = ${p_schId}`;
+            }
+            else if (p_schNm != '' && p_schNm != undefined) {
+                s_sql += ` AND A.SCH_NM = ${p_schNm}`;
+            }
+            s_sql += "  GROUP BY SCH_ID ORDER BY SCH_ID DESC";
+
+            s_metaDb.query(s_sql,'',true).then(p_result=>{
+                resolve({isSuccess:true,result:p_result});
+            }).catch((p_error) => {
+                reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));
+            });
+        })
+    }
+    getVolttronList(p_schId?:string,p_schNm?:string){
+        return new Promise<WiseReturn>((resolve, reject) => {
+            let s_metaDb = global.WiseMetaDB;
+
+            let s_sql = `
+                        SELECT
+                            A.SCH_ID,
+                            A.SCH_NM,
+                            A.DEL_YN,
+                            B.WF_NM,
+                            B.WF_ID,
+                            CONCAT('[', 
+                            GROUP_CONCAT(CASE WHEN C.OUTPUT_YN='N' THEN CONCAT('"', D.DS_VIEW_NM,'"') END),
+                            ']') AS INPUT_DATA,
+                            CONCAT('[', 
+                            GROUP_CONCAT(CASE WHEN C.OUTPUT_YN='Y' THEN CONCAT('"', D.DS_VIEW_NM,'"') END),
+                            ']') AS OUTPUT_DATA,
+                            A.SCH_STATUS,
+                            A.USE_CORE,
+                            A.USE_MEMORY,
+                            A.ST_DT,
+                            A.ED_DT,
+                            A.CRON_PARAM,
+                            A.CRON_INFO,
+                            A.REG_USER_NO,
+                            A.REG_DT,
+                            A.REALTIME_INFO
+                        FROM WK_SCH_MSTR A
+                        INNER JOIN WF_MSTR B ON A.WF_ID = B.WF_ID 
+                        LEFT OUTER JOIN WF_USE_DATASET C ON B.WF_ID = C.WF_ID 
+                        LEFT OUTER JOIN DS_VIEW_MSTR D ON C.DS_VIEW_ID = D.DS_VIEW_ID 
+                        WHERE A.DEL_YN='N' AND A.REALTIME_INFO IS NOT NULL`;
 
             if (this.o_userInfo.USER_MODE  != 'ADMIN') {
                 s_sql += ` AND A.REG_USER_NO = ${this.o_userInfo.USER_NO}`;
@@ -314,6 +363,31 @@ export class WpScheduleManagement {
             }).catch(p_error=>{reject(p_error)});
         })
     }
+    getVolttronWkLogList(p_schId?:string){
+        return new Promise<WiseReturn>((resolve, reject) => {
+            let s_metaDb = global.WiseMetaDB;
+            let s_sql = `SELECT 
+                        SCH_ID,
+                        LOG_ID,
+                        LOG_STATUS AS STATUS,
+                        ST_DT,
+                        ED_DT,
+                        ERROR_MSG,
+                        ANALYTIC_RESULT
+                        FROM WK_SCH_LOG
+                        WHERE 1 = 1 `;
+
+            if (p_schId != '' && p_schId != undefined) {
+                s_sql += " AND SCH_ID = " + p_schId;
+            }
+
+            s_sql += ` ORDER BY LOG_ID DESC `;
+
+            s_metaDb.query(s_sql,'',true).then(p_schList=>{
+                resolve({isSuccess:true,result:p_schList});
+            }).catch(p_error=>{reject(p_error)});
+        })
+    }
     getModelLogList(p_schId?:string){
         return new Promise<WiseReturn>((resolve, reject) => {
             let s_metaDb = global.WiseMetaDB;
@@ -426,17 +500,18 @@ export class WpScheduleManagement {
                 await global.WiseMetaDB.update('JOB_MSTR', { STATUS: 99, END_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, {SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
                 await global.WiseMetaDB.update('JOB_SUB_MSTR', { STATUS: 99, END_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, {SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'], STATUS: { [Op.ne]: 40 } });
                 await global.WiseMetaDB.update('WK_SCH_LOG', { LOG_STATUS: 99, ED_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss'), ERROR_MSG: p_err }, { SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
+
             } else if (p_res.statusCode == 200) {
+                                            
                 await global.WiseMetaDB.update('JOB_MSTR', { STATUS: 40, END_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, { ID: s_groupId, SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
                 await global.WiseMetaDB.update('WK_SCH_LOG', { LOG_STATUS: 40, ED_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, { SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
+                
             } else {
                 await global.WiseMetaDB.update('JOB_MSTR', { STATUS: 99, END_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, {SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
                 await global.WiseMetaDB.update('JOB_SUB_MSTR', { STATUS: 99, END_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss') }, {SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'], STATUS: { [Op.ne]: 40 } });
                 await global.WiseMetaDB.update('WK_SCH_LOG', { LOG_STATUS: 99, ED_DT: moment().tz("Asia/Seoul").format('YYYY-MM-DD HH:mm:ss'), ERROR_MSG: JSON.parse(p_result)['message'] }, { SCH_ID: p_schData['SCH_ID'], LOG_ID: p_schData['LOG_ID'] });
             }
-        })
-        // };
-
+        });
     }
     // 실시간 수집 진행 중인지 체크
     async checkRealtimeStatus(p_tableName:string){

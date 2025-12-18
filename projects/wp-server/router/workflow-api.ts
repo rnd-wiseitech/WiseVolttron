@@ -2,10 +2,9 @@ import express, { NextFunction, Request, Response } from 'express';
 import { DS_MSTR_ATT } from '../metadb/model/DS_MSTR';
 import { WF_MSTR_ATT } from '../metadb/model/WF_MSTR';
 import { DatabaseManagement } from '../util/database-mng/database-mng';
-// import { WpKafkaApiManager } from '../util/spark-api/kafka-api-mng';
 import { WpSparkApiManager } from '../util/spark-api/spark-api-mng';
 import { WpModelManagement } from '../util/model-mng/model-mng';
-// import { WpSparkApiManager } from '../util/volttron/spark-api-mng';
+import { WpVolttronApiManager } from '../util/volttron/volttron-api-mng';
 import { col, fn } from 'sequelize';
 
 import { JobMstr, JOB_ATT } from '../util/job/job';
@@ -341,7 +340,65 @@ workflowRoute.post('/editWorkflow',(req: Request, res: Response<any>,next:NextFu
       next(p_err);
   });
 });
+workflowRoute.post('/viewVolttronTopicList',(req: Request, res: Response<any>,next:NextFunction) => {
+    
+  let s_body = req.body;
+  
+  if (s_body.params != undefined) {
+      s_body = s_body.params;
+  }
 
+  let s_volttronApiMng = new WpVolttronApiManager(global.WiseAppConfig);
+
+  s_volttronApiMng.getTopicList().then((p_topicList:any) => {
+    
+    let s_topicList:any = [];
+
+    p_topicList.forEach((s_topic:any) => {
+      s_topicList.push(s_topic);
+    });
+    
+    res.json(s_topicList);
+
+  }).catch(p_err => {
+      console.log(p_err);
+      next(p_err);
+  });
+});
+
+workflowRoute.post('/VolttronTopicSelect',(req: Request, res: Response<any>,next:NextFunction) => {
+    
+  let s_body = req.body;
+  
+  if (s_body.params != undefined) {
+      s_body = s_body.params;
+  }
+
+  let s_params = {
+    "action": "input",
+    "method": "I-VOLTTRON",
+    "data": {
+      'topic': s_body.topic
+    },
+    "userno": req.decodedUser.USER_NO,
+    "userId": req.decodedUser.USER_ID,
+    "usermode": req.decodedUser.USER_MODE,
+    "location": 'workflow',
+    "groupId": 'Temp',
+    "jobId": 0
+  };
+
+  let s_sparkApiMng = new WpSparkApiManager(global.WiseAppConfig);
+
+  s_sparkApiMng.onCallApi('/job',JSON.stringify(s_params)).then((p_topic:any) => {
+    
+    res.json(p_topic);
+
+  }).catch(p_err => {
+      console.log(p_err);
+      next(p_err);
+  });
+});
 // #154 Job 실행 상태 조회
 workflowRoute.post('/getJobStatus',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {
     

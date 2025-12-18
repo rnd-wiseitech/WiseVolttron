@@ -1,0 +1,16 @@
+<div [class]="'modal on'" *ngIf="h_popup == true">
+    <div class="modal-inner" style="max-width: 1000px; width:1000px; height: 100%;">
+        <div class="modal-header">
+            <div class="tit">
+                {{oData.title}}
+            </div>
+        </div>
+        <div class="modal-body" id="sch_pop" style="height: 100%">
+            <lib-wp-grid id="sch_grid" [iGridData]="h_gridData" [iColInfo]="h_gridCol" [iPage]="true" style="height: auto;"></lib-wp-grid>
+        </div>
+        <div class="modal-controller">
+            <a class="ico close modalClose" (click)="onCancel()">닫기</a>
+        </div>
+    </div>
+    <!-- <div class="modal-dim on"></div> -->
+</div>

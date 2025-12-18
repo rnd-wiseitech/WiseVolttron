@@ -10,7 +10,7 @@ import { WpSelectData } from "./transper/wp-select";
 import { WpSortData } from "./transper/wp-sort";
 import { WpTypeData } from "./transper/wp-type";
 import { WpWindowData } from "./transper/wp-window";
-import { COM_ANALYTIC_ATT, COM_ANOMAL_ATT, COM_COMPARE_MODEL_ATT, COM_DATASOURCE_ATT, COM_DATE_ATT, COM_ENSEMBLE_MODEL_ATT, COM_FEATURE_IMPORTANCE_ATT, COM_FILTER_MODEL_ATT, COM_IWORKFLOW_ATT, COM_JOIN_ATT, COM_NAME_ATT, COM_NULL_ATT, COM_ODATASOURCE_ATT, COM_ODBC_ATT, COM_OODBC_ATT, COM_PREDICT_MODEL_ATT, COM_SELECT_ATT, COM_SORT_ATT, COM_STORAGE_ATT, COM_TYPE_ATT, COM_WINDOW_ATT, COM_IMAGE_ATT,COM_IMG_LABEL_ATT, COM_IMG_DATASOURCE_ATT, COM_IMG_ODATASOURCE_ATT, WiseComType } from "../../wp-type/WP_COM_ATT";
+import { COM_ANALYTIC_ATT, COM_ANOMAL_ATT, COM_COMPARE_MODEL_ATT, COM_DATASOURCE_ATT, COM_FEATURE_IMPORTANCE_ATT, COM_FILTER_MODEL_ATT, COM_IWORKFLOW_ATT, COM_JOIN_ATT, COM_NAME_ATT, COM_NULL_ATT, COM_ODATASOURCE_ATT, COM_ODBC_ATT, COM_OODBC_ATT, COM_PREDICT_MODEL_ATT, COM_SELECT_ATT, COM_SORT_ATT, COM_STORAGE_ATT, COM_TYPE_ATT, COM_WINDOW_ATT, COM_IMAGE_ATT,COM_IMG_LABEL_ATT, COM_IMG_DATASOURCE_ATT, COM_IMG_ODATASOURCE_ATT, WiseComType, COM_VOLTTRON_ATT } from "../../wp-type/WP_COM_ATT";
 import { WpCompareModelData } from "./analytic/wp-compare-model";
 import { WpFilterModelData } from "./analytic/wp-filter-model";
 import { WpFeatureImporanceData } from "./analytic/wp-feature-importance";
@@ -21,6 +21,8 @@ import { WpPredictModelData } from "./analytic/wp-predict-model";
 import { getCOM_ID } from '../../../wp-lib/src/lib/wp-meta/com-id';
 import { WpImgStorageData } from "./data/wp-image-stroage";
 import { WpImgDataSourceData, WpImgODataSourceData} from "./data/wp-image-datasource";
+import { WpVolttron } from "./data/wp-volttron";
+import { WpImgClassifyData } from "./transper/wp-image-classify";
 
 
 export function getPropertiesData(p_type: number, p_data?:any): WiseComType {
@@ -235,16 +237,6 @@ export function getPropertiesData(p_type: number, p_data?:any): WiseComType {
             };
             return new WpOOdbcData(s_initData as COM_OODBC_ATT);
 
-        case COM_ID['A-ENSEMBLE']:
-            if (p_data) {
-                return new WpEnsembleModelData(p_data as COM_ENSEMBLE_MODEL_ATT);
-            }
-            s_initData = {
-                modelType: undefined,
-                predictProba : false
-            };
-            return new WpEnsembleModelData(s_initData as COM_ENSEMBLE_MODEL_ATT);
-            
         case COM_ID['A-COMPARE_MODEL']:
             if (p_data) {
                 return new WpCompareModelData(p_data as COM_COMPARE_MODEL_ATT);
@@ -351,7 +343,22 @@ export function getPropertiesData(p_type: number, p_data?:any): WiseComType {
                 streamInputJobList: []
             };
             return new WpImgODataSourceData(s_initData as COM_IMG_ODATASOURCE_ATT);
-    
+        case COM_ID['I-VOLTTRON']:
+            if (p_data) {
+                return new WpVolttron(p_data as COM_VOLTTRON_ATT);
+            }
+            s_initData = {
+                topic: ''
+            };
+            return new WpVolttron(s_initData as COM_VOLTTRON_ATT);
+        case COM_ID['T-IMAGE-CLASSIFY']:
+            if (p_data) {
+                return new WpImgClassifyData(p_data as COM_IMG_LABEL_ATT);
+            }
+            s_initData = {
+                label:[],
+            };
+            return new WpImgClassifyData(s_initData as COM_IMG_LABEL_ATT);
     // 나머지 케이스는 모델인 경우 (위에 컴포넌트 설정 하지 않으면 몽땅 WpTrainModelData로 되버리니 주의!!)
     default:
         if (p_data) {

@@ -15,6 +15,10 @@ export class ScheduleService extends WpSeriveImple {
         return this.cHttp.post(this.oNodeUrl + '/sm/schList', {});
     }
 
+    getVolttronList(): Observable<any> {
+        return this.cHttp.post(this.oNodeUrl + '/sm/volttronList', {});
+    }
+
     getWkList(): Observable<any> {
         return this.cHttp.post(this.oNodeUrl + '/sm/wkList', {});
     }

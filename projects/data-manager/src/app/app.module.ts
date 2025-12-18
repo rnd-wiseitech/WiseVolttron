@@ -26,6 +26,7 @@ import { SchedulePopupComponent } from './schedule/log-popup/log-popup.component
 import { DmImagePopUpComponent } from './dataset/image-popup/image-popup.component';
 import { DataSetHistoryComponent } from './dataset-history/dataset-history.component';
 import { HdfsViewerComponent } from './hdfs-viewer/hdfs-viewer.component';
+import { VolttronSchedulePopupComponent } from './volttron/log-popup/volttron-log-popup.component';
 import { WpLibModule } from 'projects/wp-lib/src/public-api';
 import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-diagram.module';
 // import { HdfsViewerSerivce } from './hdfs-viewer/hdfs-viewer.service';
@@ -41,6 +42,7 @@ import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-
     ScheduleComponent,
     VolttronComponent,
     SchedulePopupComponent,
+    VolttronSchedulePopupComponent,
     DataSetHistoryComponent
   ],    
   imports: [
