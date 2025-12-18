@@ -21,6 +21,7 @@
 <div class="container">
   <dm-dataset *ngIf="oActiveTab == 'dm-dataset'"></dm-dataset>
   <dm-connection *ngIf="oActiveTab == 'dm-connection'"></dm-connection>
+  <dm-hdfs-viewer *ngIf="oActiveTab == 'dm-hdfs-viewer'"></dm-hdfs-viewer>
   <dm-dataset-profile *ngIf="oActiveTab == 'dm-dataset-profile'" [oProfileData]="oProfileData"></dm-dataset-profile>  
   <dm-schedule *ngIf="oActiveTab == 'dm-schedule'"></dm-schedule>
   <dm-volttron *ngIf="oActiveTab == 'dm-volttron'"></dm-volttron>

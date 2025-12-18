@@ -114,7 +114,7 @@ export class ErrorsHandler implements ErrorHandler {
         sMsg = `데이터와 테이블의 컬럼 개수가 일치하지 않습니다.`;
         break;
       case 700 :
-        sMsg = `하둡 서버에서 오류가 발생 했습니다.`;
+        sMsg = `웹 서버에서 오류가 발생 했습니다.`;
         break;
       case 333 :
         sMsg = pMsg;

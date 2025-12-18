@@ -4,10 +4,15 @@
       <a (click)="onTabClick('model-manager')"><span>모델 이력
       </span></a>
     </li>
+    <li [ngClass]="oActiveTab == 'custom-manager' || (oActiveTab == 'model-profile' && oProfile=='custom-model')? 'on':''">
+      <a (click)="onTabClick('custom-manager')"><span>커스텀 모델 관리
+      </span></a>
+    </li>
   </ul>
 </div>
 <div class="container">
   <wp-model-manager *ngIf="oActiveTab == 'model-manager'"></wp-model-manager>
   <wp-model-profile *ngIf="oActiveTab == 'model-profile'" [iProfileData]="oProfileData"></wp-model-profile>
+  <wp-custom-manager *ngIf="oActiveTab == 'custom-manager'"></wp-custom-manager>
   <lib-wp-loading [iName]="'algorithmspin'" [iFullScreen]="true"></lib-wp-loading>  
 </div>
