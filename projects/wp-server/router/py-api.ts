@@ -463,7 +463,8 @@ pyApiRoute.post('/schedule',(req: Request, res: Response<WiseReturn>,next:NextFu
         KEY_PATH: '',
         LIVY: undefined,
         FILE_FORMAT:undefined,
-        APP_NO: global.WiseAppConfig.APP_NO
+        APP_NO: global.WiseAppConfig.APP_NO,
+        VOLTTRON : undefined
     }
     let s_sparkApiMng = new WpSparkApiManager(s_userAppConfig);
 
@@ -775,3 +776,40 @@ pyApiRoute.post('/function',(req: Request, res: Response<WiseReturn>,next:NextFu
                                 res.json(pResult);
                             }).catch(pErr => { next(pErr) });
 });
+
+pyApiRoute.post('/checkCustomModelTrain',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {
+    let s_body = req.body;
+    
+    if (s_body.params != undefined) {
+        s_body = s_body.params;
+    }
+
+    let s_sparkApiMng = new WpSparkApiManager(req.decodedUser.AppConfig);
+    let s_param:any = {
+        action: 'model-info',
+        method: 'CHECK-TRAIN',
+        location: 'workflow',
+        groupId: 'model-info',
+        jobId: 1,
+        data: {
+            MODEL_ID: s_body.MODEL_ID? s_body.MODEL_ID : null,
+            MODEL_IDX: s_body.MODEL_IDX? s_body.MODEL_IDX : null,
+            CUSTOM_YN: s_body.CUSTOM_YN? s_body.CUSTOM_YN : null,
+            FRAMEWORK_TYPE: s_body.FRAMEWORK_TYPE? s_body.FRAMEWORK_TYPE : null,
+        }
+      }
+    s_param['userno'] = req.decodedUser.USER_NO;
+    s_param['usermode'] = req.decodedUser.USER_MODE;
+    s_param['userid'] = req.decodedUser.USER_ID;
+
+    s_sparkApiMng.onCallApi(`/job`,
+                            JSON.stringify(s_param),
+                            {   
+                                'Content-Type': 'application/json', 
+                                'groupId': s_param.groupId, 
+                                'jobId': s_param.jobId 
+                            }).then(pResult => {
+                                res.json(pResult);
+                            }).catch(pErr => { next(pErr) });
+});
+

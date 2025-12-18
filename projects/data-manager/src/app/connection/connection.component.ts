@@ -5,7 +5,7 @@ import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
 import { WpPopupComponent } from 'projects/wp-lib/src/lib/wp-popup/wp-popup.component';
 import { map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { DS_CONNECT_TYPE,DB_SUPPORT_TYPE, OBJECT_SUPPORT_TYPE,getJson } from 'projects/wp-lib/src/lib/wise-type/wise.connect';
+import { DS_CONNECT_TYPE,DB_SUPPORT_TYPE, getJson } from 'projects/wp-lib/src/lib/wise-type/wise.connect';
 
 @Component({
   selector: 'dm-connection',
@@ -389,7 +389,7 @@ export class ConectionComponent implements OnInit {
   // WPLAT-365 oracle postgresql OWNER_NM 설정할 수 있게
   onDbTypeChanged(pValue: string, pCompInstance: any, pEv: any) {
     
-    if (pValue == DB_SUPPORT_TYPE.POSTGRESQL  || pValue == DB_SUPPORT_TYPE.ORACLE || pValue == DB_SUPPORT_TYPE.TIBERO) {      
+    if (pValue == DB_SUPPORT_TYPE.POSTGRESQL  || pValue == DB_SUPPORT_TYPE.ORACLE) {      
       let sLabelName = '소유자명';
       
       if (pValue == DB_SUPPORT_TYPE.POSTGRESQL)

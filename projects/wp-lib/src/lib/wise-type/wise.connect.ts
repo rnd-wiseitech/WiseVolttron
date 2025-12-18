@@ -1,9 +1,5 @@
 export enum DS_CONNECT_TYPE {
     DB = "db",
-    FTP = "ftp",
-    SFTP = "sftp",
-    HDFS = "hdfs",
-    OBJECT = "object"
 }
 export enum OBJECT_SUPPORT_TYPE {
     AWS = "aws",
@@ -18,7 +14,6 @@ export enum DB_SUPPORT_TYPE {
     DB2 = "db2",
     MYSQL = "mysql",
     MSSQL = "mssql",
-    TIBERO = "tibero"
 }
 
 export function getJson (enumObj: any): any {

@@ -13,6 +13,7 @@ import { WpODataSourceComponent } from './data/wp-data-source/wp-odata-source.co
 import { WpDiagramService } from '../wp-diagram/wp-diagram.service';
 import { Subscription } from 'rxjs';
 import { WpComponentService } from './wp-component.service';
+import { WpVolttronService } from './data/wp-volttron/wp-volttron.service';
 import { WpDiagramPreviewService } from '../wp-menu/wp-diagram-preview/wp-diagram-preview.service';
 import { WpResultViewerComponent } from './resultview/wp-result-viewer.component';
 import { WpOdbcComponent } from './data/wp-odbc/wp-odbc.component';
@@ -33,6 +34,7 @@ import { DS_MSTR_ATT } from 'projects/wp-server/metadb/model/DS_MSTR';
 import { WpIWorkflowComponent } from './data/wp-workflow/wp-iworkflow.component';
 import { WpStorageComponent } from './data/wp-storage/wp-storage.component';
 import { WpImageStorageComponent } from './data/wp-image/wp-image-storage.component';
+import { WpImageClassifyComponent } from './conversion/wp-image-classify/wp-image-classify.component';
 import { WpImageDataSourceComponent } from './data/wp-image/wp-image-data-source.component';
 import { WpImageODataSourceComponent } from './data/wp-image/wp-image-odata-source.component';
 import { WpEnsembleModelComponent } from './analytic-model/wp-ensemble-model/wp-ensemble-model.component';
@@ -44,6 +46,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DB_SUPPORT_TYPE,getEnumValues } from 'projects/wp-lib/src/lib/wise-type/wise.connect';
 import { COM_ID, getCOM_IDListByPrefix, setCOM_ID } from 'projects/wp-lib/src/lib/wp-meta/com-id';
 import { WpImageListPopUpComponent } from 'projects/image-unstructured/src/app/image-popup/image-list-popup.component';
+import { WpVolttronComponent } from './data/wp-volttron/wp-volttron.component';
 
 @Component({
   selector: 'wp-component-viewer',
@@ -85,6 +88,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
     private cWpCompareModelSvc: WpCompareModelService,
     private cWpComSvc: WpComponentService,
     private cWpAppSvc: WorkflowAppService,
+    private cWpVolttronSvc: WpVolttronService,
     private matDialog: MatDialog,
     private cWpSocketSvc: WpSocket,
     private cWpAppConfig: WpAppConfig,
@@ -186,7 +190,9 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         let tmpShared = await this.cComViewSvc.getSharedDataList();
         this.oComponent.setFileNm(tmp, tmpShared);
       }else if (sInitSize.currentValue.type == COM_ID['T-IMAGE-CLASSIFY']) {
-        // this.oComponent = new WpImageClassifyComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.matDialog, this.cWpDiagramSvc, this.cMetaSvc);
+        this.oComponent = new WpImageClassifyComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.matDialog, this.cWpDiagramSvc, this.cMetaSvc);
+      }else if (sInitSize.currentValue.type == COM_ID['I-VOLTTRON']) {
+        this.oComponent = new WpVolttronComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpVolttronSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.matDialog, this.cMainAppSvc);
       }
       else if (sInitSize.currentValue.type == COM_ID['O-IMAGE-DATASOURCE']) {
         this.oComponent = new WpImageODataSourceComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc);
@@ -208,9 +214,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = new WpSortComponent(this.cComViewSvc, this.oComponentData);
       } else if (sInitSize.currentValue.type == COM_ID['T-SELECT']) {
         this.oComponent = new WpColumnSelectorComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpAppSvc);
-      // }
-      // else if (sInitSize.currentValue.type == COM_ID['T-PYTHON']) {
-      //   this.oComponent = new WpPythonComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramSvc, this.cWpComSvc, this.cWpDiagramPreviewSvc, this.cWpAppSvc, this.cWpSocketSvc, this.matDialog);
       } else if (sInitSize.currentValue.type == COM_ID['T-JOIN']) {
         this.h_componentTabData = this.oComponentData['o_data']['joinKey']
         let sNodes = this.cWpDiagramSvc.getWpNodes();

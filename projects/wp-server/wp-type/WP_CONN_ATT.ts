@@ -61,4 +61,5 @@ export interface WP_CONFIG {
     LIVY: any;
     FILE_FORMAT: string;
     APP_NO: number;
+    VOLTTRON : WP_CONN_ATT;
 }

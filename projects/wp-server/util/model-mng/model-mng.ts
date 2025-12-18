@@ -1587,4 +1587,29 @@ export class WpModelManagement {
         });
 
     }
+
+    getTrainCustomModelList(p_user: any) {
+        return new Promise<WiseReturn>((resolve, reject) => {
+            let s_metaDb = global.WiseMetaDB;
+            
+
+            let s_query = `
+            SELECT * FROM DP_MODEL_MSTR A
+            WHERE (REG_USER_NO = ${p_user.USER_NO} AND DEL_YN='N') 
+            AND ((CUSTOM_YN='Y') 
+            OR (ARG_ID=5000 AND FRAMEWORK_TYPE='PyTorch'))
+            ORDER BY REG_DATE DESC
+            `;
+            // if(p_user.USER_MODE !='ADMIN') {
+            //     s_query += ` AND A.REG_USER_NO=${p_user.USER_NO}`
+            // }
+            
+            s_metaDb.query(s_query, 'DP_MODEL_MSTR').then((p_result) => {
+                resolve({isSuccess:true,result:p_result});
+            }).catch((p_error) => {
+                reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));
+            });
+        });
+
+    }
 }

@@ -60,7 +60,7 @@ def execute(p_dataSource, **kwargs):
 
     elif s_method == "I-VOLTTRON" :
         s_storage = volttron
-        s_df = s_storage.getData()
+        s_df = s_storage.getData(p_dataSource, **kwargs)
 
     # 이미지 스토리지
     elif s_method == 'I-IMAGE-STORAGE' or s_method == 'I-IMAGE-LABEL' :

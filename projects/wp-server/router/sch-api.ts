@@ -43,9 +43,63 @@ schRoute.post('/schList',(req: Request, res: Response<any>,next:NextFunction) =>
     let s_schMng = new WpScheduleManagement(req.decodedUser);
 
     s_schMng.getSchList().then(p_result => {
+        if(p_result.isSuccess)
+            res.json({ success: true, result: p_result.result });
+    }).catch(function (err) {
+        next(err);
+    });
+});
+schRoute.post('/VolttronList',(req: Request, res: Response<any>,next:NextFunction) => {
+    let s_body = req.body;
+    
+    if (s_body.params != undefined) {
+        s_body = s_body.params;
+    }
+
+    let s_schMng = new WpScheduleManagement(req.decodedUser);
+
+    s_schMng.getVolttronList().then(p_result => {
+        if(p_result.isSuccess)
+            res.json({ success: true, result: p_result.result });
+    }).catch(function (err) {
+        next(err);
+    });
+});
+
+schRoute.post('/volttronLogList',(req: Request, res: Response<any>,next:NextFunction) => {
+    let s_body = req.body;
+    
+    if (s_body.params != undefined) {
+        s_body = s_body.params;
+    }
+
+    let s_schMng = new WpScheduleManagement(req.decodedUser);
+
+    s_schMng.getVolttronWkLogList(s_body.SCH_ID).then(p_result => {
         // console.log(p);
         if(p_result.isSuccess)
             res.json({ success: true, result: p_result.result });
+    }).catch(function (err) {
+        next(err);
+    });
+});
+
+schRoute.post('/volttronStart',(req: Request, res: Response<any>,next:NextFunction) => {
+    let s_body = req.body;
+
+    if (s_body.params != undefined) {
+        s_body = s_body.params;
+    }
+
+    let s_schMng = new WpScheduleManagement(req.decodedUser);
+    
+    let s_status = 'REALVOLTTRON_20';
+
+    s_schMng.changeWkStatus(s_body.SCH_ID, s_status).then(p_result => {
+        if (!s_body.REALTIME_INFO) {
+            global.WiseCronJobMng.pause(s_body);
+        }
+        res.json({ success: true, result: 'pause success' });
     }).catch(function (err) {
         next(err);
     });
@@ -122,9 +176,9 @@ schRoute.post('/wkNmList',(req: Request, res: Response<any>,next:NextFunction) =
         AND A.REG_USER=${req.decodedUser.USER_NO}
         AND A.DEL_YN = 'N'
         AND A.WF_TYPE = 'save' 
-        AND ( B.COM_TYPE = 'I-STREAMING' OR B.COM_ID = ${COM_ID['I-STREAMING']} )
+        AND ( B.COM_TYPE = 'I-VOLTTRON' OR B.COM_ID = ${COM_ID['I-VOLTTRON']})
         AND A.WF_ID NOT IN (SELECT WF_ID FROM WK_SCH_MSTR WHERE DEL_YN = 'N')
-        `; // (25.4.22) COM_TYPE 삭제 예정
+        `;
     }
     s_metaDbMng.query(s_query,'',true).then(p_result => {
         res.json({ success: true, result: p_result });
@@ -166,15 +220,19 @@ schRoute.post('/insert',async (req: Request, res: Response<any>,next:NextFunctio
         let s_query = `
             SELECT * FROM WF_COM_MSTR
             WHERE WF_ID = ${s_body.WF_ID}
-                AND ( COM_TYPE = 'I-STREAMING' OR COM_ID = ${COM_ID['I-STREAMING']} )
         `;
         let s_streamingComList:WF_COM_MSTR_ATT[] = await s_metaDbMng.query(s_query, 'WF_COM_MSTR');
         let s_streamingJobId = s_streamingComList.map(s_streamCom => JSON.parse(s_streamCom['WF_DATA'])['jobId']);
+
+        let s_sch_status = 'REALTIME_10';
+        if (s_body.volttron) {
+            s_sch_status = 'REALVOLTTRON_10';
+        }
         s_cronParam = {
             SCH_NM: s_body.SCH_NM,
             // DS_VIEW_ID: params.DS_VIEW_ID,
             DEL_YN: 'N',
-            SCH_STATUS: 'REALTIME_10',
+            SCH_STATUS: s_sch_status,
             REG_USER_NO: req.decodedUser.USER_NO,
             REG_DT: moment().format('YYYY-MM-DD HH:mm:ss'),
             WF_ID: s_body.WF_ID,
@@ -220,6 +278,9 @@ schRoute.post('/pause',(req: Request, res: Response<any>,next:NextFunction) => {
     if (s_body.REALTIME_INFO) {
         s_status = 'REALTIME_30';
     }
+    if (s_body.volttron) {
+        s_status = 'REALVOLTTRON_30';
+    }
     s_schMng.changeWkStatus(s_body.SCH_ID, s_status).then(p_result => {
         if (!s_body.REALTIME_INFO) {
             global.WiseCronJobMng.pause(s_body);
@@ -241,6 +302,9 @@ schRoute.post('/run',(req: Request, res: Response<any>,next:NextFunction) => {
     let s_status = 'BATCH_20';
     if (s_body.REALTIME_INFO) {
         s_status = 'REALTIME_20';
+    }
+    if (s_body.volttron) {
+        s_status = 'REALVOLTTRON_20';
     }
     s_schMng.changeWkStatus(s_body.SCH_ID, s_status).then(p_result => {
         if (!s_body.REALTIME_INFO) {
@@ -293,6 +357,30 @@ schRoute.post('/edit',(req: Request, res: Response<any>,next:NextFunction) => {
     s_schMng.updateWkSchedule(s_updateParam,{ SCH_ID: s_body.SCH_ID }).then(p_result => {
         global.WiseCronJobMng.delete(s_body, 'edit');
         res.json({ success: true, result: 'run success' });
+    }).catch(function (err) {
+        next(err);
+    });
+});
+
+
+
+schRoute.post('/checkSchLogStatus',(req: Request, res: Response<any>,next:NextFunction) => {
+    let s_body = req.body;
+    let s_metaDbMng = global.WiseMetaDB;
+
+    if (s_body.params != undefined) {
+        s_body = s_body.params;
+    }
+
+    let s_query = ` SELECT EXISTS(
+                SELECT 1
+                FROM WK_SCH_LOG
+                WHERE SCH_ID = ${s_body.schId}
+                AND LOG_STATUS = 40
+            ) AS STATUS_COUNT;`;
+
+    s_metaDbMng.query(s_query,'',true).then(p_result => {
+        res.json({ success: true, result: p_result });
     }).catch(function (err) {
         next(err);
     });

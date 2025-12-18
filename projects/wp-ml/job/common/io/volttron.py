@@ -23,15 +23,17 @@ def getData(p_dataSource, **kwargs):
     s_url = f"http://{s_fromConn['host']}:{s_fromConn['port']}/topicData"
 
     s_stream = False
-
+    
+    s_meta = getConfig('','META_DB')
+    s_conn = databaseService.connectRDBMS(s_meta['type'],s_meta['host'],s_meta['port'],s_meta['id'],s_meta['passwd'],s_meta['db'])
+  
     s_param = { "topic": s_topic }
     if 'offset' in kwargs.keys():
         s_param['offset'] = kwargs['offset']
     
-        s_stream = True
         s_schId = kwargs['sch_id']
-        s_meta = getConfig('','META_DB')
-        s_conn = databaseService.connectRDBMS(s_meta['type'],s_meta['host'],s_meta['port'],s_meta['id'],s_meta['passwd'],s_meta['db'])
+    
+        s_stream = True
         s_logId = s_conn.execute(f"SELECT IFNULL(MAX(LOG_ID),0) AS LOG_ID FROM WK_SCH_LOG WHERE SCH_ID={s_schId}").fetchall()[0][0]
                 
     try:
@@ -53,8 +55,10 @@ def getData(p_dataSource, **kwargs):
             s_conn.execute(s_query, (s_schId, s_logId + 1, 40, s_now, s_now, '', f'{len(s_df)}건'))
         return s_df
     except Exception as e:
-        s_query = 'INSERT INTO WK_SCH_LOG (SCH_ID, LOG_ID, LOG_STATUS, ST_DT, ED_DT, ERROR_MSG, ANALYTIC_RESULT) VALUES (%s, %s, %s, %s, %s, %s, %s)'
-        s_conn.execute(s_query, (s_schId, s_logId + 1, 99, s_now, s_now, '수집 중 오류가 발생했습니다', ''))
+        
+        if s_stream:
+            s_query = 'INSERT INTO WK_SCH_LOG (SCH_ID, LOG_ID, LOG_STATUS, ST_DT, ED_DT, ERROR_MSG, ANALYTIC_RESULT) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+            s_conn.execute(s_query, (s_schId, s_logId + 1, 99, s_now, s_now, '수집 중 오류가 발생했습니다', ''))
         return e
 
 def installSubAgent(local_path, remote_path, user, host):
