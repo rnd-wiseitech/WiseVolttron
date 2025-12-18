@@ -23,6 +23,8 @@ import { WpPopupDiagramModule } from 'projects/wp-lib/src/lib/wp-popup/wp-popup-
 import { WpLibDataUploaderModule } from 'projects/wp-lib/src/lib/wp-lib-data-uploader/wp-lib-data-uploader.module';
 import { ModelHistoryPopupComponent } from './model-profile/popup/history-popup.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { CustomManagerComponent } from './custom-manager/custom-manager.component';
+import { CustomManagerService } from './custom-manager/custom-manager.service';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     ModelManagerComponent,
     ModelProfileComponent,
     ModelHistoryPopupComponent,
+    CustomManagerComponent
   ],
   imports: [
     BrowserModule,
@@ -53,6 +56,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     AlgorithmAppService,
     ModelManagerService,
     ModelProfileService,
+    CustomManagerService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,

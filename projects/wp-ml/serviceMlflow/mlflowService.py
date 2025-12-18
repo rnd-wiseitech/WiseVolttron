@@ -1,15 +1,8 @@
-from config.wp import getConfig, getWiseDefaultStorage, setWiseDefaultStorage
+from config.wp import getConfig, getWiseDefaultStorage
 import os
 import mlflow # 1.30.1
 import json 
 import datetime
-# import numpy as np
-# from mlflow.server import handlers
-# from mlflow.tracking._tracking_service import utils as tracking_utils 
-# from mlflow.tracking._model_registry import utils as model_utils
-# from mlflow.store.artifact.artifact_repository_registry import _artifact_repository_registry
-# from mlflow.store.tracking.sqlalchemy_store import SqlAlchemyStore
-# from mlflow.models.signature import infer_signature
 from urllib import parse
 import shutil
 import pandas as pd
@@ -50,9 +43,6 @@ class mlFlowClient:
             self.experiment = mlflow.get_experiment_by_name(self.userno)
             self.experiment_id = self.experiment.experiment_id
         except AttributeError:
-            # s_dsId = getConfig('', 'DS_ID')
-            # setWiseDefaultStorage(s_dsId)
-            # init()
             if o_wiseStorage['type'] == 'LOCAL':
                 self.experiment_id = mlflow.create_experiment(self.userno, artifact_location=f'file:///{o_defaultDataPath}{self.userno}/mlrun')
             elif o_wiseStorage['type'] == 'HDFS':
@@ -79,36 +69,30 @@ class mlFlowClient:
     
     def logModel(self, p_model, p_signature, p_sample, p_frameWorkType='Scikit-learn'):
         if p_frameWorkType == 'Scikit-learn':
-            mlflow.sklearn.log_model(p_model, "model", signature=p_signature, input_example=p_sample)
+           self.mlflowModel = mlflow.sklearn.log_model(p_model, artifact_path="model", signature=p_signature, input_example=p_sample)
         elif p_frameWorkType == 'TensorFlow/Keras':
-            mlflow.tensorflow.log_model(p_model, "model")
+            self.mlflowModel = mlflow.tensorflow.log_model(p_model, "model")
         elif p_frameWorkType == 'PyTorch':
-            mlflow.pytorch.log_model(p_model, "model")
-        elif p_frameWorkType == 'transformers':
-            mlflow.transformers.log_model(
-                transformers_model=p_model,
-                artifact_path="model",
-                prompt_template="평생학습 강좌에 대한 고객의 질문에 친절하게 답해줘. Q: {prompt}, A:",
-                signature=p_signature
-            )
+            self.mlflowModel = mlflow.pytorch.log_model(p_model, "model")
         elif p_frameWorkType == 'YOLO':
             from serviceWrapper.wrapper import YOLOv8Wrapper
-            mlflow.pyfunc.log_model(
+            self.mlflowModel = mlflow.pyfunc.log_model(
                 artifact_path="model",
                 python_model=YOLOv8Wrapper(),
-                extra_pip_requirements=["Pillow", "opencv-python", "numpy"],
+                extra_pip_requirements=["Pillow", "opencv-python", "stream_zip"],
                 artifacts={
-                    "model_path": p_model.model_path
+                    "model_path": p_model.model_path,
+                    "output_path": p_model.output_path
                 },
-                code_path=["./serviceWrapper"]  # YOLOv8Wrapper 포함된 디렉토리
+                code_paths=["./serviceWrapper"]  # YOLOv8Wrapper 포함된 디렉토리
             )
+        self.mlflowModelPath =  urlparse(self.mlflowModel.artifact_path)
+        # self.mlflowModelPath  = self.mlflowModelPath.path
+        # 윈도우일 경우
+        self.mlflowModelPath = self.mlflowModelPath.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
 
     def logSignature(self, p_signature, p_wpStorage):
-        model_uri = mlflow.get_artifact_uri("model")
-        parsed_uri = urlparse(model_uri)
-        # artifact_path = parsed_uri.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
-        artifact_path = parsed_uri.path
-        signature_path = os.path.join(artifact_path, "signature.json")
+        signature_path = os.path.join(self.mlflowModelPath, "signature.json")
         if o_apiType == 'COMMON':
             with open(signature_path, "w") as f:
                 json.dump(p_signature.to_dict(), f, indent=2)
@@ -116,11 +100,7 @@ class mlFlowClient:
             p_wpStorage.o_sparkStorage.writeFile(signature_path, p_signature.to_dict(), 'json')
 
     def logSampleData(self, p_sample, p_wpStorage):
-        model_uri = mlflow.get_artifact_uri("model")
-        parsed_uri = urlparse(model_uri)
-        # artifact_path = parsed_uri.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
-        artifact_path = parsed_uri.path
-        sample_path = os.path.join(artifact_path, "input_example.json")
+        sample_path = os.path.join(self.mlflowModelPath, "input_example.json")
         json_like = {
         "columns": p_sample.columns.tolist(),
         "data": p_sample.values.tolist()
@@ -136,25 +116,16 @@ class mlFlowClient:
             self.client.log_metric(p_runId, key, value)
 
     def logScaler(self, p_scaler, p_wpStorage):
-        model_uri = mlflow.get_artifact_uri("model")
-        parsed_uri = urlparse(model_uri)
-        artifact_path = parsed_uri.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
-        # artifact_path = parsed_uri.path
-        scaler_path = os.path.join(artifact_path, "scaler.pkl")
+        scaler_path = os.path.join(self.mlflowModelPath, "scaler.pkl")
         if o_apiType == 'COMMON':
-            # Windows 경로 일 경우 ( 드라이브 문자가 ':'를 포함하는 경우) 맨 앞 슬래시를 제거
-            if bool(re.match(r'^/?[A-Za-z]:[\\/]', scaler_path)):
-                scaler_path = scaler_path.lstrip("/")
+            # if bool(re.match(r'^/?[A-Za-z]:[\\/]', scaler_path)):
+            scaler_path = scaler_path.lstrip("/")
             joblib.dump(p_scaler, scaler_path)
         else:
             p_wpStorage.o_sparkStorage.writeFile(scaler_path, p_scaler, 'pkl')
 
     def logPythonCode(self, p_code, p_wpStorage, p_parameter=None):
-        model_uri = mlflow.get_artifact_uri("model")
-        parsed_uri = urlparse(model_uri)
-        artifact_path = parsed_uri.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
-        # artifact_path = parsed_uri.path
-        code_path = os.path.join(artifact_path, "code.py")
+        code_path = os.path.join(self.mlflowModelPath, "code.py")
         s_code = p_code
         if p_parameter != None:
             s_code = s_code.replace("optimizer=s_optimizer", "optimizer={s_optimizer}")
@@ -184,8 +155,13 @@ class mlFlowClient:
                 # 단순 데이터는 바로 저장
                 self.client.log_param(p_runId, key, value)
 
-    def logConfig(self, p_runId, p_config):
-        self.client.log_dict(p_runId, p_config, "config.json")
+    def logConfig(self, p_config, p_wpStorage):
+        config_path = os.path.join(self.mlflowModelPath, "config.json")
+        if o_apiType == 'COMMON':
+            with open(config_path, "w") as f:
+                json.dump(p_config, f, indent=2)
+        else:
+            p_wpStorage.o_sparkStorage.writeFile(config_path, p_config, 'json')
 
     def registerModel(self, p_runId, p_modelId):
         try:
@@ -200,6 +176,14 @@ class mlFlowClient:
             source=model_uri,
             run_id=p_runId
         )
+        # === modelPath 태그 저장 ===
+        self.client.set_model_version_tag(
+            name=p_modelId,
+            version=self.modelVersionInfo.version,
+            key="modelPath",
+            value=self.mlflowModelPath
+        )
+
 
 
         return self.modelVersionInfo.version
@@ -227,7 +211,7 @@ class mlFlowClient:
         return mlflow.artifacts.load_dict(p_path + '/config.json')
     
     def loadSignature(self, p_path):
-        s_json =  mlflow.artifacts.load_dict(p_path + '/model/signature.json')
+        s_json =  mlflow.artifacts.load_dict(p_path + '/signature.json')
         return ModelSignature.from_dict(s_json)
 
     def loadModel(self, p_modelId, p_modelVersion, p_frameWorkType=None):
@@ -241,19 +225,21 @@ class mlFlowClient:
     
     def loadScaler(self, p_arifact_uri, p_wpStorage):
         p_parsed_uri = urlparse(p_arifact_uri)
-        # s_artifact_path = p_parsed_uri.path.lstrip("/")  # Windows의 경우 맨 앞 슬래시 제거
         s_artifact_path = p_parsed_uri.path
         if o_apiType == 'COMMON':
             if bool(re.match(r'^/?[A-Za-z]:[\\/]', s_artifact_path)):
                 s_artifact_path = s_artifact_path.lstrip("/")
-            return joblib.load(s_artifact_path + '/model/scaler.pkl')
+            return joblib.load(s_artifact_path + '/scaler.pkl')
         else:
-            return p_wpStorage.o_sparkStorage.readFile(s_artifact_path + '/model/scaler.pkl', p_option='pkl')
+            return p_wpStorage.o_sparkStorage.readFile(s_artifact_path + '/scaler.pkl', p_option='pkl')
 
     def loadInputSample(self, p_path):
-        s_inputSample =  mlflow.artifacts.load_dict(p_path + '/model/input_example.json')
+        s_inputSample =  mlflow.artifacts.load_dict(p_path + '/input_example.json')
         s_inputSample = pd.DataFrame(data=s_inputSample['data'], columns=s_inputSample['columns'])
         return s_inputSample
+    
+    def saveArtifactsToLocal(self, p_mlflowPath, p_localPath):
+        mlflow.artifacts.download_artifacts(artifact_uri=p_mlflowPath, dst_path=p_localPath)
 
     def logArtifacts(self, p_runId, p_uuid, p_targetPath):
         s_localPath = o_defaultDataPath + 'temp/' + p_uuid

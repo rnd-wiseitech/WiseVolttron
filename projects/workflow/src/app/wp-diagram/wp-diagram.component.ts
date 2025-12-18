@@ -571,8 +571,7 @@ export class WpDiagramComponent implements OnInit, AfterViewInit, OnChanges, OnD
       }
 
       for (let sToolbox of this.oCatetory) {
-        // console.log("sToolbox : ", sToolbox);
-        if (["data_input", "data_change", "data_output", "classification_model", 'regression_model', 'cluster_model', 'language_model', "analytic_model", "image_model", "model_management", "predict_model", "image_change", "image_input", "image_output"].includes(sToolbox.CATEGORY)) {
+        if (["data_input", "data_change", "data_output", "classification_model", 'regression_model', 'cluster_model', 'language_model', "analytic_model", "image_model", "custom_model", "model_management", "predict_model", "image_change", "image_input", "image_output"].includes(sToolbox.CATEGORY)) {
           if($("#" + sToolbox.CATEGORY)[0] != undefined) {
             pEvent.component._diagramInstance.createToolbox(
               $("#" + sToolbox.CATEGORY)[0],

@@ -137,10 +137,6 @@ export class ModelProfileComponent implements OnChanges {
                     await this.drawCustomModelUI();
                 }   
                 
-                // 채팅
-                if (this.oModelType == 'Language') {
-                    this.setLangModelData();
-                }
                 // 변수 영향도 차트
                 this.setModelInfluenceChartData();
                 // 사용한 워크플로우 조회
@@ -157,12 +153,6 @@ export class ModelProfileComponent implements OnChanges {
                     }
                 });
 
-                // db에서 모델 url 
-                this.cModelProfileSvc.deployHealthCheck(this.iProfileData.MODEL_ID, this.iProfileData.MODEL_IDX).subscribe(p_healthChkResult => {
-                    if (p_healthChkResult.isSucess) {
-                        this.h_deployHistoryList = [{ MODEL_PORT: p_healthChkResult.result }];
-                    }
-                })
                 this.oCurrPath = `${this.iProfileData.REG_USER_NO}/tmp_upload/${this.iProfileData.MODEL_ID}`;
                 
                 // WPLAT-358 사용자모델 딥러닝경우

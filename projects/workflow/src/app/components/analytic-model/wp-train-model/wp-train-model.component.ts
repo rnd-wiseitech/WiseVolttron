@@ -40,6 +40,15 @@ export class WpTrainModelComponent extends WpComponent {
     o_optYn: string = 'N';
     o_argParam: any;
     o_overwriteList: any = null;
+
+    o_argNm: string;
+    o_customModelList:any;
+    o_customOnOffForm = ['modelSave', 'target_column', 'scaleInfo', 'partitionValue'];
+    o_selectedCustomModel:any;
+    o_frameworkType: string;
+    o_customArgParam: any;
+
+
     constructor(
         pTransSvc: TranslateService,
         pComViewerSvc: WpComponentViewerService,
@@ -115,7 +124,7 @@ export class WpTrainModelComponent extends WpComponent {
             value: '',
             type: 'grid',
             fvalue: [],
-            visible: true,
+            visible: false,
             edit: true,
             callbak: undefined
         }];
@@ -161,6 +170,17 @@ export class WpTrainModelComponent extends WpComponent {
                 edit: true,
                 callbak: this.onArgFormChanged.bind(this)
             },
+            // 커스텀 모델 학습일 경우
+            {
+                vname: '커스텀 모델 선택',
+                name: 'customModelname',
+                value: '',
+                type: 'select',
+                fvalue: [],
+                visible: false,
+                edit: true,
+                callbak: this.onCustomFormChanged.bind(this),
+            },
             {
                 vname: pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info61"),
                 name: 'target_column',
@@ -187,11 +207,11 @@ export class WpTrainModelComponent extends WpComponent {
                 value: '',
                 type: 'select',
                 fvalue: [
-                    'Standard Scale',
-                    'MinMax Scale',
-                    'Robust Scale',
-                    'MaxAbs Scale',
-                    'Normalize',
+                    'StandardScaler',
+                    'MinMaxScaler',
+                    'RobustScaler',
+                    'MaxAbsScaler',
+                    'Normalizer',
                     'No Scale',
                 ],
                 visible: true,
@@ -425,7 +445,7 @@ export class WpTrainModelComponent extends WpComponent {
             this.oWpDiagramSvc.getModelResult([this.oComId]).then((pResult: any) => {
                 if (pResult.length > 0) {
                     let s_rawResult = pResult[0];
-                    let s_modelResult = JSON.parse(s_rawResult['MODEL_RESULT'])
+                    let s_modelResult = JSON.parse(s_rawResult['MODEL_RESULT']);
                     let sResult = this.oWpTrainModelSvc.getModelResultGridData(s_modelResult);
                     if (sResult.gridCol.length > 0 && sResult.gridData) {
                         // 모델 정보 form value
@@ -440,6 +460,13 @@ export class WpTrainModelComponent extends WpComponent {
                                 sForm.fvalue = sModelInfo;
                             }
                         });
+                        if (sModelType == 'Image') {
+                            this.oInfoFormData.forEach(sForm => {
+                            if (sForm.name == 'model_metrics') {
+                                sForm.visible = true;
+                            }
+                        });
+                        }
                         // 모델 실행 결과 grid value
                         this.oInfoGridColObj['model_result'] = sResult.gridCol;
                         this.oInfoGridDataObj['model_result'] = sResult.gridData;
@@ -508,6 +535,7 @@ export class WpTrainModelComponent extends WpComponent {
 
     async setModelInfo(p_argInfo: any) {
         this.o_argType = p_argInfo['ARG_TYPE'];
+        this.o_argNm = p_argInfo['ARG_NM'];
         this.o_argId = p_argInfo['ARG_ID'];
         this.o_optYn = p_argInfo['OPT_YN'];
 
@@ -537,11 +565,27 @@ export class WpTrainModelComponent extends WpComponent {
         });
         this.oWpData.modelInfo['model'] = p_argInfo;
         this.oWpData.modelType = this.o_argType;
-        this.o_argParam = await this.oWpTrainModelSvc.getArgParam(this.o_argId);
-        this.o_argParam = JSON.parse(this.o_argParam[0]['PARAM']);
-        this.oWpData.modelInfo['defaultParam'] = this.o_argParam;
-        this.setChkSchema();
-        await this.setParamInfo(this.o_argParam);
+
+        if(this.o_argNm != 'Custom') {
+            this.o_argParam = await this.oWpTrainModelSvc.getArgParam(this.o_argId);
+            this.o_argParam = JSON.parse(this.o_argParam[0]['PARAM']);
+            this.oWpData.modelInfo['defaultParam'] = this.o_argParam;
+            await this.setParamInfo(this.o_argParam);
+            this.setChkSchema();
+        } else {
+            this.o_customArgParam = await this.oWpTrainModelSvc.getArgParam(this.o_argId);
+            this.o_customArgParam = JSON.parse(this.o_customArgParam[0]['PARAM']);
+            this.o_customModelList = await this.oWpTrainModelSvc.getTrainCustomModelList();
+            this.oModelFormData.forEach(item => {
+                if (!['customModelname', 'modelSave'].includes(item.name)) {
+                    item.visible = false;          // 나머지는 숨김
+                } else {
+                    item.visible = true;   
+                    item.fvalue = this.o_customModelList.map((model:any) => model.MODEL_NM);
+                }
+            });
+            this.setChkSchema();
+        }
     }
 
 
@@ -647,7 +691,7 @@ export class WpTrainModelComponent extends WpComponent {
 
         return s_isValid;
     }
-
+    
     public async onArgFormChanged(p_ev: any, p_form: any) {
         // 설정한 폼의 이름
         let s_formName = p_form.name;
@@ -879,6 +923,7 @@ export class WpTrainModelComponent extends WpComponent {
         this.o_argType = this.oWpData.modelInfo.model['ARG_TYPE'];
         this.o_argId = this.oWpData.modelInfo.model['ARG_ID'];
         this.o_optYn = this.oWpData.modelInfo.model['OPT_YN'];
+        this.o_argNm = this.oWpData.modelInfo.model['ARG_NM'];
         this.o_argParam = this.oWpData.modelInfo.defaultParam;
         // 이미지
         if (this.o_argType === 'Image') {
@@ -894,6 +939,20 @@ export class WpTrainModelComponent extends WpComponent {
             });
         }
 
+        if(this.o_argNm == 'Custom') {
+            this.o_customArgParam = await this.oWpTrainModelSvc.getArgParam(this.o_argId);
+            this.o_customArgParam = JSON.parse(this.o_customArgParam[0]['PARAM']);
+            this.o_customModelList = await this.oWpTrainModelSvc.getTrainCustomModelList();
+            this.oModelFormData.forEach(item => {
+                if (item.name === 'customModelname') {
+                    item.visible = true;   
+                    item.fvalue = this.o_customModelList.map((model:any) => model.MODEL_NM);
+                }
+            });
+            this.o_frameworkType = this.oWpData.customModelInfo.frameworkType;
+            this.o_argType = this.oWpData.customModelInfo.argType;
+            console.log("this.o_argType : ", this.o_argType);
+        }
         this.oModelFormData.forEach(item => {
             if (item.name === 'optimizer') {
                 item.visible = this.o_optYn === 'Y' ? true : false;
@@ -937,5 +996,66 @@ export class WpTrainModelComponent extends WpComponent {
             });
         }
     }
+
+    public async onCustomFormChanged(p_ev: any, p_form: any) {
+
+        if(this.oWpData.customModelname !== p_ev.selectedItem) {
+            this.oWpData.target_column = '';
+            let s_selectedCustomModel = this.o_customModelList.find((model:any) => model.MODEL_NM === p_ev.selectedItem);
+            this.oWpData.customModelInfo = {
+                modelname: s_selectedCustomModel.MODEL_NM,
+                modelId: s_selectedCustomModel.MODEL_ID,
+                modelIdx: s_selectedCustomModel.MODEL_IDX,
+                frameworkType: s_selectedCustomModel.FRAMEWORK_TYPE,
+                argType: s_selectedCustomModel.ARG_TYPE,
+                customTrain: false
+            }
+            this.oWpData.customModelInfo.customTrain = await this.oWpTrainModelSvc.checkCustomModelTrain(s_selectedCustomModel);
+   
+            this.oWpData.customModelname = this.oWpData.customModelInfo.modelname;
+            this.oModelFormData.forEach(item => {
+                if (this.o_customOnOffForm.includes(item.name)) {
+                    item.visible = true; 
+                }
+            });
+            this.o_frameworkType = this.oWpData.customModelInfo.frameworkType;
+            this.o_argType = this.oWpData.customModelInfo.argType;
+
+            
+            
+            // target컬럼 세팅
+            let sColList: any = [];
+            if (this.o_argType == 'Clustering') {
+                sColList = ['[미선택]'];
+            } else {
+                sColList = Object.keys(JSON.parse(this.oWpData.analysisColInfo));
+            }
+            this.oFormData.map((e) => {
+                if (e.name == 'target_column') {
+                    e.fvalue = sColList;
+                }
+            });
+            if (this.oWpData.customModelInfo.customTrain == false) {
+                this.o_argParam = this.o_customArgParam[this.o_frameworkType][this.o_argType];
+                this.oWpData.modelInfo['defaultParam'] = this.o_argParam;
+                if(this.o_argParam != undefined) {
+                    await this.setParamInfo(this.o_argParam);
+                }
+            } else {
+                this.o_argParam = this.o_customArgParam[this.o_frameworkType][this.o_argType]
+                .filter((it: any) => it && (it.name === 'batch_size' || it.name === 'epochs'));
+                    
+                this.oWpData.modelInfo['defaultParam'] = this.o_argParam;
+                if(this.o_argParam != undefined) {
+                    await this.setParamInfo(this.o_argParam);
+                }
+            }
+            
+        }
+
+    }
+
+
+
 
 }
