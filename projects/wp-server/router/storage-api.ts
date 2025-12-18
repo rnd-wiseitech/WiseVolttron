@@ -433,7 +433,7 @@ storageRoute.post('/rename', async (req: Request, res: Response<any>, next: Next
     }
     else {
         // #85
-        if (s_body.path == '' && s_body.dirNm.toLowerCase() == 'wp_dataset') {
+        if (s_body.path == '' && s_body.path.toLowerCase() == 'wp_dataset') {
             next(new WpError({ httpCode: WpHttpCode.HADOOP_DATA_ERR, message: '해당 폴더는 만들 수 없습니다.' }));
         } else {
             try {
