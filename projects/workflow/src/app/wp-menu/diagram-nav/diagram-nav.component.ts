@@ -22,10 +22,7 @@ export class DiagramNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.cScrollDispatcher.scrolled().pipe(
-      // filter(event => this.vVirtualScroll.measureScrollOffset('bottom') === 0)
-      // this.virtualScroll.measureScrollOffset('bottom') === 0
     ).subscribe((event: any) => {
-        // console.log(event);
     });
     $('.scrollbar').scrollbar();
     this.h_tapId = 'data';
@@ -37,15 +34,12 @@ export class DiagramNavComponent implements OnInit {
     
     let h_dataTabIdList = ["#data_input_items", "#data_change_items", "#data_output_items"];
     
-    // let h_modelTabIdList = ["#classification_model_items","#regression_model_items", "#cluster_model_items", "#language_model_items", "#model_management_items", "#model_predict_items", "#image_model_items"];
-    // let h_modelTabIdList = this.o_offerModel.map((model:any) => `#${model}_items`);
     let h_modelTabIdList = [
       ...this.o_offerModel.map((model:any) => `#${model}_items`),
       "#model_management_items",
       "#model_predict_items"
     ];
     let h_undataTabIdList = ["#image_input_items", "#image_change_items", "#image_output_items"];
-    // let sDataTabDisplay = this.h_tapId === 'data';
 
     h_dataTabIdList.forEach(sTabId => {
       (document.querySelector(sTabId) as HTMLElement).style['display'] = this.h_tapId == 'data'? '' : 'none';

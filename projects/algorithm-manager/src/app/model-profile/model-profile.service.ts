@@ -466,9 +466,6 @@ export class ModelProfileService extends WpSeriveImple {
     getModelWorkflow(pModelId:any): Observable<any> {
         return this.cHttp.post(this.oNodeUrl + '/model/getModelWorkflow', { modelId: pModelId});
     }
-    deployHealthCheck(pModelId: any, pModelIdx: any): Observable<any> {
-        return this.cHttp.post(this.oNodeUrl + '/model/deployHealthCheck', {MODEL_ID: pModelId, MODEL_IDX: pModelIdx});
-    }
     getModelConfig(pModelId: number): Observable<any> {
         return this.cHttp.post(this.cAppConfig.getServerPath('NODE') + "/model/getModelConfig", {
             modelId: pModelId

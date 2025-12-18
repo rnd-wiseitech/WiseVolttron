@@ -455,37 +455,6 @@ modelRoute.post('/getModelWorkflow', (req: Request, res: Response, next: NextFun
     }
 });
 
-// 모델 배포 상태 체크
-modelRoute.post('/deployHealthCheck', (req: Request, res: Response, next: NextFunction) => {
-    let s_body = req.body;
-    let s_modelId = s_body.MODEL_ID;
-    let s_modelIdx = s_body.MODEL_IDX;
-
-    try {
-        let s_metaDb = global.WiseMetaDB;
-        s_metaDb.select('DP_MODEL_MSTR', ['DEPLOY_URL'], { MODEL_ID: s_modelId, MODEL_IDX: s_modelIdx}).then(s_result => {
-            if (s_result.length > 0 && s_result[0].DEPLOY_URL) {
-                request.get(`${s_result[0].DEPLOY_URL}/healthCheck`, (p_err: any, p_res: request.Response, body: any) => {
-                    if (p_err) {
-                        res.json({
-                            isSucess: false, result: new WpError({
-                                httpCode: WpHttpCode.SERVER_UNKOWN_ERR, message: p_err.exception
-                            })
-                        });
-                    } else {
-                        res.json({ isSucess: true, result: s_result[0].DEPLOY_URL });
-                    }
-                });
-            } else {
-                res.json({ isSuccess: false, result: '모델이 배포되지 않았습니다.' });
-            }
-        })
-
-    } catch (p_error) {
-        console.log("error", p_error);
-        res.json({ isSuccess: false, result: '' });
-    }
-});
 
 modelRoute.post('/getRestUrl', (req: Request, res: Response, next: NextFunction) => {
     let s_body = req.body;
@@ -495,68 +464,6 @@ modelRoute.post('/getRestUrl', (req: Request, res: Response, next: NextFunction)
             userNo: s_userNo
         };
         res.json(results);
-    } catch (p_error) {
-        console.log("error", p_error);
-        res.json({ isSuccess: false, result: '' });
-    }
-});
-
-modelRoute.post('/getPromptList', async (req: Request, res: Response, next: NextFunction) => {
-    let s_body = req.body;
-
-    try {
-        let s_metaDb = global.WiseMetaDB;
-        let s_modelId = req.body.modelId;
-
-        let s_query = `SELECT p.*, a.ARG_NM FROM DP_PROMPT_MSTR AS p LEFT JOIN DP_ARG_MSTR AS a ON p.ARG_ID = a.ARG_ID \
-                            WHERE p.DEL_YN = 'N' AND p.REG_USER_NO = ${req.decodedUser.USER_NO}`;
-
-        let s_promptReseult = await s_metaDb.query(s_query, 'DP_PROMPT_MSTR');
-
-        res.json({isSuccess: true, result: s_promptReseult});
-
-    } catch (p_error) {
-        next(p_error);
-    }
-});
-
-modelRoute.post('/getLLMArgList', (req: Request, res: Response, next: NextFunction) => {
-    let s_body = req.body;
-
-    try {
-        let s_metaDb = global.WiseMetaDB;
-
-        s_metaDb.select('DP_ARG_MSTR', [], { ARG_TYPE: 'Unstructured', ARG_FILE_NAME: 'TEXT-GENERATION' }).then(p_result => {
-            res.json({ isSuccess: true, result: p_result });  
-        }).catch(p_error => {
-            res.json({ isSuccess: false, result: p_error.message ? p_error.message : '' });
-        })
-
-    } catch (p_error) {
-        console.log("error", p_error);
-        res.json({ isSuccess: false, result: '' });
-    }
-});
-
-modelRoute.post('/addPrompt', (req: Request, res: Response, next: NextFunction) => {
-    let s_body = req.body;
-
-    try {
-        let s_metaDb = global.WiseMetaDB;
-
-        s_metaDb.insert('DP_PROMPT_MSTR', {
-            PROMPT_NM: s_body.promptNm,
-            PROMPT_DESC: s_body.promptDesc,
-            SYSTEM_PROMPT: s_body.systemPrompt,
-            USER_PROMPT: s_body.userPrompt,
-            REG_USER_NO: req.decodedUser.USER_NO,
-            DEL_YN: 'N'
-        }, false).then(p_result => {
-            res.json({ isSuccess: true, result: p_result });
-        }).catch((p_error) => {
-            next(p_error);
-        });
-
     } catch (p_error) {
         console.log("error", p_error);
         res.json({ isSuccess: false, result: '' });
@@ -613,6 +520,21 @@ modelRoute.post('/getArgParam',(req: Request, res: Response<WiseReturn>,next:Nex
     s_argId = [s_argId];
   }
   s_metaDb.select('DP_ARG_PARAM',['ARG_ID', 'PARAM'],{ARG_ID: {[Op.in]: s_argId}}).then(p_result=>{
+      res.json(p_result);
+  }).catch(p_error=>{
+      next(p_error);
+  });
+})
+
+modelRoute.post('/checkModelName',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {
+  let s_body = req.body;
+
+  if (s_body.params != undefined) {
+      s_body = s_body.params;
+  }  
+  let s_metaDb = global.WiseMetaDB;
+
+  s_metaDb.select('DP_MODEL_MSTR',['MODEL_ID'],{MODEL_NM: s_body.MODEL_NM, DEL_YN:'N', REG_USER_NO:req.decodedUser.USER_NO}).then(p_result=>{
       res.json(p_result);
   }).catch(p_error=>{
       next(p_error);
@@ -709,6 +631,21 @@ modelRoute.post('/updateCustomModel',(req: Request, res: Response,next:NextFunct
     let s_modelMng = new WpModelManagement(req.decodedUser);
     
     s_modelMng.updateCustomModel(req.decodedUser, s_param, s_cond).then(p_result=>{
+        res.json(p_result);
+
+    }).catch((p_error) => {
+        next(p_error);
+    });
+});
+
+modelRoute.post('/getTrainCustomModelList',(req: Request, res: Response,next:NextFunction) => {
+
+    let s_sw = new Stopwatch();
+
+    s_sw.start();
+    let s_modelMng = new WpModelManagement(req.decodedUser);
+    
+    s_modelMng.getTrainCustomModelList(req.decodedUser).then(p_result=>{
         res.json(p_result);
 
     }).catch((p_error) => {

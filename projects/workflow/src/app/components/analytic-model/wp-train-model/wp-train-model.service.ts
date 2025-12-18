@@ -654,4 +654,14 @@ export class WpTrainModelService extends WpSeriveImple {
     getModelInfo(p_data: any): Observable<any> {
         return this.cHttp.post(this.oNodeUrl +  '/jobexcute/getModelInfo', p_data);
     }
+    
+    async getTrainCustomModelList(): Promise<Observable<any>>{        
+        let s_customModelList:any = await this.cHttp.post(this.oNodeUrl + '/model/getTrainCustomModelList', {}).toPromise();
+        return s_customModelList['result'];
+    } 
+    
+    async checkCustomModelTrain(p_data:any ): Promise<Observable<any>>{        
+        let s_result:any = await this.cHttp.post(this.oNodeUrl + '/jobexcute/checkCustomModelTrain', p_data).toPromise();
+        return JSON.parse(s_result)['data']['customTrain'];
+    } 
 }

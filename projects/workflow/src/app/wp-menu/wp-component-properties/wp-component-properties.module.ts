@@ -17,6 +17,7 @@ import { WpTrainResultviewComponent } from '../../components/resultview/wp-train
 import { DxChartModule, DxDataGridModule, DxListModule, DxSelectBoxModule, DxTagBoxModule, DxTemplateModule, DxTextAreaModule } from 'devextreme-angular';
 import { WpLoadingSharedModule } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.module';
 import { MonacoEditorModule, MONACO_PATH } from '@materia-ui/ngx-monaco-editor';
+import { WpPythonPopupComponent } from '../../components/popup/wp-python-popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { WpChartModule } from 'projects/wp-lib/src/lib/chart/wp-chart.module';
 import { WpInfoPopupComponent } from '../../components/popup/wp-info-popup.component';
@@ -30,10 +31,9 @@ const ngWizardConfig: NgWizardConfig = {
         WpComponentPropertiesComponent,        
         WpComponentViewerComponent,
         WpDerivedCondionalSetComponent,
-        // WpPythonPopupComponent,
+        WpPythonPopupComponent,
         WpResultViewerComponent,
         WpTrainResultviewComponent,
-        // WpEnsemblePopupComponenet,
         WpInfoPopupComponent,
         WpOodbcUpdatePopupComponent
     ],

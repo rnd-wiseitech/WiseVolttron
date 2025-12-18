@@ -1,0 +1,16 @@
+<div class="panel-app">
+    <div class="panel-single">
+        <lib-wp-grid (callBack)="onGridCallback($event)" [iComptNm]="oComptNm" [iRowEvt]="oGridRowEvt"
+            [iHoverEffect]="oHoverEffect" [iGridData]="oGridData" [iColInfo]="oGridCol"
+            [iHead]="oGridheader"></lib-wp-grid>
+    </div>
+</div>
+<div class="upload-overlay" *ngIf="h_isUploading">
+    <div class="upload-loading">
+        <p>{{h_uploadFile}} {{h_uploadStatus}}</p>
+        <progress [value]="h_uploadProgress" max="100" class="upload-progress"></progress>
+        <p>{{ h_uploadProgress }}% ({{h_currentFileSize}} / {{h_totalFileSize}})</p>
+        <!-- <button (click)="onCancelUpload()">취소</button> -->
+        <a class="btn sm natural" (click)="onCancelUpload()" style="margin-top: 20px;">취소</a>
+    </div>
+</div>

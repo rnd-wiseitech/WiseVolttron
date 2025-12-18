@@ -133,8 +133,6 @@ def execute(p_dataSource, **kwargs):
         except Exception as e:
             raise e
         
-        # # 불필요한 b' 및 ' 제거
-        # data = data.replace("b'", '').replace("'", '')
         if s_frameWorkType == 'TensorFlow/Keras':
             stringlist = []
             s_new_model.summary(print_fn=lambda x: stringlist.append(x), expand_nested=True)
@@ -190,6 +188,18 @@ def execute(p_dataSource, **kwargs):
         s_input = getInputSizeFromCode(s_code)
         data = summary(s_model, input_size=s_input)
         data = str(data)
+        
+    # 커스텀 모델 학습에서 커스텀 학습 부분이 있는지 체크
+    elif s_method == 'CHECK-TRAIN':
+        s_frameworkType = s_data['FRAMEWORK_TYPE']
+        s_model = s_mlflow.loadModel(s_modelId, s_modelVersion, s_frameworkType)
+        s_customTrain = False
+        if(hasattr(s_model, "customTrain")):
+            s_customTrain = True
+
+        data = {
+            "customTrain": s_customTrain
+        }
 
 
     return data
