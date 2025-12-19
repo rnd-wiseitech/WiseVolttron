@@ -14,13 +14,13 @@
         "port": "3306",
         "id": "root",
         "passwd": "0000",
-        "db": "wise_prophet_v1_volttron",
+        "db": "WISE_PROPHET_VOLTTRON",
         "type": "mysql"
     },
     "VOLTTRON": {
         "use": true,
-        "host": "13.125.209.149",
-        "port": "22"
+        "host": "loclahost",
+        "port": "사용 포트 번호"
     },
     "DS_ID": 15,
     "STORAGE_TYPE":"LOCAL",
@@ -38,5 +38,5 @@
     "MLFLOW":true,
     "DBLIST": ["db2", "mysql", "mssql", "oracle", "postgresql"],
     "FILE_FORMAT": "delta",
-    "OFFER_MODEL": ["classification_model", "regression_model", "cluster_model", "image_model"]
+    "OFFER_MODEL": ["classification_model", "regression_model", "cluster_model", "image_model", "custom_model"]
 }
