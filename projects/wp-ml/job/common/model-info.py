@@ -5,6 +5,7 @@ from urllib import parse
 import base64
 import re
 from serviceModel import analyticJobService
+import os
 def execute(p_dataSource, **kwargs):
     s_data = kwargs['data']
     s_method = kwargs['method']
@@ -40,7 +41,7 @@ def execute(p_dataSource, **kwargs):
         s_tags = s_runInfo.data.tags 
 
         # config(evaluateLog + featureLog)
-        s_path = s_runInfo.info.artifact_uri
+        s_path = s_modelVersionInfo.tags['modelPath']
 
         if s_customYn == 'N':
             s_config = s_mlflow.loadConfig(s_path)
@@ -67,7 +68,7 @@ def execute(p_dataSource, **kwargs):
                 '알고리즘타입': s_uploadsInfo['ARG_TYPE'],
                 '업로드날짜': s_uploadsInfo['REG_DATE']
             }
-            # start_time 및 end_time 가져오기
+        # start_time 및 end_time 가져오기
         s_startTime = datetime.fromtimestamp(s_runInfo.info.start_time / 1000.0).strftime('%Y-%m-%d %H:%M:%S') 
         s_endTime = datetime.fromtimestamp(s_runInfo.info.end_time / 1000.0).strftime('%Y-%m-%d %H:%M:%S') 
 
@@ -99,7 +100,7 @@ def execute(p_dataSource, **kwargs):
             data = {
                 'input_schema': []
             }
-            # 스키마 파일을 따로 저장했는지 체크(텐서플로, 파이토치)
+
             try:
                 s_runId = s_model.metadata.run_id
                 s_runInfo = s_mlflow.getRunInfo(s_runId)
@@ -186,10 +187,23 @@ def execute(p_dataSource, **kwargs):
             
         s_model = analyticJobService.vaildateClassCode(s_code)
         s_input = getInputSizeFromCode(s_code)
-        data = summary(s_model, input_size=s_input)
+        try:
+            data = summary(s_model, input_size=s_input)
+        except:
+            data = summary(s_model)
         data = str(data)
-        
-    # 커스텀 모델 학습에서 커스텀 학습 부분이 있는지 체크
+
+    elif s_method == 'MODEL-PARAM':
+        s_modelVersionInfo = s_mlflow.getModelVerion(s_modelId, s_modelVersion)
+        s_runId = s_modelVersionInfo.run_id
+        s_runInfo = s_mlflow.getRunInfo(s_runId)
+        s_params = s_runInfo.data.params
+        s_weightPath = os.path.join(s_modelVersionInfo.tags['modelPath'], 'artifacts/output/weights')
+        data = {
+            "params": s_params,
+            "weightPath": s_weightPath
+        }
+
     elif s_method == 'CHECK-TRAIN':
         s_frameworkType = s_data['FRAMEWORK_TYPE']
         s_model = s_mlflow.loadModel(s_modelId, s_modelVersion, s_frameworkType)

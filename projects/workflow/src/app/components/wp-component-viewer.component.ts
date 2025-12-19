@@ -212,7 +212,9 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = new WpTypeComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
       } else if (sInitSize.currentValue.type == COM_ID['T-SORT']) {
         this.oComponent = new WpSortComponent(this.cComViewSvc, this.oComponentData);
-      } else if (sInitSize.currentValue.type == COM_ID['T-SELECT']) {
+      } else if (sInitSize.currentValue.type == COM_ID['T-NULL']) {
+        this.oComponent = new WpNullComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData);
+      }else if (sInitSize.currentValue.type == COM_ID['T-SELECT']) {
         this.oComponent = new WpColumnSelectorComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpDiagramPreviewSvc, this.cWpAppSvc);
       } else if (sInitSize.currentValue.type == COM_ID['T-JOIN']) {
         this.h_componentTabData = this.oComponentData['o_data']['joinKey']
@@ -251,19 +253,13 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         console.log("s_argInfo: ", s_argInfo);
         // WPLAT-362
         this.oComponent = new WpEnsembleModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.matDialog, this.cWpTrainModelSvc, this.cWpDiagramPreviewSvc, s_argInfo);
-      } else if (sInitSize.currentValue.type == COM_ID['A-ENSEMBLE']) {
-        // WPLAT-362
-        // this.oComponent = new WpEnsembleModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.matDialog, this.cWpTrainModelSvc, this.cWpDiagramPreviewSvc);
       } else if (sInitSize.currentValue.type == COM_ID['A-FILTER_MODEL']) {
         this.h_componentTabData = this.oComponentData['o_data']['compare_model']
-        //필터 기능 쓸때 모델 명 중복 기능 검사 때문에 파라미터 추가
         this.oComponent = new WpFilterModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpCompareModelSvc, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
-        // 상위 연결이 모델 비교이면 모델 비교 컴포넌트의 모델 리스트로 설정
         if (this.oParentCnt === 1) {
           let sParentComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
           this.oComponent.setModelListData(sParentComData['wp-data']['o_data'].compare_model);
           this.oComponent.setModelType(sParentComData['wp-data']['o_data'].modelType);
-          // 상위 연결이 모델 학습이면 모델 학습 컴포넌트의 모델 속성으로 설정함.
         } else if (this.oParentCnt > 1) {
           let sNodes = this.cWpDiagramSvc.getWpNodes();
           let sFlag = true;
@@ -276,7 +272,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
             } else {
               let sWkData = sNodes.filter(sNode => sNode.id === sParentId)[0];
 
-              // 사용 워크플로우 같은데에서 확인할 경우 sNodes 값이 없음, 이 경우 현재 저장되어 있는 값 가져오게 설정
               if(sWkData === undefined){
                 sWkData = sInitSize.currentValue
               }
@@ -311,7 +306,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
       else {
         this.oComponent = undefined;
       }
-      // 공통 사용으로 아래로 뺌
       if (![COM_ID['I-DATASOURCE'], COM_ID['I-DATABASE'], COM_ID['T-MERGE'], COM_ID['T-JOIN'], COM_ID['A-COMPARE_MODEL'], COM_ID['A-FILTER_MODEL']].includes(sInitSize.currentValue.type)) {
         if (this.oParentCnt > 0) {
           let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
@@ -333,16 +327,13 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
 
       if (this.oComponent != undefined) {
         this.oFormData = await this.oComponent.getFormData();
-        // #10 Diagram Preview (현재 컴포넌트 데이터) - 조인, 병합, 열선택을 제외한 케이스는 DiagramPreview에 현재 데이터 스키마를 표시
         if (this.h_EditFlag) {
           let sType = sInitSize.currentValue.type;
           if (sType !== COM_ID['T-JOIN'] && sType !== COM_ID['T-MERGE'] && sType !== COM_ID['T-SELECT'])
             this.setDiagramPreviewById(sInitSize.currentValue.id, true);
-          // #10 Diagram Preview (연결된 과거 컴포넌트 데이터) - parentId로 과거 데이터 스키마 표시
           if (sInitSize.currentValue.parentId.length > 0) {
             this.setDiagramPreviewById(sInitSize.currentValue.parentId, false);
           }
-          // #135 조인, 병합 데이터 여러개일때 표시 수정
           if (sType == COM_ID['T-JOIN'] || sType == COM_ID['T-MERGE']) {
             let sCompIdList = this.cWpDiagramSvc.getNodesByType(sType).filter(sCom => sCom.hasOwnProperty('wp-data')).map(sCom => sCom.id);
             if (sCompIdList.length > 1) {
@@ -396,12 +387,10 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
       })
     );
     this.oSubs.push(
-      // #14 링크 및 컴포넌트 삭제시 타겟의 속성창이 띄워져 있을 경우 닫기
       this.cComViewSvc.onCloseViewerEmit.subscribe(() => {
         this.onClose();
       }));
     this.oSubs.push(
-      // 속성창 열기 추가
       this.cComViewSvc.onOpenViewerEmit.subscribe(() => {
         this.onOpen();
       }));
@@ -415,7 +404,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.h_EditFlag = pFlag;
       })
     )
-    // component Info form 설정 추가
     this.oSubs.push(
       this.cComViewSvc.setInfoFormDataEmit.subscribe(pFormData => {
         this.oInfoFormData = pFormData;
@@ -440,9 +428,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
   onOpen() {
     console.log("====== onOpen ======");
     this.setDisplay(true);
-    // 초기 탭은 컴포넌트 속성 설정 창
     this.setTabVisible('Configuation');
-    // 초기 속성창 사이즈 설정
     let sConfElem: HTMLElement = document.querySelector('wp-component-viewer > .component-configuration');
     if (sConfElem) {
       sConfElem.style.width = '334px '
@@ -455,24 +441,20 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
   }
   setTabVisible(pType: 'Configuation' | 'Info', pCallbackOpt?: boolean) {
     this.h_tapId = pType;
-    // 탭아이디에 따라 display 변경함.
     let sConfElem = document.getElementById('h_tab_conf').parentElement;
     let sInfoElem = document.getElementById('h_tab_info').parentElement;
     if (pType == 'Configuation') {
       sConfElem.style['display'] = 'block';
       sInfoElem.style['display'] = 'none';
-      // this.oInfoFormData = [];
     }
     if (pType == 'Info') {
       sConfElem.style['display'] = 'none';
       sInfoElem.style['display'] = 'block';
     }
     if (pCallbackOpt) {
-      // 탭 바뀔때 컴포넌트 안에 콜백함수 필요하면 추가
       if (this.oComponent.onChangeTab) {
         this.oComponent.onChangeTab(this.h_tapId);
       }
-      // 탭 바뀔때 transform 컴포넌트일 경우, 상관관계 보이게 설정. 다른 컴포넌트는 안보이게
       else if(!this.h_infoCheck){
         sInfoElem.style['display'] = 'none';
       }
@@ -480,15 +462,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
   }
   onAddList(pName: string) {
     let aTempData;
-    if (this.oType == COM_ID['T-GROUPING']) {
-      aTempData = { minRange: '', maxRange: '', value: '' };
-    } else if (this.oType == COM_ID['T-DERIVED'] || this.oType == COM_ID['T-DERIVED_COND']) {
-      aTempData = { derivedColumn: '', value: '' };
-    } else if (this.oType == COM_ID['T-MATH']) {
-      aTempData = { derivedColumn: '', targetColumn: '', value: '', derivedOption: "true" };
-      // } else if (this.oType == COM_ID['T-SELECT']) {
-      //   aTempData = { target_column: '' };
-    } else if (this.oType == COM_ID['T-DATE']) {
+    if (this.oType == COM_ID['T-DATE']) {
       aTempData = { column: '', derivedColumn: '', value: '', dateFormatText: '', derivedOption: "true" };
     } else if (this.oType == COM_ID['T-NULL']) {
       aTempData = { column: '', type: '', value: '', dateexp: '' };
@@ -496,23 +470,13 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
       aTempData = { useColumn: '', joinColumn: '' };
     } else if (this.oType == COM_ID['A-COMPARE_MODEL']) {
       aTempData = { h_model_name: '', model_name: '', model_id: '', model_idx: '', com_id: '' };
-    } else if (this.oType == COM_ID['A-PROMPT']) {
-      aTempData = { dynamic_var: '', mapped_value: '' };
     } else if (this.oType == COM_ID['T-TYPE'] || this.oType == COM_ID['T-SORT']) {
       aTempData = { column: '', type: '' };
-    } else if (this.oType == COM_ID['T-AGGREGATE']) {
-      if (pName == 'aggKey') {
-        aTempData = { column: '', type: '' };
-      } else {
-        aTempData = { groupColumn: '' };
-      }
-    } else if (this.oType == COM_ID['I-API']) {
-      aTempData = { name : '' , value :''};
     } else {
       aTempData = { column: '', type: '', value: '' };
     }
 
-    if (this.oType == COM_ID['T-DERIVED'] || this.oType == COM_ID['T-MATH'] || this.oType == COM_ID['T-DATE']) {
+    if ( this.oType == COM_ID['T-MATH'] || this.oType == COM_ID['T-DATE']) {
       this.oComponent.setDervInputReadOnly();
     }
     this.h_componentTabData.push(aTempData);
@@ -536,28 +500,15 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
   // #25 그룹화 컴포넌트에서 변수 범위 검증, #26 시계열 컴포넌트 검증
   onKeyUp(pEvent: KeyboardEvent, pName: string, pTabIdx?: number) {
     // #12 input Validation
-    if ((this.oType == COM_ID['T-WINDOW'] && pName == 'value') ||
-      (this.oType == COM_ID['T-SPLIT'] && pName == 'value') ||
-      (this.oType == COM_ID['T-SLICE'] && pName == 'value') ||
-      (this.oType == COM_ID['T-SAMPLEING'] && pName == 'value') ||
-      (this.oType == COM_ID['T-NULL'] && pName == 'value') ||
+    if ((this.oType == COM_ID['T-NULL'] && pName == 'value') ||
       (this.oType == COM_ID['T-OUTLIER'] && pName == 'value') ||
-      (this.oType == COM_ID['T-DERIVED'] && pName == 'derivedColumn') ||
-      (this.oType == COM_ID['T-DERIVED_COND'] && pName == 'derivedColumn') ||
-      (this.oType == COM_ID['T-MATH'] && pName == 'value') ||
       (this.oType == COM_ID['T-DATE'] && pName == 'derivedColumn') ||
-      (this.oType == COM_ID['T-F_IMPORTANCE'] && pName == 'value') ||
       (this.oType == COM_ID['O-DATASOURCE'] && pName == 'new_filename') ||
       (this.oType == COM_ID['O-DATABASE'] && pName == 'tablename') ||
-      (this.oType == COM_ID['T-GROUPING']) ||
-      (this.oType == COM_ID['A-DEPLOY_MODEL']) ||
       (this.oType == COM_ID['A-FILTER_MODEL'] && pName =='modelName')
     ) {
       this.oComponent.onKeyUp(pEvent, pName, pTabIdx);
-    } else if (this.oType == COM_ID['A-PROMPT'] && pName == 'mapped_value') {
-      this.oComponent.onKeyUp(pEvent, pName, pTabIdx, this.h_componentTabData);
-    }
-    // #34 분석 컴포넌트 값 validation 추가
+    } // #34 분석 컴포넌트 값 validation 추가
     if (this.oTrainModelComIdList.includes(this.oType)) {
       this.oComponent.onParamValueChanged(pEvent, pName);
     }
@@ -627,7 +578,7 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
     }
     finally {
       // 병합이나 조인이면 대상 데이터가 선택되어야 preview에 표시할 수 있도록 함
-      if (this.oType == COM_ID['T-MERGE'] || this.oType == COM_ID['T-JOIN']) {
+      if ( this.oType == COM_ID['T-JOIN']) {
         let pData = this.cWpAppSvc.getComData(this.oSelectComId);
         // 유효한 병합 or 조인이면 Diagram Preview 표시
         this.cWpDiagramSvc.showValidDiagPreview(pData); //pData:컴포넌트ComData

@@ -50,100 +50,16 @@ class WiseUnstructuredModel :
 
     # createDataset
     def createModelset(self):
-        if self.o_storageManager.o_apiType == 'SPARK':
-            self.localStorage.deleteDirs(self.modelData.modelsetPath)
-            self.localStorage.createDirs(self.modelData.modelsetPath)
-            self.localStorage.createDirs(f'{self.modelData.modelsetPath}/labels')
-            self.localStorage.createDirs(f'{self.modelData.modelsetPath}/images')
-        else:
-            self.o_storageManager.createDirs(self.modelData.modelsetPath)
-            self.o_storageManager.createDirs(f'{self.modelData.modelsetPath}/labels')
-            self.o_storageManager.createDirs(f'{self.modelData.modelsetPath}/images')
+        self.o_storageManager.createDirs(self.modelData.modelsetPath)
+        self.o_storageManager.createDirs(f'{self.modelData.modelsetPath}/labels')
+        self.o_storageManager.createDirs(f'{self.modelData.modelsetPath}/images')
 
-    # ARG_TYPE이 YOLO일 경우 data.yaml 만들기
-    def prepareMeta(self):
-        if self.argInfo.ARG_NM == 'YOLO':
-            if 'wp_dataset' in self.modelData.labelPath:
-                
-                self.cocoLabel = self.o_storageManager.readFile(f'{self.modelData.labelPath}/coco.json', p_option='json')
-            else:
-                self.cocoLabel = self.o_storageManager.readFile(f'{self.userno}/temp_labelset/{self.modelData.labelPath}_coco.json', p_option='json')
-            # 🧷 클래스 목록 추출
-            s_categoryList = sorted(self.cocoLabel['categories'], key=lambda c: c['id'])
-            s_className = [cat['name'] for cat in s_categoryList]
-            s_numClass = len(s_className)
-            s_data = {
-                'names': s_className,
-                'nc': s_numClass,
-                'train': f'images/train',
-                'val': f'images/val'
-            }
-            if self.o_storageManager.o_apiType == 'SPARK':
-                self.localStorage.writeFile(self.modelData.modelsetPath + '/data.yaml', s_data, 'yaml')
-            else:
-                self.o_storageManager.writeFile(self.modelData.modelsetPath + '/data.yaml', s_data, 'yaml')
-
-    def setImageLabel(self):
-        # YOLO일 경우 COCO -> YOLO 이미지라벨 형식으로
-        if self.argInfo.ARG_NM == 'YOLO':
-
-            # 이미지파일 사이즈리스트
-            s_cocoImgSize = {img['id']: (img['width'], img['height']) for img in self.cocoLabel['images']}
-            # category_id → 0부터 시작하는 YOLO용 class_id로 변환
-            s_categoryId = {
-                cat['id']: idx for idx, cat in enumerate(sorted(self.cocoLabel['categories'], key=lambda c: c['id']))
-            }
-            # 이미지 ID → 파일명 매핑
-            s_cocoImgId = {img['id']: img['file_name'] for img in self.cocoLabel['images']}
-           
-            for ann in self.cocoLabel['annotations']:
-                image_id = ann['image_id']
-                category_id = ann['category_id']
-                x, y, w, h = ann['bbox']
-                
-                image_w, image_h = s_cocoImgSize[image_id]
-                x_center = (x + w / 2) / image_w
-                y_center = (y + h / 2) / image_h
-                w /= image_w
-                h /= image_h
-                class_id = s_categoryId[category_id]
-
-                s_labelTxt = f"{class_id} {x_center:.6f} {y_center:.6f} {w:.6f} {h:.6f}\n"
-
-                filename = os.path.splitext(os.path.basename(s_cocoImgId[image_id].replace("\\", "/")))[0] + '.txt'
-                s_labelPath = os.path.join(self.modelData.modelsetPath +'/labels/', filename)
-
-                # ✅ 한 줄씩 바로 append 저장 → 메모리 효율 최상
-                if self.o_storageManager.o_apiType == 'SPARK':
-                    self.localStorage.writeFile(
-                        p_path=s_labelPath,
-                        p_df=s_labelTxt,
-                        p_option='txt',
-                        p_encType='utf-8',
-                        p_writeMode='a'  # append
-                    )
-                else:
-                    self.o_storageManager.writeFile(
-                        p_path=s_labelPath,
-                        p_df=s_labelTxt,
-                        p_option='txt',
-                        p_encType='utf-8',
-                        p_writeMode='a'  # append
-                    )
-                            
-
-    
     # 5. 훈련 / 테스트 셋 분할
     def splitTrainTestData(self):
-        # 메타데이터값 읽기
-        # self.metaData = self.o_storageManager.readFile(self.modelData.modelsetPath + '/data.yaml', 'yaml')
-        # === 경로 설정 ===
-        # s_datasetImagePath = os.path.join(self.modelData.datasetPath, 'images')
+
         s_modelsetImagePath = os.path.join(self.modelData.modelsetPath, 'images')
         s_modelsetLabelPath = os.path.join(self.modelData.modelsetPath, 'labels')
-        # === 이미지 파일 목록
-        # s_imgList = self.o_storageManager.listFile(s_datasetImagePath, True)
-        # === train/val 분할 (예: 8:2)
+
         s_value = float(int(self.partition.value)/100)
         if s_value == 0:
             s_value = 0.2
@@ -175,10 +91,6 @@ class WiseUnstructuredModel :
                     self.o_storageManager.copyFile(s_currentImgPath, s_newImgPath)
                     self.o_storageManager.moveFile(s_currentLabelPath, s_newLabelPath)
 
-        # for img in s_imgList:
-        #     s_currentImgPath = os.path.join(s_datasetImagePath, img)
-        #     s_newImgPath = os.path.join(s_modelsetImagePath, img)
-        #     self.o_storageManager.copyFile(s_currentImgPath, s_newImgPath)
 
     # 7. 모델 훈련
     def learnModel(self):
@@ -191,20 +103,40 @@ class WiseUnstructuredModel :
         s_model = importlib.util.module_from_spec(s_spec)
         s_spec.loader.exec_module(s_model)
         self.model = getattr(s_model, s_className)(self.parameter, self.argInfo)
-        print(self.model)
-        if self.o_storageManager.o_apiType != 'SPARK':
-            # 데이터셋 path 다시 정의. root_path를 못 읽음
-            self.modelData.modelsetPath = self.o_storageManager.o_rootPath + self.modelData.modelsetPath
-            self.modelData.resultPath = self.o_storageManager.o_rootPath + self.modelData.resultPath
-        self.model.onLearning(self.modelData)
+        
+        self.modelData.modelsetPath = self.o_storageManager.o_rootPath + self.modelData.modelsetPath
+        self.modelData.resultPath = self.o_storageManager.o_rootPath + self.modelData.resultPath
+        self.model.onLearning(self.modelData, self.userno)
 
+    # 5. 훈련 / 테스트 셋 분할
+    def splitTrainTestDataTag(self):
+        s_modelsetImagePath = os.path.join(self.modelData.modelsetPath, 'images')
+        
+        # === train/val 분할 (예: 8:2)
+        s_value = float(int(self.partition.value)/100)
+        if s_value == 0:
+            s_value = 0.2
+        s_train, s_val = train_test_split(self.modelData.data, test_size=s_value, random_state=42)
+        # === 모델셋의 이미지, 라벨폴더에 하위 폴더 생성
+        for split in ['train', 'val']:
+            for tag in self.modelData.data['tag'].unique():
+                self.o_storageManager.createDirs(os.path.join(s_modelsetImagePath, split, str(tag)))
 
+        # train, test 이미지 욺기기
+        for split, file_df in [('train', s_train), ('val', s_val)]:
+            for _, file in file_df.iterrows():
+                s_currentImgPath = file['filepath']
+                s_newImgPath = os.path.join(s_modelsetImagePath, split, file['tag'], file['filename'])
+                self.o_storageManager.copyFile(s_currentImgPath, s_newImgPath)
+        
+    def evaluateModelTag(self):
+        self.model.onEvaluating(self.modelData)
     
     def evaluateModel(self):
         self.model.onEvaluating()
     
     def saveModel(self):
-        # 모델 이름 세팅. 없으면 알고리즘 + JOBID로. (워크플로우에 결과 보여줄 DB저장용도)
+
         if self.modelname == '':
             s_modelname = f'{self.argInfo.ARG_NM}_{self.jobId}'
         else:
@@ -219,26 +151,41 @@ class WiseUnstructuredModel :
             'userno': self.userno,
             'metaDbInfo': self.metaDbInfo,
             'workflowId': self.workflowId,
-            'model_path': self.modelData.resultPath + '/weights/best.pt'
+            'model_path': self.modelData.resultPath + '/weights/best.pt',
+            'output_path': self.modelData.resultPath 
 
         })
 
-        self.model.onSaving(s_saveModelInfo)
+        self.model.onSaving(s_saveModelInfo, self.o_storageManager.o_wpStorage)
 
+    def setModel(self):
+        s_className = self.argInfo.ARG_FILE_NAME
+        s_classType = self.argInfo.ARG_TYPE
+        s_spec = importlib.util.spec_from_file_location(
+            s_className,
+            os.path.join(os.path.dirname(__file__), "..", "algorithm", s_classType, f"{s_className}.py")
+        )
+        s_model = importlib.util.module_from_spec(s_spec)
+        s_spec.loader.exec_module(s_model)
+        self.model = getattr(s_model, s_className)(self.parameter, self.argInfo)
+        print(self.model)
+        if self.o_storageManager.o_apiType != 'SPARK':
+            # 데이터셋 path 다시 정의. root_path를 못 읽음
+            self.modelData.modelsetPath = self.o_storageManager.o_rootPath + self.modelData.modelsetPath
+            self.modelData.resultPath = self.o_storageManager.o_rootPath + self.modelData.resultPath
 
-    # '''전이학습 추가'''
-    # def loadModel(self):
-    #     s_className = self.argInfo.ARG_FILE_NAME
-    #     s_classType = self.argInfo.ARG_TYPE
-    #     s_spec = importlib.util.spec_from_file_location(s_className,f"{os.path.dirname(os.path.realpath(__file__))}/algorithm/{s_classType}/{s_className}.py")
-    #     s_model = importlib.util.module_from_spec(s_spec)
-    #     s_spec.loader.exec_module(s_model)
-    #     self.model = getattr(s_model, s_className)(self.parameter, self.argInfo, self.learnedModelInfo)
-    #     self.model.onLoading(self.userno)
+        # DB에서 재학습한 모델 학습 결과 가져오기
+        s_dbMng = WpDataBaseManagement('meta')
+        s_modelResult = s_dbMng.select('DP_MODEL_RESULT', {"UUID":self.comId} )
+        print("s_modelResult: ", s_modelResult)
+        s_modelResult = json.loads(s_modelResult['MODEL_RESULT'][0])
+        self.model.evaluateLog = s_modelResult['evaluateLog']
+        self.model.metrics = s_modelResult['featureLog']
+        self.model.featureLog = s_modelResult['curve']
+        s_basePath = os.path.dirname(__file__)
+        s_localPath = f'{self.userno}/relearn'
+        s_localPath = os.path.join(s_basePath, '..', '..', 'py_result', s_localPath) 
+        self.model.model = self.model.o_argorithm(f'{s_localPath}/best.pt')
+        # self.model.model = self.model.o_argorithm(f'{s_localPath}/weights/best.pt')
+        self.model.label = s_modelResult['label']
 
-    # # 7. 전이학습모델
-    # def transferModel(self, p_code):
-    #     self.model.onTransfering(p_code)
-
-    # def trainModel(self):
-    #     self.model.onTraining(self.modelData)

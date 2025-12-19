@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { WpLoadingService } from 'projects/wp-lib/src/lib/wp-lib-loading/wp-lib-loading.service';
 import { WpMetaService } from 'projects/wp-lib/src/lib/wp-meta/wp-meta.service';
 import { AlgorithmAppService } from '../app.service';
-// import { WpTrainModelService } from 'projects/workflow/src/app/components/analytic-model/wp-train-model/wp-train-model.service';
+import { WpTrainModelService } from 'projects/workflow/src/app/components/analytic-model/wp-train-model/wp-train-model.service';
 import { ModelProfileService } from './model-profile.service';
 import { WpDiagramService } from 'projects/workflow/src/app/wp-diagram/wp-diagram.service';
 import { ModelHistoryPopupComponent } from './popup/history-popup.component';
@@ -84,7 +84,7 @@ export class ModelProfileComponent implements OnChanges {
     constructor(public cDialog: MatDialog,
         public cMetaSvc: WpMetaService,
         public cAppSvc: AlgorithmAppService,
-        // private cTrainModelSvc: WpTrainModelService,
+        private cTrainModelSvc: WpTrainModelService,
         private cModelProfileSvc: ModelProfileService,
         private cWpDiagramSvc: WpDiagramService,
         private cModelManagerSvc: ModelManagerService,
@@ -98,7 +98,6 @@ export class ModelProfileComponent implements OnChanges {
 
     }
     ngOnChanges(changes: SimpleChanges): void {
-        // console.log(this.iProfileData);
         this.cWpLibSvc.showProgress(true, 'algorithmspin');
         setTimeout(async () => {
             try {
@@ -147,7 +146,6 @@ export class ModelProfileComponent implements OnChanges {
                 });
                 // 과거 모델 IDX 데이터 조회
                 this.cModelManagerSvc.getModelHistory(this.iProfileData.MODEL_ID).subscribe(p_historyList => {
-                    console.log("p_historyList : ", p_historyList);
                     if (p_historyList.isSuccess) {
                         this.h_ModelHistoryList = p_historyList.result;
                     }
@@ -159,21 +157,23 @@ export class ModelProfileComponent implements OnChanges {
                 if(Object.keys((this.iProfileData['params'])).length == 0) {
                     $("#model-table").css("display", "none");
                     $(".modelEvaluation").css("width", "100%");
-                    let s_modelParam = JSON.parse(this.iProfileData['MODEL_ARG_PARAM'])
+                    let s_modelParam = JSON.parse(this.iProfileData['MODEL_ARG_PARAM']);
                     this.h_deepModel = true;
-                    this.o_modelCode = s_modelParam[1]['PARAM_VALUE']
-                }
+                    this.o_modelCode = s_modelParam[1]['PARAM_VALUE'];
+                };
 
                 this.cWpLibSvc.showProgress(false, 'algorithmspin');
             } catch (error) {
                 this.cWpLibSvc.showProgress(false, 'algorithmspin');
-            }
+            };
 
         }, 500);
     }
-
-    togglePanel(pEvent:any){
-        console.log(pEvent)
+    togglePanel(pEv:any){
+        $(pEv.currentTarget).addClass('on').siblings().removeClass('on');
+        $(pEv.currentTarget).find('.ico').addClass('active');
+        $(pEv.currentTarget).siblings().find('.ico').removeClass('active');
+        $('.'+pEv.currentTarget.attributes.rel.value).addClass('on').siblings().removeClass('on');
     }
 
     onClickHeaderBtn(pEvent: any) {
@@ -187,7 +187,6 @@ export class ModelProfileComponent implements OnChanges {
         this.h_popup.flag = true;
         this.h_popup.uploadType = 'File';
         this.h_popup.modelURL = this.iProfileData.DEPLOY_URL;
-        console.log("h_popup : ", this.h_popup);
         setTimeout(() => {
             // API 문서 바로가기 버튼 생성
             let sElem: Element = document.querySelector('wp-model-profile wp-lib-data-uploader div.modal-footer div.grid-div div.right');
@@ -206,7 +205,6 @@ export class ModelProfileComponent implements OnChanges {
     }
 
     onRefresh(e:any){
-        console.log("e : ", e);
         if (e.length > 0) {
             let sTargetFilePath = `${this.iProfileData.REG_USER_NO}/tmp_upload/${this.iProfileData.MODEL_ID}/${e[0]}`;
             this.cModelProfileSvc.getModelConfig(this.iProfileData.MODEL_ID).subscribe(pConfigResult => {
@@ -227,7 +225,6 @@ export class ModelProfileComponent implements OnChanges {
                         this.cAppSvc.showMsg('모델 예측 실행에 실패하였습니다. 모델 예측에 적합한 데이터를 업로드하세요', false);
                     }
                 }, p_error => {
-                    console.log(p_error)
                     this.cAppSvc.showMsg('모델 예측 실행에 실패하였습니다.', false)
                 })
             });
@@ -241,9 +238,8 @@ export class ModelProfileComponent implements OnChanges {
             modelname: this.iProfileData.MODEL_NM,
             argInfo: {ARG_TYPE: this.iProfileData.tags.model_type}
         };
-        // let sChartData = this.cTrainModelSvc.getModelChartData(sRawResultData);
-        // this.oModelResultChart = sChartData;
-        console.log("setModelResultChartData : ", this.oModelResultChart);
+        let sChartData = this.cTrainModelSvc.getModelChartData(sRawResultData);
+        this.oModelResultChart = sChartData;
     }
     setModelInfoFormData() {
         this.oModelInfoForm = this.cModelProfileSvc.getModelInfoFormData(this.iProfileData);
@@ -256,7 +252,6 @@ export class ModelProfileComponent implements OnChanges {
         } else {
             this.oModelParamForm = this.cModelProfileSvc.getModelParamFormData(this.iProfileData['params']);
         }
-        console.log("this.oModelParamForm : ", this.oModelParamForm);
     }
     clickModelNmBtn(pModelNm:string){
         this.h_ensembleSelectModel = pModelNm;
@@ -270,7 +265,6 @@ export class ModelProfileComponent implements OnChanges {
         // };
         // this.oModelScoreForm = this.cModelProfileSvc.getModelResultGridData(sRawResultData);
         this.oModelScoreForm = this.cModelProfileSvc.getModelParamFormData(this.iProfileData['metrics']);
-        console.log("this.oModelScoreForm  : ", this.oModelScoreForm );
     }
     setLangModelData() {
         this.oLangModelData.MODEL_ID = this.iProfileData.MODEL_ID;
@@ -289,7 +283,6 @@ export class ModelProfileComponent implements OnChanges {
          // 이미지
         } else if (this.oModelType == 'Image'){
             let sChartData: any = this.cModelProfileSvc.getPRChartData(sFeatureLogData);
-            console.log("sChartData : ", sChartData);
             if (sChartData) {
                 this.oModelInfluenceChart = sChartData;
             }  
@@ -313,11 +306,7 @@ export class ModelProfileComponent implements OnChanges {
             }  
         // 회귀 & 분류
         } else {
-            // if (sExcuteResult.reVal && sExcuteResult.reVal.featureLog) {
-            //     sFeatureLogData = sExcuteResult.reVal.featureLog;
-            // } else {
-            //     sFeatureLogData = sExcuteResult['featureLog'];
-            // }
+
             let sChartData = this.cModelProfileSvc.getInflueceChartData(sFeatureLogData);
             if (sChartData) {
                 this.oModelInfluenceChart = sChartData;
@@ -343,8 +332,6 @@ export class ModelProfileComponent implements OnChanges {
     }
 
     onClickHistoryItem(p_event:any){
-        this.cWpLibSvc.showProgress(true, 'algorithmspin');
-        console.log("p_event : ", p_event);
         let s_param = {
                 method: 'MODEL-INFO',
                 location: 'model-manager',

@@ -47,7 +47,7 @@ class WP_TRAIN_MODEL_ATT(BaseATT):
     algorithm: ARG_MSTR_ATT
     parameter: List[ARG_PARAMETER_ATT]
     optimizer: ARG_OPTIMIZER_ATT = field(default_factory=ARG_OPTIMIZER_ATT)
-    scaler: str = 'Standard Scale'
+    scaler: str = 'StandardScaler'
     targetColumn: str = ''
 
 
@@ -65,3 +65,13 @@ class WP_SAVE_INFO_ATT(BaseATT):
     targetCol: str = ''
     workflowId: str = ''
     model_path: Optional[str] = ''
+    output_path: Optional[str]= ''
+
+@dataclass
+class WP_CUSTOM_MODEL_ATT(BaseATT):
+    modelname: str = ''
+    modelId: str = ''
+    modelIdx: str = ''
+    frameworkType: str = ''
+    argType: str = '',
+    customTrain: bool = False

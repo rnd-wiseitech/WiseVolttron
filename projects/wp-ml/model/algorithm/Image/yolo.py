@@ -10,11 +10,11 @@ class yolo(WiseYoloArgorithm) :
         super().__init__(p_parameter, p_argInfo) 
         self.o_argorithm = YOLO
         
-    def onLearning(self,p_dataSet: WiseImageSet):        
-        return super().onLearning(p_dataSet)
+    def onLearning(self,p_dataSet: WiseImageSet, p_userno):        
+        return super().onLearning(p_dataSet, p_userno)
     
-    def onEvaluating(self):
-        return super().onEvaluating()
+    def onEvaluating(self, p_dataSet: WiseImageSet):
+        return super().onEvaluating(p_dataSet)
     
-    def onSaving(self, p_saveModelInfo):
-        return super().onSaving(p_saveModelInfo)
+    def onSaving(self, p_saveModelInfo, p_wpStorage):
+        return super().onSaving(p_saveModelInfo, p_wpStorage)
