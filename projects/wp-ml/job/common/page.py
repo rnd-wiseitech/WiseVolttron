@@ -16,7 +16,6 @@ def execute(p_dataSource, **kwargs):
         s_filetype = s_data['filetype']
         s_dataUserno = s_data['dataUserno']
         s_index = s_data['index']
-        # deltalake일 경우 인덱스 없는 폴더로 저장해서 인덱스 없음
         if s_filetype == 'delta':
             s_fromPath =  str(s_dataUserno) + "/wp_dataset/" + str(s_filename) + "/" + str(s_filename) + "." + s_filetype
         else :
@@ -28,7 +27,6 @@ def execute(p_dataSource, **kwargs):
     s_offset = s_count * (int(s_page) - 1)
     s_df = s_df[s_offset:s_offset + s_count]
     
-    #  이미지 일경우 base64로 이미지파일까지 읽음.
     if s_data['dataType'] == 'image':
         s_df['base64'] = s_df.apply(
             lambda row: f"data:image/{'jpeg' if row['filename'].split('.')[-1].lower() in ['jpg', 'jpeg'] else row['filename'].split('.')[-1].lower()};base64," +
@@ -36,4 +34,15 @@ def execute(p_dataSource, **kwargs):
             axis=1
         )
         s_df = s_df.drop(columns=['filepath'])
+
+    if 'predictpath' in s_df.columns :
+        if 'tag' in s_df.columns:
+            s_df = s_df.drop(columns=['tag'])    
+        else :
+            s_df['predict_base64'] = s_df.apply(
+                lambda row: f"data:image/{'jpeg' if row['filename'].split('.')[-1].lower() in ['jpg', 'jpeg'] else row['filename'].split('.')[-1].lower()};base64," +
+                            p_dataSource.o_storageManager.readFile(row['predictpath'], 'base64'),
+                axis=1
+            )
+        s_df = s_df.drop(columns=['predictpath'])
     return s_df

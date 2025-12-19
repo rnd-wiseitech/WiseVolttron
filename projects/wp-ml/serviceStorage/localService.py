@@ -1,12 +1,10 @@
 import json
-#import logging
-#import logging.config
 import os
+from deltalake import WriterProperties
 import pandas as pd
 import joblib
 import pickle
 import h5py
-# https 자체인증서 인증 경고 메시지 처리
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import re
@@ -24,17 +22,8 @@ import base64
 from stream_zip import stream_zip, ZIP_64, NO_COMPRESSION_64
 from datetime import datetime
 from stat import S_IFREG
-# from deltalake import write_deltalake, DeltaTable
 import chardet
 from io import StringIO
-# from transformers import GPT2LMHeadModel
-
-
-#with open('./log/logging.json', 'rt') as f:
-#    config = json.load(f)
-#logging.config.dictConfig(config)
-
-#o_logger = logging.getLogger('LOCAL')
 
 class localStorage(WpStorage):
     def __init__(self, p_userno, p_info):
@@ -127,9 +116,6 @@ class localStorage(WpStorage):
             if p_option == 'h5':
                 s_filename = os.path.basename(p_path)
                 with h5py.File(p_path, "r") as h5file:
-                    # print("Keys: %s" % f.keys())
-                    # s_df = f[a_group_key]      # returns as a h5py dataset object
-                    # ds_arr = f[a_group_key][()]  # returns as a numpy array
                     s_df = h5file.get(s_filename)
                     h5file.close()
             if p_option == 'txt':
@@ -191,8 +177,6 @@ class localStorage(WpStorage):
         
     def uploadFile(self, p_path, p_df):
         try:
-            s_wpFileFormat = getConfig('', 'FILE_FORMAT')
-
             s_chunk_size = 10 * 1024 * 1024  # 10MB 단위로
             # 1️⃣ 저장할 디렉토리 경로 추출
             dir_path = os.path.dirname(p_path)
@@ -200,79 +184,10 @@ class localStorage(WpStorage):
             # 2️⃣ 디렉토리가 없으면 생성
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path, exist_ok=True)
-            # deltalake 일때 스토리지 파일 업로드
-            if s_wpFileFormat == 'delta':
-                from deltalake import write_deltalake, DeltaTable
-                s_extension = os.path.splitext(p_path)[-1].lower()
-
-                if s_extension in ['.txt', '.csv', '.parquet', '.json', '.xlsx', '.pkl', '.yaml']:
-                    s_isExist = False
-                    s_startStream = False
-                    s_mode = 'overwrite'
-                    s_schema_mode = 'merge'
-                    s_data = p_df.read()
-                    # while s_data := p_df.read(s_chunk_size):
-                        
-                    s_encodingType = chardet.detect(s_data)['encoding']
-                    
-                    # 해당 경로에 이미 deltalake가 있다면
-                    if os.path.exists(p_path):
-                        s_isExist = True
-                        try:
-                            # Deltalake의 컬럼들을 불러옴
-                            s_existing_columns = DeltaTable(p_path).schema().to_arrow().names
-                        except :
-                            # 안불러와지면 존재 안하는걸로 취급
-                            s_isExist = False
-
-                    if s_extension == '.txt' or s_extension == '.csv': 
-                        s_data_decode = s_data.decode(s_encodingType)
-                        s_data_buffer = StringIO(s_data_decode)
-                        s_df = pd.read_csv(s_data_buffer)
-                
-                    elif s_extension == '.parquet': # parquet 확인
-                        s_data_buffer = BytesIO(s_data)
-                        s_df = pq.read_table(s_data_buffer).to_pandas()
-
-                    elif s_extension == '.json':
-                        s_data_buffer = json.loads(s_data.decode(s_encodingType))
-                        if isinstance(s_data_buffer, dict):
-                            s_df = pd.DataFrame([s_data_buffer])
-                        elif isinstance(s_data_buffer, list):
-                            s_df = pd.DataFrame(s_data_buffer)
-                    
-                    elif s_extension == '.xlsx':
-                        s_df = pd.read_excel(BytesIO(s_data), engine='openpyxl')
-                    
-                    elif s_extension == '.pkl':
-                        s_data_buffer = pickle.load(BytesIO(s_data))
-                        s_df = pd.DataFrame(s_data_buffer)
-                    
-                    elif s_extension == '.yaml':
-                        s_data_buffer = yaml.safe_load(StringIO(s_data.decode(s_encodingType)))
-                        if isinstance(s_data_buffer, dict):
-                            s_data_buffer = [s_data_buffer]
-                        s_df = pd.DataFrame(s_data_buffer)
-                    
-                    safe_schema  = self.checkDataFrameSchema(s_df)
-                    s_deltaLakeTbl = pa.Table.from_pandas(s_df, schema=safe_schema)
-
-                    if s_isExist:
-                        s_deltaLakeTblColumn = s_deltaLakeTbl.schema.names
-                        s_schema_mode = self.checkDeltaLakeColumns(s_existing_columns, s_deltaLakeTblColumn)
-                        
-                    # if s_startStream == False:
-                    #     s_mode = 'overwrite'
-                    # else :
-                    #     s_mode = 'append'
-
-                    write_deltalake(p_path, data=s_deltaLakeTbl, mode=s_mode, schema_mode=s_schema_mode)
-                    # s_startStream = True
-
-            else :
-                with open(p_path, 'wb') as s_writer:
-                    while chunk := p_df.read(s_chunk_size):
-                        s_writer.write(chunk)
+          
+            with open(p_path, 'wb') as s_writer:
+                while chunk := p_df.read(s_chunk_size):
+                    s_writer.write(chunk)
             return True
         except Exception as ex:
             print("uploadFile error", ex)
@@ -311,20 +226,16 @@ class localStorage(WpStorage):
                 for col in p_df.columns:
                     if str(p_df[col].dtype) == 'object':
                         p_df[col] = p_df[col].astype(str)
+                        p_df[col] = p_df[col].replace("None", None)
                 if p_writeMode == 'a':
                     s_df_table = pa.Table.from_pandas(p_df)
                     if os.path.exists(p_path):
-                        # fastparquet일 때 사용하는 코드, 쓸려면 fastparquet을 pip install 해야함
-                        # p_df.to_parquet(p_path,engine="fastparquet",index=p_index, append=True)
-                        # 기존 파일에서 스키마 가져오기
                         s_exist = True
                         s_parqetFileTable = pq.read_table(p_path)
                         s_df_schema = s_parqetFileTable.schema
                     else:
                         s_exist = False
                         s_df_schema = s_df_table.schema
-                        # fastparquet일 때 사용하는 코드, 쓸려면 fastparquet을 pip install 해야함
-                        # p_df.to_parquet(p_path,engine="fastparquet",index=p_index)
                     with pq.ParquetWriter(p_path, s_df_schema) as writer:
                         if s_exist:
                             writer.write_table(s_parqetFileTable)
@@ -336,15 +247,6 @@ class localStorage(WpStorage):
             if p_option == 'pkl':
                 with open(p_path, 'wb') as f:
                     pickle.dump(p_df, f, pickle.HIGHEST_PROTOCOL)
-
-                # 압축해서 저장하는 코드
-                # import gzip
-                # with gzip.open('testPickleFile.pickle', 'wb') as f:
-                #     pickle.dump(data, f)
-                # 압축 로드
-                # # load and uncompress.
-                # with gzip.open('testPickleFile.pickle','rb') as f:
-                #     data = pickle.load(f)
 
             if p_option == 'h5':
                 s_filename = os.path.basename(p_path)
@@ -369,7 +271,7 @@ class localStorage(WpStorage):
                     yaml.dump(p_df, f, allow_unicode=True)
             # deltalake 일때 파일 다운로드 파일 쓰기
             if p_option == 'delta':
-                from deltalake import write_deltalake, DeltaTable
+                from deltalake import DeltaTable, write_deltalake, WriterProperties, ColumnProperties
                 s_isExist = False
                 if p_writeMode == 'new' or  p_writeMode == 'w':
                     p_writeMode = 'overwrite'
@@ -393,8 +295,18 @@ class localStorage(WpStorage):
                 if s_schema_mode != 'merge':
                     p_writeMode = 'overwrite'
                 
-                write_deltalake(p_path, data=s_deltaLakeTbl, mode=p_writeMode, schema_mode=s_schema_mode)
+                wp = WriterProperties(
+                    # 파일 내부 구조/성능
+                    max_row_group_size = 8_000_000,       # Row group 당 최대 행수(데이터에 맞춰 조정; 크기 256~512MB 목표)
+                    data_page_size_limit = 1 * 1024**2,   # Data Page 크기 힌트(1MB)
+                    dictionary_page_size_limit = 2 * 1024**2,
 
+                    # 압축
+                    compression = "SNAPPY",                 # 'UNCOMPRESSED'|'SNAPPY'|'ZSTD' 등
+                    compression_level = 2,                # ZSTD 1~22 (3 정도가 무난)
+                )
+
+                write_deltalake(p_path, data=s_deltaLakeTbl, mode=p_writeMode, schema_mode=s_schema_mode, writer_properties=wp)
             return True
         
         except Exception as ex:
@@ -481,8 +393,6 @@ class localStorage(WpStorage):
         
     # 모델 로드
     def loadModel(self, p_path, p_frameWorkType):
-        from tensorflow import keras
-        import torch
         try:
             if p_frameWorkType == 'Scikit-learn':
                 try:
@@ -492,11 +402,8 @@ class localStorage(WpStorage):
 
             # PyTorch (pt, pth)
             elif p_frameWorkType == 'PyTorch':
+                import torch
                 return torch.load(p_path)
-
-            # TensorFlow/Keras (h5)
-            elif p_frameWorkType == 'TensorFlow/Keras':
-                return keras.models.load_model(p_path)
 
             else:
                 raise ValueError(f"Unsupported framework type: {p_frameWorkType}")
@@ -631,19 +538,22 @@ class localStorage(WpStorage):
                 is_header_written = False
                 def process_parquet(file_path):
                     nonlocal is_header_written
-                    with open(file_path, 'rb') as reader:
-                        data = BytesIO(reader.read()) 
-                        parquet_file = pq.ParquetFile(data)  # ParquetFile 객체 생성
-                        for batch in parquet_file.iter_batches():  # 데이터를 청크 단위로 처리
-                            df = batch.to_pandas()
-                            if not is_header_written:
-                                yield ','.join(df.columns) + '\n'
-                                is_header_written = True
-                            i = 1
-                            for row in df.itertuples(index=False):
-                                yield ','.join(str(value) if value is not None else '' for value in row) + '\n'
-       
+                    # ✅ 전체 read 제거: 경로를 직접 넘겨 스트리밍
+                    parquet_file = pq.ParquetFile(file_path)
+
+                    for batch in parquet_file.iter_batches():
+                        df = batch.to_pandas()
+
+                        if not is_header_written:
+                            # 필요 시 BOM: yield '\ufeff'
+                            yield ','.join(map(str, df.columns)) + '\n'
+                            is_header_written = True
+
+                        for row in df.itertuples(index=False, name=None):
+                            yield ','.join('' if v is None else str(v) for v in row) + '\n'
                 yield from process_parquet(p_path)
+                return   
+
             # csv, json, txt, yaml
             elif  s_fileType in ['.csv', '.json', '.txt', '.yaml']:
                 def process_text(file_path):

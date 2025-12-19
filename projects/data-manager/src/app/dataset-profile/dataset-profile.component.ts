@@ -36,7 +36,7 @@ export class DataSetProfileComponent implements OnInit {
   oRecentViewIdx:any;
   oSchema:any;
   oColInfo:VarInfo[] = [];
-  oCurrPageNum:Number;
+  oCurrPageNum:Number = 0;
   h_Pipelist:any = [];
   h_Historylist:any = [];
   h_Warnlist:any = [];
@@ -572,7 +572,7 @@ export class DataSetProfileComponent implements OnInit {
         // sViewIdx = Number(sViewIdx) + 1;
         sViewIdx = Number(sViewIdx);
       } else {
-        sViewIdx = 1;
+        sViewIdx = 0;
       }
     } else {
       this.h_reStatisticBtn = false;
@@ -581,10 +581,7 @@ export class DataSetProfileComponent implements OnInit {
   }
   // 페이징 시작 번호 초기화
   resetPageIdx(){
-    this.oCurrPageNum = null;
-    setTimeout(() => {
-      this.oCurrPageNum = 1;
-    });
+    this.oCurrPageNum = 0;
   }
 
   getProfileData(pInit = true) {

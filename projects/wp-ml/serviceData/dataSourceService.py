@@ -69,7 +69,6 @@ class dataSource():
             # s_index가 None일 경우 new로 판단.
             else:
                 s_index = 0
-            # if getConfig('', 'FILE_FORMAT') == 'delta':
             
             # 파일명
             # delta일 경우 index 없는 폴더로 저장됨
@@ -144,37 +143,56 @@ class dataSource():
             if s_index != None:
                 s_index = s_index + 1
             else:
-                s_index = 1
+                s_index = 0
 
             # 파일명
-            s_filename = str(p_filename) + "_" + str(s_index) + "." + self.o_fileFormat
+            s_filename = str(p_filename)
+            if self.o_fileFormat != 'delta':
+                s_filename += "_" + str(s_index)
+            s_filename += "." + self.o_fileFormat
 
-            # # LOCAL/COMMON일 경우
+            # LOCAL/COMMON일 경우
             if self.o_apiType.upper() == 'COMMON':
                 # 이미지 데이터셋 저장 경로 (user번호 / wp_dataset / DS_VIEW 번호 / 버전 번호)
                 s_basePath = str(p_userno) + '/wp_dataset/' + str(p_filename) + '/' + str(s_index)
-                s_realPath = self.o_rootPath + s_basePath
-                # 이미지 경로 폴더 생성
-                self.o_storageManager.createDirs(s_basePath + '/' + 'images')
-                # 원본 이미지 데이터 images로 복사
-                for s_file in p_df['filepath']:
-                    self.o_storageManager.copyFile(s_file, s_basePath + '/' + 'images')
 
+                # 모델 예측으로 나온 OUTPUT이 아닐 경우
+                if 'predictpath' not in p_df.columns:
+                    # 이미지 경로 폴더 생성
+                    self.o_storageManager.createDirs(s_basePath + '/' + 'images')
 
-                # 이미지 라벨 컴퍼넌트 여부 확인
-                if 'labelpath' in p_df.columns:
-                    # 이미지데이터셋 라벨 폴더 생성
-                    self.o_storageManager.createDirs(s_basePath + '/' + 'labels')
-                    # 임시저장 라벨파일 -> 이동
-                    self.o_storageManager.moveFile(s_tmpDir+f"/{p_df['labelpath'].iloc[0]}_ui.json", s_basePath + '/' + 'labels/ui.json')
-                    self.o_storageManager.moveFile(s_tmpDir+f"/{p_df['labelpath'].iloc[0]}_coco.json", s_basePath + '/' + 'labels/coco.json')
-                    # 파일 욺기고 데이터셋 경로로 변경
-                    p_df['labelpath'] = s_basePath + '/labels'
+                    # 이미지 분류 컴퍼넌트 여부 확인
+                    if 'tag' in p_df.columns:
+                        # ui.json 저장할 디렉토리 생성
+                        self.o_storageManager.createDirs(s_basePath + '/' + 'labels')
+                        # 태그 종류 확인후 각각 태그명 디렉토리 만들어 줌
+                        for s_tag in p_df['tag'].unique():
+                            self.o_storageManager.createDirs(s_basePath + '/' + 'images'+ f'/{s_tag}')
+                        # 이미지에 지정된 태그대로 태그명 디렉토리에 파일 복사 
+                        for s_rowIndex, s_row in p_df.iterrows():
+                            s_filePath = s_row['filepath']
+                            s_tag = s_row['tag']
+                            self.o_storageManager.copyFile(s_filePath, s_basePath + '/' + 'images'+ f'/{s_tag}')
+                            s_row['filepath'] = s_basePath + '/images/'+ f'/{s_tag}/' + p_df['filename']
+                        # 임시저장 라벨파일 -> 이동
+                        self.o_storageManager.moveFile(s_tmpDir+f"/{p_df['labelpath'].dropna().iloc[0]}_ui.json", s_basePath + '/' + 'labels/ui.json')
+                        # 파일 욺기고 데이터셋 경로로 변경
+                        p_df.loc[p_df["labelpath"].notna(), "labelpath"] = s_basePath + "/labels"
+                        p_df["labelpath"] = p_df["labelpath"].replace("None", None)
+
+                # 모델 예측으로 나온 OUTPUT(images, wp_predict, labels 폴더가 구성되어 있음)
+                else:    
+                    s_tempResultPath = p_df['predictpath'].iloc[0]
+                    self.o_storageManager.moveFile(s_tempResultPath, s_basePath)
+                    p_df['filepath'] = s_basePath + '/images/' + p_df['filename']
+                    p_df['predictpath'] = s_basePath + '/wp_predict/' + p_df['filename']
+                    # p_df['labelpath'] = s_basePath + '/labels'
+                    p_df.loc[p_df["labelpath"].notna(), "labelpath"] = s_basePath + "/labels"
+                    # p_df["labelpath"] = p_df["labelpath"].replace("None", None)
                     
-                # filepath 경로 데이터셋 경로로 수정
-                p_df['filepath'] = s_basePath + '/images/' + p_df['filename']
                 # csv 저장
                 self.o_storageManager.writeFile(f"{str(p_userno) + '/wp_dataset/' + str(p_filename)}/{s_filename}", p_df, p_option=self.o_fileFormat)
+                
 
                 # 폴더 소유 설정
                 if p_userId != None:
@@ -192,10 +210,6 @@ class dataSource():
             s_dbMng.executeOutputMetaDB(p_filename, s_index, s_update, p_userno, p_workflowId, 40)
             s_viewname = str(p_userno) + "_" + str(p_filename)
 
-        # if self.o_apiType == 'SPARK' :
-        #     self.o_storageManager.createView(s_viewname, p_df)
-
-        # else :
         self.dataset[s_viewname] = p_df
         
         return s_viewname, s_index, p_df
