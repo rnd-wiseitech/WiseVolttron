@@ -4,39 +4,6 @@ import * as fs from 'fs';
 import { WP_CONFIG, WP_DB_ATT } from "../wp-type/WP_CONN_ATT";
 import { Dialect } from "sequelize";
 
-/**
- * 플랫폼에서 사용되는 접속 정보 및 환경 설정을 관리하는 클래스
- * 
- * assets폴더의 config 파일을 읽어와 설정한다.
- * 
- * @example
- * ```ts
- *  let o_appconfig = new WiseAppConfig();
- *  {
- *      "NODE": {
- *          "host": "localhost",
- *          "port": "8800"
- *       },
- *       "META_DB": {
- *           "host": "localhost",
- *           "port": "3306",
- *           "id": "root",
- *           "passwd": "wise1012",
- *           "db": "WISE_PROPHET_V1",
- *           "type": "mysql"
- *       },
- *       "WP_API": {
- *           "host": "localhost",
- *           "port": "1337"
- *       },
-*        "STORAGE_TYPE":"LOCAL",
-*        "LANG": "ko",
-*        "BACKGROUND": false,
-*        "PLATFORM_ID": 1010,
-*        "ADVANCE": true,
-*    }
-* ```
-*/
 
 export class WiseAppConfig {
 
@@ -66,30 +33,17 @@ export class WiseAppConfig {
         let sTmpConfig:any = this.o_appConfig;
         return sTmpConfig[pKey];
     }
-    getLdapPort() {
-        return this.o_appConfig.LDAP.port;
-    }
     getWpApiIp(){
         return this.o_appConfig.WP_API.host;
     }
     getWpApiPort(){
         return this.o_appConfig.WP_API.port;
     }
-    // #203
     getPyApiIp(){
         return this.o_appConfig.PY.host;
     }
     getPyApiPort(){
         return this.o_appConfig.PY.port;
-    }
-    getKafkaIp(){
-        return this.o_appConfig.KAFKA.host;
-    }
-    getKafkaTopicPort(){
-        return this.o_appConfig.KAFKA.topics_port;
-    }
-    getKafkaConnectorPort(){
-        return this.o_appConfig.KAFKA.connectors_port;
     }
     getPlatformId(){
         return this.o_appConfig.PLATFORM_ID;
@@ -102,9 +56,6 @@ export class WiseAppConfig {
     }
     getDbInfo() {
         return this.o_appConfig.META_DB;
-    }
-    getHiveDbInfo() {
-        return this.o_appConfig.HIVE_DB;
     }
     getDbHost() {
         return this.o_appConfig.META_DB.host;
@@ -124,19 +75,6 @@ export class WiseAppConfig {
     getDbType() :Dialect {
         return this.o_appConfig.META_DB.type;
     }
-    // 이중화여부
-    getLoadBalancer() {
-        return this.o_appConfig.LOAD_BALANCER;
-    }
-
-    // WPLAT-76 NAT IP 사용 시에 CRON(스케줄)에서는 원래 서버 IP를 사용하도록 함.
-    // getOriginIp() {
-    //     return this.o_appConfig['PATH']['ORIGIN_IP']['host'];
-    // }
-    // getOriginPort() {
-    //     return this.oAppConfig['PATH']['ORIGIN_IP']['port'];
-    // }
-    
     setStorageType(pValue:string){
         this.o_appConfig.STORAGE_TYPE = pValue;
     }
@@ -156,15 +94,6 @@ export class WiseAppConfig {
     setPyApiPort(pValue:number){
         this.o_appConfig.PY.port = pValue;
     }
-    setKafkaIp(pValue:string){
-        this.o_appConfig.KAFKA.host = pValue;
-    }
-    setKafkaTopicPort(pValue:number){
-        this.o_appConfig.KAFKA.topics_port = pValue;
-    }
-    setKafkaConnectorPort(pValue:number){
-        this.o_appConfig.KAFKA.connectors_port = pValue;
-    }
     setPlatformId(pValue:number){
         this.o_appConfig.PLATFORM_ID = pValue;
     }
@@ -176,15 +105,6 @@ export class WiseAppConfig {
     }
     setDbInfo(pValue:WP_DB_ATT) {
         this.o_appConfig.META_DB = pValue;
-    }
-    setHiveDbInfo(pValue:WP_DB_ATT) {
-        this.o_appConfig.HIVE_DB = pValue;
-    }
-    setHiveDbIp(pValue:string) {
-        this.o_appConfig.HIVE_DB.host = pValue;
-    }
-    setHiveDbPort(pValue:number) {
-        this.o_appConfig.HIVE_DB.port = pValue;
     }
     setDbHost(pValue:string) {
         this.o_appConfig.META_DB.host = pValue;
@@ -203,9 +123,5 @@ export class WiseAppConfig {
     }
     setDbType(pValue:Dialect) {
         this.o_appConfig.META_DB.type = pValue;
-    }
-    // 이중화여부
-    setLoadBalancer(pValue:boolean) {
-        this.o_appConfig.LOAD_BALANCER = pValue;
     }
 }

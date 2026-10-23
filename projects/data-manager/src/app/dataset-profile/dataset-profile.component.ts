@@ -23,13 +23,11 @@ declare const $: any;
   styleUrls: ['./dataset-profile.component.css']
 })
 export class DataSetProfileComponent implements OnInit {
-  // @ViewChild(DxTooltipComponent, { static: false }) oTooltip: DxTooltipComponent;
   @ViewChild("tblDoughnutChart") private tblDoughnutChart: ElementRef;
   @ViewChild('wpLibDataViewer') oWpLibDataViewer!: WpLibDataViewerComponent;
   oDoughnutChart: any;
   @Input() oProfileData:any;
   oDisplayedColumns: string[] = [];
-  // 그래프 컬럼
   oDisplayedGraphColumns:any;
   oSelectData:any;
   oUsetable:any;
@@ -42,7 +40,6 @@ export class DataSetProfileComponent implements OnInit {
   h_Warnlist:any = [];
   h_Noticelist:any = [];
   h_Loglist:any = [];
-  // #220 화면에 뿌릴것들
   oRowCnts:WP_STATISTIC_DATA = {
     row_count: 0,
     column_count: 0,
@@ -63,26 +60,14 @@ export class DataSetProfileComponent implements OnInit {
   h_graphRates:any = {}
   h_graphRatesMessage : any = {}
   h_graphType:string = ''
-  // h_chkoutList:any = [];
   oHighCorrColmn = {};
   o_settimeId:any;
-  // h_tooltipVisible = false;
-  // #1 통계분석 재실행 버튼
   h_reStatisticBtn = false;
-  // #2 통계분석 진행중 여부
   h_reStatisticFlag = false;
-  // #3 icon
   h_icon = 'refresh';
   oVirtualOption = { 'height': '620px', 'name': 'dm-dataset-profile'};
   h_TooltipMsgArr:any = {};
-  // oGridCol:any;
-  // oGridRowEvt = true;
-  // oGridheader = {btnNm:'DataSet Added', filterCol:'DS_VIEW_NM'};
-  // oDisplayedColumnNms: string[] = ['권한', '데이터명',  '원본 데이터명', '만든이', '만든 날짜', '수정 날짜', '통계 상태', 'FUNCTION'];
-  // oDisplayedColumns: string[] = ['AUTHORITY', 'DS_VIEW_NM',  'TBL_CAPTION', 'REG_USER_NO', 'REG_DT', 'UPD_DT', 'DATASTATUS'];
-  // oAddDtsetFormData:any[];
-
-  // oShowProfileSubscribe:Subscription;
+ 
   oSocketSubscribe:Subscription;
   oSparkApiSubscribeArray:Array<Subscription> = [];
   constructor(public cDialog: MatDialog,
@@ -160,17 +145,6 @@ export class DataSetProfileComponent implements OnInit {
             edit:true,
             callbak:null
           },
-          // WPLAT-361 1번 수정
-          // {
-          //   vname: '연결 방법',
-          //   name: 'CONNECTION',
-          //   value: s_tmp,
-          //   type: 'select',
-          //   fvalue: s_tmp2,
-          //   visible: true,
-          //   edit: true,
-          //   callbak: { name: 'connectSeleted' }
-          // }
         ],
           'scroll':true,
           // 'componentData': {
