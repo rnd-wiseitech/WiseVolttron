@@ -16,7 +16,7 @@ export interface WP_META_DB {
     insert(p_tableNm:string,p_colNmArr:{} | Array<any>,pBool:boolean,p_tran?:Transaction):Promise<any>;
     update(p_tableNm:string,p_colNmArr:{}, pWhere:{},p_tran?:Transaction):Promise<any>;
     delete(p_tableNm:string,p_where:{},p_tran?:Transaction):Promise<any>;
-    query(p_query:string,p_tableNm:string,p_option?:any,p_tran?:Transaction):Promise<any>;
+    query(p_query:string,p_tableNm:string,p_option?:any,p_tran?:Transaction,p_params?:any[]):Promise<any>;
     // bigTableSave?(pRowCount:any,pConn:WP_META_DB,pTableNm:string,pPath:string):Promise<any>;
     defineModel?(dbNm:string,s_tableNm:string):void;
     

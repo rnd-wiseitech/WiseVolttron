@@ -86,14 +86,15 @@ export class WpDataSourceManager {
                         INNER JOIN DP_USER_MSTR G ON B.REG_USER_NO = G.USER_NO
                         LEFT OUTER JOIN (SELECT * FROM DP_AUTH_USER_MSTR WHERE SHARE_TYPE='dataset' AND OWNER_USER_NO != ${this.o_userInfo.USER_NO}) E ON B.DS_VIEW_ID = E.DATA_ID 
                         WHERE A.DEL_YN = 'N' AND (A.REG_USER_NO = '${this.o_userInfo.USER_NO}' OR E.SHARER_USER_NO = '${this.o_userInfo.USER_NO}')
-                            ${pParam ? `AND A.TBL_TYPE = \'${pParam['TBL_TYPE']}\'`: ''}
+                            ${pParam ? `AND A.TBL_TYPE = ?`: ''}
                             AND A.VIEW_IDX IS NOT NULL
                         ORDER BY AUTHORITY ASC, ORDER_DATE DESC `;
+            let s_params = pParam ? [pParam['TBL_TYPE']] : [];
 
                           // ${this.o_userInfo.USER_MODE != 'ADMIN' ? 
                         //     `LEFT OUTER JOIN (SELECT * FROM DP_AUTH_USER_MSTR WHERE SHARE_TYPE='dataset' AND OWNER_USER_NO != ${this.o_userInfo.USER_NO}) E ON B.DS_VIEW_ID = E.DATA_ID 
-                        //     WHERE A.DEL_YN = 'N' AND (A.REG_USER_NO = '${this.o_userInfo.USER_NO}' OR E.SHARER_USER_NO = '${this.o_userInfo.USER_NO}')` : `WHERE A.DEL_YN = 'N'` } 
-            this.o_metaDbMng.query(s_query,'',{ type: QueryTypes.SELECT }).then((p_result) => {
+                        //     WHERE A.DEL_YN = 'N' AND (A.REG_USER_NO = '${this.o_userInfo.USER_NO}' OR E.SHARER_USER_NO = '${this.o_userInfo.USER_NO}')` : `WHERE A.DEL_YN = 'N'` }
+            this.o_metaDbMng.query(s_query,'',{ type: QueryTypes.SELECT }, undefined, s_params).then((p_result) => {
                 resolve({isSuccess:true,result:p_result});
             }).catch(function (pErr) { 
                 rejects(pErr);
@@ -509,11 +510,11 @@ export class WpDataSourceManager {
         return new Promise<WiseReturn>((resolve,rejects)=>{
             let s_query = ` SELECT * FROM DS_VIEW_MSTR A
                                 INNER JOIN DS_VIEW_TBL_MSTR B ON A.DS_VIEW_ID = B.DS_VIEW_ID
-                            WHERE A.REG_USER_NO = ${p_userNo} 
-                            AND B.DEL_YN = 'N' 
-                            AND A.DS_VIEW_NM = '${p_dataNm}'`;
+                            WHERE A.REG_USER_NO = ?
+                            AND B.DEL_YN = 'N'
+                            AND A.DS_VIEW_NM = ?`;
 
-            this.o_metaDbMng.query(s_query,'',{ type: QueryTypes.SELECT }).then((p_result) => {
+            this.o_metaDbMng.query(s_query,'',{ type: QueryTypes.SELECT }, undefined, [p_userNo, p_dataNm]).then((p_result) => {
                 resolve({isSuccess:true,result:p_result});
             }).catch(function (pErr) { 
                 rejects(pErr);

@@ -281,20 +281,20 @@ export class WpUserManager {
     getUser(p_userMode: string, p_userId?: string, p_userNo?: string, p_userNm?: string, p_passwd?: string) {
         return new Promise<WiseReturn>(async (resolve, reject) => {
             try {
+                let s_params: any[] = [];
                 let s_query = `SELECT A.*,B.* , C.APP_SVC_URL,D.PLATFORM_ID,C.APP_SVC_IP,C.APP_SVC_PORT
-                                FROM DP_USER_MSTR A 
-                                INNER JOIN DP_USER_PROFILE B ON A.USER_NO = B.USER_NO 
+                                FROM DP_USER_MSTR A
+                                INNER JOIN DP_USER_PROFILE B ON A.USER_NO = B.USER_NO
                                 LEFT OUTER JOIN SERVER_APP_INFO C ON B.APP_NO = C.APP_NO
-                                LEFT OUTER JOIN SERVER_INFO D ON C.SERVER_ID = D.SERVER_ID 
-                                WHERE (A.DEL_YN='N' OR A.DEL_YN='E') 
-                                ${p_userMode == 'ADMIN' ? `AND B.USER_MODE != 'ADMIN' ` : ''}
-                                ${typeof p_userId != 'undefined' ? `AND A.USER_ID = '${p_userId}' ` : ''}
-                                ${typeof p_userNo != 'undefined' ? `AND A.USER_NO = ${p_userNo} ` : ''}
-                                ${typeof p_userNm != 'undefined' ? `AND A.USER_NAME = '${p_userNm}' ` : ''}
-                                ${typeof p_passwd != 'undefined' ? `AND A.PASSWD = '${p_passwd}' ` : ''}
-                                `;
+                                LEFT OUTER JOIN SERVER_INFO D ON C.SERVER_ID = D.SERVER_ID
+                                WHERE (A.DEL_YN='N' OR A.DEL_YN='E')
+                                ${p_userMode == 'ADMIN' ? `AND B.USER_MODE != 'ADMIN' ` : ''}`;
+                if (typeof p_userId != 'undefined') { s_query += ` AND A.USER_ID = ?`; s_params.push(p_userId); }
+                if (typeof p_userNo != 'undefined') { s_query += ` AND A.USER_NO = ?`; s_params.push(p_userNo); }
+                if (typeof p_userNm != 'undefined') { s_query += ` AND A.USER_NAME = ?`; s_params.push(p_userNm); }
+                if (typeof p_passwd != 'undefined') { s_query += ` AND A.PASSWD = ?`; s_params.push(p_passwd); }
 
-                let sReVal = await this.o_client.query(s_query, 'DP_USER_MSTR');
+                let sReVal = await this.o_client.query(s_query, 'DP_USER_MSTR', undefined, undefined, s_params);
 
                 resolve({ isSuccess: true, result: sReVal });
             } catch (error) {
@@ -372,10 +372,10 @@ export class WpUserManager {
                 let s_query = `SELECT A.*,B.* 
                                 FROM DP_USER_MSTR A 
                                 INNER JOIN DP_USER_PROFILE B ON A.USER_NO = B.USER_NO 
-                                WHERE A.DEL_YN='N' AND A.USER_NO != ${p_userNo}
+                                WHERE A.DEL_YN='N' AND A.USER_NO != ?
                                 `;
 
-                let sReVal = await this.o_client.query(s_query, 'DP_USER_MSTR');
+                let sReVal = await this.o_client.query(s_query, 'DP_USER_MSTR', undefined, undefined, [p_userNo]);
 
                 resolve({ isSuccess: true, result: sReVal });
             } catch (error) {

@@ -22,9 +22,9 @@ schRoute.post('/log',(req: Request, res: Response<any>,next:NextFunction) => {
     let s_query = `
                     SELECT A.*, B.SCH_NM FROM DS_VIEW_HISTORY A
                     INNER JOIN WK_SCH_MSTR B ON A.SCH_ID = B.SCH_ID
-                    WHERE A.DS_VIEW_ID=${s_body.viewId} AND H_TYPE='SCHEDULE'`;
+                    WHERE A.DS_VIEW_ID=? AND H_TYPE='SCHEDULE'`;
 
-    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT }).then(p_result => {
+    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT, replacements: [s_body.viewId] }).then(p_result => {
         // console.log(p);
         res.json({ success: true, result: p_result });
     }).catch(function (err) {
@@ -219,9 +219,9 @@ schRoute.post('/insert',async (req: Request, res: Response<any>,next:NextFunctio
         // let s_streamingComList:WF_COM_MSTR_ATT[] = await s_metaDbMng.select('WF_COM_MSTR', [], { WF_ID: s_body.WF_ID, COM_TYPE: 'I-STREAMING' });
         let s_query = `
             SELECT * FROM WF_COM_MSTR
-            WHERE WF_ID = ${s_body.WF_ID}
+            WHERE WF_ID = ?
         `;
-        let s_streamingComList:WF_COM_MSTR_ATT[] = await s_metaDbMng.query(s_query, 'WF_COM_MSTR');
+        let s_streamingComList:WF_COM_MSTR_ATT[] = await s_metaDbMng.query(s_query, 'WF_COM_MSTR', undefined, undefined, [s_body.WF_ID]);
         let s_streamingJobId = s_streamingComList.map(s_streamCom => JSON.parse(s_streamCom['WF_DATA'])['jobId']);
 
         let s_sch_status = 'REALTIME_10';
@@ -375,11 +375,11 @@ schRoute.post('/checkSchLogStatus',(req: Request, res: Response<any>,next:NextFu
     let s_query = ` SELECT EXISTS(
                 SELECT 1
                 FROM WK_SCH_LOG
-                WHERE SCH_ID = ${s_body.schId}
+                WHERE SCH_ID = ?
                 AND LOG_STATUS = 40
             ) AS STATUS_COUNT;`;
 
-    s_metaDbMng.query(s_query,'',true).then(p_result => {
+    s_metaDbMng.query(s_query,'',true, undefined, [s_body.schId]).then(p_result => {
         res.json({ success: true, result: p_result });
     }).catch(function (err) {
         next(err);

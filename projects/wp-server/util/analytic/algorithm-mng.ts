@@ -74,12 +74,18 @@ export class WpAlgorithmManagement {
                                 INNER JOIN COM_MSTR WF_ARG 
                                 ON WP_ARG.ARG_NM = WF_ARG.NAME 
                                 WHERE WP_ARG.USE_YN = 'Y' AND WF_ARG.CATEGORY = 'analytic_model'`;
+                let s_params: any[] = [];
                 if (p_where) {
                     for(let s_key of Object.keys(p_where)){
-                        s_query += `AND WF_ARG.${s_key} = '${p_where[s_key]}'`
+                        // 컬럼명은 바인딩할 수 없으므로 영문·숫자·_ 만 허용한다
+                        if (!/^\w+$/.test(s_key)) {
+                            throw new Error(`잘못된 조회 조건입니다: ${s_key}`);
+                        }
+                        s_query += ` AND WF_ARG.${s_key} = ?`;
+                        s_params.push(p_where[s_key]);
                     }
                 }
-                let s_result = await this.o_wiseMetaDb.query(s_query, '', true);
+                let s_result = await this.o_wiseMetaDb.query(s_query, '', true, undefined, s_params);
                 resolve({ isSuccess: true, result: s_result });
             } catch (p_error) {
 
