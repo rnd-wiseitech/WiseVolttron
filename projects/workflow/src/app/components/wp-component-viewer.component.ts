@@ -37,7 +37,6 @@ import { WpImageStorageComponent } from './data/wp-image/wp-image-storage.compon
 import { WpImageClassifyComponent } from './conversion/wp-image-classify/wp-image-classify.component';
 import { WpImageDataSourceComponent } from './data/wp-image/wp-image-data-source.component';
 import { WpImageODataSourceComponent } from './data/wp-image/wp-image-odata-source.component';
-import { WpEnsembleModelComponent } from './analytic-model/wp-ensemble-model/wp-ensemble-model.component';
 import { WpAppConfig } from 'projects/wp-lib/src/lib/wp-lib-config/wp-lib-config';
 import { WpPredictModelComponenet } from './analytic-model/wp-predict-model/wp-predict-model.component';
 import { MainAppService } from 'projects/main/src/app/app.service';
@@ -247,12 +246,6 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
         this.oComponent = new WpCompareModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpCompareModelSvc, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);
         let sComData = this.cWpAppSvc.getComData(sInitSize.currentValue.parentId[0]);
         this.oComponent.setSchema(sComData);
-      } else if (getCOM_IDListByPrefix('A-Ensemble').includes(sInitSize.currentValue.type)) { // includes('A-Ensemble')
-        let s_argId = sInitSize.currentValue.type;
-        let s_argInfo = await this.getArgInfo(s_argId);
-        console.log("s_argInfo: ", s_argInfo);
-        // WPLAT-362
-        this.oComponent = new WpEnsembleModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpAppSvc, this.cWpDiagramSvc, this.matDialog, this.cWpTrainModelSvc, this.cWpDiagramPreviewSvc, s_argInfo);
       } else if (sInitSize.currentValue.type == COM_ID['A-FILTER_MODEL']) {
         this.h_componentTabData = this.oComponentData['o_data']['compare_model']
         this.oComponent = new WpFilterModelComponent(this.cTransSvc, this.cComViewSvc, this.oComponentData, this.cWpCompareModelSvc, this.cWpAppSvc, this.cWpDiagramSvc, this.cWpTrainModelSvc);

@@ -194,10 +194,6 @@ def runModel(p_df, p_modelType, p_uuid, p_argInfo, p_varInfo, p_fileInfo, p_batc
         s_x_test, s_scaler = modelService.getScaleData(s_x_test, s_scaleType)
         s_output = clustering(
             s_x_test, p_uuid, s_modelname, p_fileInfo, s_orgDf, p_batchFlag, p_batchId, s_optiFlag, p_wkFlag)
-    elif p_modelType == 'Recommend':
-        # s_x_test, s_scaler = modelService.getScaleData(s_x_test, s_scaleType)
-        s_output = recommend(
-            s_x_test, p_uuid, s_modelname, p_fileInfo, s_orgDf, p_argInfo['modelParam'], p_batchFlag, p_batchId, s_optiFlag, p_wkFlag)
     # 회귀, 분류
     else:
         # 회귀모델
@@ -615,71 +611,6 @@ def classifier(p_x_test, p_y_test, p_uuid, p_modelname, p_fileInfo, p_orgDf, p_b
 
 
     return s_output
-
-"""
-모델관리/모델운영 추천
-p_x_test: 종속데이터
-p_uuid: 모델관리uuid(모델id)
-p_modelname: 모델이름
-p_fileInfo:  파일정보
-p_orgDf: 원본데이터(스케일,원핫인코딩 x)
-p_batchFlag: 모델운영일경우 True
-p_batchId: 모델운영 배치 id
-p_optiFlag: 최적화일경우(현재사용x)
-"""
-def recommend(p_x_test, p_uuid, p_modelname, p_fileInfo, p_orgDf, p_modelParam, p_batchFlag, p_batchId, p_optiFlag, p_wkFlag=False):
-    # 유저번호
-    s_userno = p_fileInfo['USER_NO']
-
-    # 모델로드
-    s_model = fileService.loadModelPkl('recommend', p_modelname, s_userno, p_uuid)
-    
-    s_modelParam = p_modelParam
-    s_userCol = next(map(lambda idx: idx['PARAM_VALUE']['VALUE'], filter(lambda idx: idx.get('PARAM_NM') == 'user', s_modelParam)), None)
-    s_itemCol = next(map(lambda idx: idx['PARAM_VALUE']['VALUE'], filter(lambda idx: idx.get('PARAM_NM') == 'item', s_modelParam)), None)
-    s_rateCol = next(map(lambda idx: idx['PARAM_VALUE']['VALUE'], filter(lambda idx: idx.get('PARAM_NM') == 'rating', s_modelParam)), None)
-    s_rateCol = None
-    
-    s_colNms = [s_userCol,s_itemCol]
-    s_x_test = p_x_test[s_colNms]
-    s_x_test['s_rateCol'] = None
-    s_testset = s_x_test.apply(tuple, axis=1)
-     # 모델 예측
-    try:
-        s_predicted = s_model.test(s_testset)
-    except ValueError as vex:
-        print(vex)
-        raise ValueError("입력 변수의 개수가 다릅니다.")
-    except Exception as ex:
-        print('에러가 발생 했습니다', ex)
-
-    p_orgDf['wp_predict'] = [pred.est for pred in s_predicted]
-    p_orgDf['wp_predict'].round(3)
-    # 플랫폼에서는 예측값 붙은 데이터 반환
-    if p_wkFlag:
-        return p_orgDf
-    
-    # 모델운영(배치)
-    if p_batchFlag:
-        # 모델운영 그래프 데이터 
-        print("추가해야됨")
-         
-    else:
-        # 모델관리 결과 파일 
-        fileService.saveModelResultCsv(s_userno, p_uuid, p_orgDf, 'deployResult', 'deploy')
-        # 모델관리 그래프 데이터
-        from serviceModel import recommendService
-        s_topItem = recommendService.get_top_n(s_predicted)
-        if len(s_topItem)>3:
-            s_topItem = dict(list(s_topItem.items())[:3])  
-            s_reVal = {key: [item[0] for item in value] for key, value in s_topItem.items()}    
-        else:
-            s_reVal = {key: [item[0] for item in value] for key, value in s_topItem.items()}  
-                            
-        s_output = {"reVal": json.dumps(s_reVal), "uuid": p_uuid}
-
-    return s_output
-
 
 """
 모델관리/모델운영 군집

@@ -175,15 +175,6 @@ class mlFlowClient:
         
         if p_modelType in ['rnn', 'cnn', 'lstm', 'tensorflow', 'dqn']:
             self.setTag(p_runId, 'params', p_model.summary())
-        
-        if p_modelType in ['recommend']:
-            s_params = {}
-            for s_key in p_model.__dict__:
-                if s_key in ["sim_options", "k", "min_k", "bsl_options", "n_x", "n_y"]:
-                    s_params[s_key] = p_model.__dict__[s_key]
-            # self.setTag(p_runId, 'params', p_model.__dict__)
-            self.setTag(p_runId, 'params', s_params)
-
 def parseMlflowRegistry(p_data):
     """
     mlflow 에서 조회된 모델 정보를 dict 형태로 변환

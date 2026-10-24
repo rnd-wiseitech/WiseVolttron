@@ -24,13 +24,6 @@
               </a>
             </div>
           </li>
-          <!-- <li rel="tabPanel_1" class="on" (click)="togglePanel($event)">
-            <div class="button">
-              <a class="ico alram active">
-                alram
-              </a>
-            </div>
-          </li> -->
           <li rel="tabPanel_2" (click)="togglePanel($event)">
             <div class="button">
               <a class="ico history">
@@ -75,7 +68,6 @@
                   {{'WPP_MODEL_MANAGER.MANAGE.INFO.info9' | translate }}
                 </div>
                 <ng-container *ngIf="oModelParamForm">
-                  <!-- 일반 모델 -->
                   <ng-container *ngIf="iProfileData.tags.ensemble == 'N'">
                   <lib-wp-grid (callBack)="oModelParamForm.gridCallback($event)" [iComptNm]="oModelParamForm.comptNm"
                     [iRowEvt]="oModelParamForm.gridRowEvt" [iHoverEffect]="oModelParamForm.hoverEffect"
@@ -83,23 +75,10 @@
                     [iPage]="oModelParamForm.page" [iPageSize]="oModelParamForm.pageSize">
                   </lib-wp-grid>
                   </ng-container>
-                  <!-- 앙상블 모델 -->
-                  <ng-container *ngIf="iProfileData.tags.ensemble == 'Y'">
-                    <div class="row scrollbar" *ngIf="h_ensembleKeyList">
-                      <a *ngFor="let sKey of h_ensembleKeyList" [class]="h_ensembleSelectModel == sKey? 'btn positive line':'btn normal line'" (click)="clickModelNmBtn(sKey)">{{sKey}}</a>
-                    </div>
-                    <lib-wp-grid (callBack)="oModelParamForm.gridCallback($event)" [iComptNm]="oModelParamForm.comptNm"
-                      [iRowEvt]="oModelParamForm.gridRowEvt" [iHoverEffect]="oModelParamForm.hoverEffect"
-                      [iGridData]="oModelParamForm.gridData" [iColInfo]="oModelParamForm.gridCol" [iHead]="oModelParamForm.gridHeader"
-                      [iPage]="oModelParamForm.page" [iPageSize]="oModelParamForm.pageSize">
-                    </lib-wp-grid>
-                  </ng-container>
-
                 </ng-container>
               </div>
             </div>
           </div>
-          <!--WPLAT-358 -->
           <div [id]="oModelScoreForm? 'modelTable': ''" class="model-info-inner modelEvaluation" style="width: 40%;">
             <div class="row">
               <div class="column">
@@ -131,17 +110,14 @@
             <div class="chart" [ngStyle]="{'height': oModelType == 'Language' ? '85%' : 'auto'}">
               <!-- CHART -->
               <ng-container *ngIf="oModelType && oModelResultChart">
-                <!-- Classification 차트 --> <!--280강화학습--> <!-- 이미지 추가 -->
-                <ng-container *ngIf="oModelType=='Classification' || oModelType=='Reinforcement'  || oModelType=='Image'">
+                <ng-container *ngIf="oModelType=='Classification' || oModelType=='Image'">
                   <wp-lib-confusion-chart [targetId]="'confusionChart'"
                     [chartData]="oModelResultChart"></wp-lib-confusion-chart>
                 </ng-container>
-                <!-- Regression 차트 -->
-                <ng-container *ngIf="oModelType == 'Regression' || oModelType=='Recommend'">
+                <ng-container *ngIf="oModelType == 'Regression'">
                   <wp-lib-common-chart [targetId]="'evalutionChart'"
                     [chartData]="oModelResultChart"></wp-lib-common-chart>
                 </ng-container>
-                <!-- Cluster 차트 -->
                 <ng-container *ngIf="oModelType == 'Clustering'">
                   <wp-lib-common-chart [targetId]="'evalutionClusterChart'"
                     [chartData]="oModelResultChart"></wp-lib-common-chart>
@@ -152,11 +128,8 @@
         </div>
 
         <div class="model-info-grid" *ngIf="o_customYn =='N'">
-          <!--WPLAT-358 -->
           <div class="model-info-inner" id="model-table" *ngIf="h_deepModel==false">
-            <!-- 차트 영역 -->
             <ng-container *ngIf="oModelType!='Clustering'">
-              <!--이미지 조건 추가-->
               <ng-container *ngIf="oModelInfluenceChart && oModelType!='Recommend' && oModelType!='Reinforcement' && oModelType!='Language' && oModelType!='Image'">
                 <div class="title">
                   {{'WPP_MODEL_MANAGER.MANAGE.INFO.info13' | translate }}
@@ -165,15 +138,6 @@
                   <wp-lib-common-chart [targetId]="'influeceChart'" [chartData]="oModelInfluenceChart"></wp-lib-common-chart>
                 </div>
               </ng-container>
-              <ng-container *ngIf="oModelInfluenceChart && oModelType=='Recommend'">
-                <div class="title">
-                  추천 유사도 분석 결과
-                </div> 
-                <div class="chart">
-                  <wp-lib-confusion-chart [targetId]="'influeceChart'" [chartData]="oModelInfluenceChart"></wp-lib-confusion-chart>
-                </div>
-              </ng-container>
-              <!-- YOLO PR CURVE 차트 나중엔 이미지모델에서 타입별로 차트 그려야할수도-->
               <ng-container *ngIf="oModelInfluenceChart && oModelType=='Image'">
                 <div class="title">
                   Precision-Recall Curve

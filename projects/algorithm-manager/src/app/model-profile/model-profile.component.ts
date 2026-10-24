@@ -273,38 +273,17 @@ export class ModelProfileComponent implements OnChanges {
     setModelInfluenceChartData() {
         let sExcuteResult: any = this.iProfileData.evaluateLog;
         let sFeatureLogData: any = this.iProfileData.featureLog;
-        // 군집
         if (this.oModelType == 'Clustering'){
             if (sExcuteResult.cluster_center) {
                 let sCenterData = JSON.parse(sExcuteResult.cluster_center);
                 let sClusterCenterData = this.cModelProfileSvc.getClusterCenterData(sCenterData);
                 this.oClusterCenterForm = sClusterCenterData;
             }
-         // 이미지
         } else if (this.oModelType == 'Image'){
             let sChartData: any = this.cModelProfileSvc.getPRChartData(sFeatureLogData);
             if (sChartData) {
                 this.oModelInfluenceChart = sChartData;
             }  
-        // 추천
-        } else if (this.oModelType == 'Recommend'){
-            let sChartData: any = this.cModelProfileSvc.getRecommendChartData(sExcuteResult, this.iProfileData.ARG_ID);
-            if (sChartData) {
-                this.oModelInfluenceChart = sChartData;
-            }  
-        // 강화학습
-        }  else if (this.oModelType == 'Reinforcement'){
-            let sChartData: any = this.cModelProfileSvc.getReinforcementChartData(sExcuteResult, this.iProfileData.ARG_ID);
-            if (sChartData) {
-                this.oModelInfluenceChart = sChartData;
-            } 
-        // 언어모델
-        }  else if (this.oModelType == 'Language'){
-            let sChartData = this.cModelProfileSvc.getLanguageChartData(sFeatureLogData);
-            if (sChartData) {
-                this.oModelInfluenceChart = sChartData;
-            }  
-        // 회귀 & 분류
         } else {
 
             let sChartData = this.cModelProfileSvc.getInflueceChartData(sFeatureLogData);
@@ -320,7 +299,6 @@ export class ModelProfileComponent implements OnChanges {
     }
 
     showHistoryPopup(){
-        // this.cWpLibSvc.showProgress(true, "algorithmspin");
         const dialogRef = this.cDialog.open(ModelHistoryPopupComponent, {
             data: {
                 title: `모델 히스토리`,

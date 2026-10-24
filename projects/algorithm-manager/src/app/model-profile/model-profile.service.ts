@@ -325,64 +325,6 @@ export class ModelProfileService extends WpSeriveImple {
         temCorrInfo.Data = data;
         return temCorrInfo;
     }
-    getLanguageChartData(pData: any) {
-        let sChartInfo: any;
-        if (pData && pData != "") {
-            let sInfluence: any;
-
-            if (typeof pData == 'string')
-                sInfluence = JSON.parse(pData);
-            else 
-                sInfluence = pData;
-
-            let sFeatureList = Object.keys(sInfluence);
-            if (sFeatureList.length > 0) {
-                let sSortedInfluece: { key: string, value: number; }[] = [];
-                sFeatureList.forEach((sFeature) => {
-                    sSortedInfluece.push({ key: sFeature, value: sInfluence[sFeature] });
-                });
-                sSortedInfluece.sort((a, b) => {
-                    return b.value - a.value;
-                });
-                sChartInfo = {
-                    ChartType: 'pie',
-                    Title: "Trainable Params Chart",
-                    TargetId: "influence",
-                    Label: sSortedInfluece.map(sData => sData.key),
-                    Data: sSortedInfluece.map(sData => sData.value),
-                    DataOption: {
-                        label: 'Trainable',
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(54, 162, 235, 0.6)'
-                        ]
-                    },
-                    ChartOption: {
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    font: {
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                mode: 'nearest',
-                                intersect: true,
-                                callbacks: {
-                                    label: function (context: any) {
-                                        return context.label + ": " + context.dataset.data[context.dataIndex];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
-            }
-        }
-        return sChartInfo;
-    }
 
     getPRChartData(pPRData: any) {
         if (!pPRData || !pPRData.curves || !Array.isArray(pPRData.curves)) return null;
