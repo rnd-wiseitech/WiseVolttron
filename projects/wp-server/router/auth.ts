@@ -1,8 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import {Op, Transaction} from 'sequelize';
 import { WpUserManager } from '../util/user-mng/user-mng';
-import { createToken,verifyToken, createTempToken } from '../auth/token/token';
-import { WiseStorageManager } from '../util/data-storage/WiseStorageManager';
+import { createToken,verifyToken } from '../auth/token/token';
 import { WpError } from '../exception/WpError';
 const moment = require('moment');
 
@@ -73,33 +72,6 @@ authRoute.post('/login', async(req: Request, res: Response,next:NextFunction) =>
             }).catch(p_error=>next(p_error));
         }
     }).catch(p_error=>next(p_error));
-});
-
-// #WP-238 체험판 토큰 생성
-authRoute.post('/createToken', (req: Request, res: Response, next: NextFunction) => {
-    createTempToken({ USER_NO:'0', USER_ID:''}).then(async (token) => {
-        console.log('체험판 토큰:', token);
-        let s_wpSm = new WiseStorageManager({USER_NO:0});
-        let s_tutoPath = '/0'
-        let s_isExist = await s_wpSm.isExists(s_tutoPath);
-        if(s_isExist.isSuccess){
-            if(s_isExist.result){
-                res.json({TOKEN:token});
-            }else{
-                s_wpSm.onMakeDir(s_tutoPath,'755',true).then(pMakeFolderResult => {
-                    if(pMakeFolderResult.isSuccess){
-                        res.json({TOKEN:token});
-                    }else{
-                        next(pMakeFolderResult.result);
-                    }
-                });
-            }
-        }else{
-            next(s_isExist.result);
-        }
-    }).catch(error => {
-        res.status(401).json({ success: false, message: error.message })
-    });
 });
 
 authRoute.post('/tokenCheck',(req: Request, res: Response,next:NextFunction) => {
