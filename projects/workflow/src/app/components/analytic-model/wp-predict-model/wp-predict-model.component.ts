@@ -9,7 +9,7 @@ import { DP_VAR_MSTR_ATT } from 'projects/wp-server/metadb/model/DP_VAR_MSTR';
 import { WpPredictModelData } from 'projects/wp-server/util/component/analytic/wp-predict-model';
 import { TranslateService } from '@ngx-translate/core';
 import { WpToggleEvent } from '../../../wp-menu/wp-component-properties/wp-component-properties-wrap';
-export interface IWkPredictModelData extends Pick<DP_MODEL_MSTR_ATT, "MODEL_ID" | "MODEL_IDX" | "MODEL_NM" | "ARG_TYPE" | "REG_DATE" | "CUSTOM_YN"> {
+export interface IWkPredictModelData extends Pick<DP_MODEL_MSTR_ATT, "ARG_ID" | "MODEL_ID" | "MODEL_IDX" | "MODEL_NM" | "ARG_TYPE" | "REG_DATE" | "CUSTOM_YN" | "FRAMEWORK_TYPE"> {
     COM_ID?: string
 };
 /**
@@ -45,12 +45,15 @@ export class WpPredictModelComponenet extends WpComponent {
     o_customModelList:any = []
     o_wppModelList:any = []
     h_predictModelList: {
+        ARG_ID?:number;
         MODEL_NM?: string;
         MODEL_ID?: number;
         MODEL_IDX?: number;
         COM_ID?: string;
         MODEL_EVAL_TYPE?:string;
         CUSTOM_YN?: string;
+        ARG_TYPE?: string;
+        FRAMEWORK_TYPE?:string;
     }[];
     constructor(
         pTransSvc: TranslateService,
@@ -85,20 +88,80 @@ export class WpPredictModelComponenet extends WpComponent {
             visible: true,
             edit: true,
             callbak: this.onChangeModel.bind(this)
+        },{
+            vname: '신뢰도 기준값',
+            name: 'confidence',
+            value: '',
+            type: 'text',
+            fvalue: '',
+            visible: false,
+            edit: true,
+            callbak: this.onChangeValue.bind(this)
+        },
+        {
+                vname: '재학습 판단여부',
+                name: 'checkRelearn',
+                value: '',
+                type: 'checkbox',
+                fvalue: [],
+                visible: false,
+                edit: true,
+                callbak: this.onCheckRetrain.bind(this),
+        },
+        {
+                vname: '재학습 기준값(학습대비 변화율)',
+                name: 'threshold',
+                value: '',
+                type: 'text',
+                fvalue: [],
+                visible: false,
+                edit: true,
+                callbak: this.onChangeValue.bind(this),
         }]);
-        // default option : 내 데이터셋
         console.log("this.oWpData.modelOpt : ", this.oWpData.modelOpt);
         if (this.oWpData.modelOpt == ''){
             this.oWpData.modelOpt = 'WPP 모델';
         }
         this.oTrainModelComIdList = this.oWpDiagramSvc.getTrainModelComIdList();
+        if(this.oWpData.modelType == 'Image') {
+            this.oFormData.forEach(item => {
+                if (item.name === 'confidence') {
+                    item.visible = true;
+                }
+            });
+        } else {
+            this.oFormData.forEach(item => {
+                if (item.name === 'confidence') {
+                    item.visible = false;
+                }
+            });
+        }
+
+        if(this.oWpData.frameworkType == 'Scikit-learn') {
+            this.oFormData.forEach(item => {
+                if (item.name === 'checkRelearn') {
+                    item.visible = true;
+                }
+            });
+            if(this.oWpData.checkRelearn == true) {
+                this.oFormData.forEach(item => {
+                if (item.name === 'threshold') {
+                    item.visible = true;
+                }
+            });
+            }
+        } else {
+            this.oFormData.forEach(item => {
+                if (item.name === 'checkRelearn') {
+                    item.visible = false;
+                }
+            });
+        }
     }
 
     public async onChangeModelOpt(pEvent: WpToggleEvent) {
         console.log("pEvent : ", pEvent);
             this.oWpData[pEvent.name] = pEvent.value;
-            // this.setFileNmList(pEvent.value);
-            // this.oWpData['originalname'] = undefined;
             if(this.oWpData.modelOpt == '사용자 모델') {
                 this.h_predictModelList = this.o_customModelList;
             } else {
@@ -112,7 +175,6 @@ export class WpPredictModelComponenet extends WpComponent {
         this.oComViewerSvc.showProgress(true);
         let sSelectIndex = this.getItemIndexByElem(pEvent.component._valueChangeEventInstance.currentTarget);
         let sSelectModel = this.h_predictModelList[sSelectIndex];
-        // 모델 VAR MSTR 조회해서 지금 데이터와 컬럼 목록이 맞는지
         if (sSelectModel.MODEL_ID) {
             let s_param = {
                 method: 'MODEL-SCHEMA',
@@ -142,11 +204,42 @@ export class WpPredictModelComponenet extends WpComponent {
             this.oComViewerSvc.showProgress(false);
         });
         } 
-        this.oWpData.modelType = sSelectModel.MODEL_EVAL_TYPE;
+        this.oWpData.checkRelearn = false;
+        this.oWpData.modelType = sSelectModel.ARG_TYPE;
         this.oWpData.modelId = sSelectModel.MODEL_ID;
         this.oWpData.modelIdx = sSelectModel.MODEL_IDX;
         this.oWpData.modelComId = sSelectModel.COM_ID;
         this.oWpData.customYn = sSelectModel.CUSTOM_YN;
+        this.oWpData.frameworkType = sSelectModel.FRAMEWORK_TYPE;
+        this.oWpData.argId = sSelectModel.ARG_ID;
+
+        if(this.oWpData.modelType == 'Image') {
+            this.oFormData.forEach(item => {
+                if (item.name === 'confidence') {
+                    item.visible = true;
+                }
+            });
+        } else {
+            this.oFormData.forEach(item => {
+                if (item.name === 'confidence') {
+                    item.visible = false;
+                }
+            });
+        }
+
+        if(this.oWpData.frameworkType == 'Scikit-learn') {
+            this.oFormData.forEach(item => {
+                if (item.name === 'checkRelearn') {
+                    item.visible = true;
+                }
+            });
+        } else {
+            this.oFormData.forEach(item => {
+                if (item.name === 'checkRelearn' || item.name === 'threshold') {
+                    item.visible = false;
+                }
+            });
+        }
     }
 
 
@@ -155,35 +248,29 @@ export class WpPredictModelComponenet extends WpComponent {
         this.oSchema = pSchema;
         this.oComViewerSvc.selectData(this.oSchema);
         this.oColNameList = this.oSchema.schema.map((sCol:any) => sCol.name);
-        // setSchema가 다른 컴포넌트에서는 비동기 처리 안되어있기 때문에 setSchema 내부에서 비동기 함수 쓰기 위해서 즉시 실행함수 형태로 아래 함수 실행
         (async () => {
             this.oComViewerSvc.showProgress(true);
             await this.setModelListData();
             await this.setCompareModelList();
             this.oComViewerSvc.showProgress(false);
-            // await this.setWpCompareModelData();
         })();
     }
 
     async setModelListData() {
-        // parentModelType 과 동일한 모델만 표기해야 함.
-        // 모델 실행 이후엔 상위 컴포넌트 id로 모델 결과를 조회한다음에 비교함.
         let sTmpModelList: IWkPredictModelData[] = [];
 
-
-
-        // 기존 모델 리스트
         await this.oWpTrainModelSvc.getModelList().toPromise().then((pData: any) => {
-            // 실행결과가 존재하는 모델만 비교 가능
             if (pData.result.length > 0) {
                 pData.result.forEach((sModel: DP_MODEL_MSTR_ATT) => {
                         sTmpModelList.push({
+                            ARG_ID: sModel.ARG_ID,
                             MODEL_ID: sModel.MODEL_ID,
                             MODEL_IDX: sModel.MODEL_IDX,
                             MODEL_NM: `${sModel.MODEL_NM} (${sModel.ARG_TYPE})`,
                             COM_ID: undefined,
                             ARG_TYPE: sModel.ARG_TYPE,
-                            CUSTOM_YN: sModel.CUSTOM_YN
+                            CUSTOM_YN: sModel.CUSTOM_YN,
+                            FRAMEWORK_TYPE: sModel.FRAMEWORK_TYPE
                         });
                 });
             }
@@ -204,5 +291,48 @@ export class WpPredictModelComponenet extends WpComponent {
                 sForm.fvalue = this.h_predictModelList.map(sModel => sModel.MODEL_NM);
             }
         });
+    }
+
+    onChangeValue(pEvent: any, p_form:any) {
+        const value = parseFloat(pEvent.target.value);
+
+        if (isNaN(value) && p_form.name == 'confidence') {
+            this.oComViewerSvc.showMsg("0.1에서 1 사이의 숫자 값을 입력해주세요.", false);
+            this.oWpData.confidence = 0.3;
+            return;
+        }
+        if ((value < 0.1 || value > 1) && p_form.name == 'confidence') {
+            this.oComViewerSvc.showMsg("0.1에서 1 사이의 숫자 값을 입력해주세요.", false);
+            this.oWpData.confidence = 0.3;
+            return;
+        }
+
+        if (isNaN(value) && p_form.name == 'threshold') {
+            this.oComViewerSvc.showMsg("1에서 100 사이의 숫자 값을 입력해주세요.", false);
+            this.oWpData.threshold = 50;
+            return;
+        }
+        if ((value < 1 || value > 100) && p_form.name == 'threshold') {
+            this.oComViewerSvc.showMsg("1에서 100 사이의 숫자 값을 입력해주세요.", false);
+            this.oWpData.threshold = 50;
+            return;
+        }
+
+    }
+
+    onCheckRetrain(p_ev: any) {
+        if(p_ev == true) {
+            this.oFormData.forEach(item => {
+                if (item.name === 'threshold') {
+                    item.visible = true;
+                }
+            });
+        } else {
+            this.oFormData.forEach(item => {
+                if (item.name === 'threshold') {
+                    item.visible = false;
+                }
+            });
+        }
     }
 }

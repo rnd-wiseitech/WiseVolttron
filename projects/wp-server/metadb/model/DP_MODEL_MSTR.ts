@@ -108,6 +108,7 @@
     USER_PREPROCESSING?: string;
     DEPLOY_URL?:string;
     CUSTOM_YN?: string; 
-    ARG_TYPE?: string; 
+    ARG_TYPE?: string;
+    FRAMEWORK_TYPE?:string
     }
     
