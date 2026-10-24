@@ -235,7 +235,7 @@ class WiseRegArgorithm(WISE_BASE_ALGORITHM):
                 'evaluation': self.evaluateLog,
                 'feature_importance': self.featureLog
             }
-            s_mlflow.logConfig(s_mlflowInfo['run_id'], config)
+            s_mlflow.logConfig(config, p_wpStorage)
             
             model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
 
@@ -399,7 +399,7 @@ class WiseClassArgorithm(WISE_BASE_ALGORITHM):
                 'evaluation': self.evaluateLog,
                 'feature_importance': self.featureLog
             }
-            s_mlflow.logConfig(s_mlflowInfo['run_id'], config)
+            s_mlflow.logConfig(config, p_wpStorage)
             
             # 모델 등록
             model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
@@ -567,7 +567,7 @@ class WiseClusterArgorithm(WISE_BASE_ALGORITHM):
                 'evaluation': self.evaluateLog,
                 'feature_importance': self.featureLog
             }
-            s_mlflow.logConfig(s_mlflowInfo['run_id'], config)
+            s_mlflow.logConfig(config, p_wpStorage)
             
             model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
 
