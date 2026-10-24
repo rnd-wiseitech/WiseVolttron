@@ -5,7 +5,6 @@
 #from py4j.java_gateway import java_import
 import re
 import json
-from datetime import datetime
 import os
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler, Normalizer
@@ -20,6 +19,10 @@ import mlflow
 import pandas as pd
 import json
 import io
+from serviceUtil import checkCodeService
+import pytz
+from datetime import datetime
+
 def getModelResult(p_dataArray, p_filterOpt, p_userno):
     s_dbMng = WpDataBaseManagement('meta')
     s_result = []
@@ -48,8 +51,6 @@ def getModelResult(p_dataArray, p_filterOpt, p_userno):
         model[p_filterOpt] = s_runInfo.data.metrics[p_filterOpt]
 
     s_dbMng.close()
-    
-
     return s_result
 
 def getBestModelData(p_modelResult, p_filterOpt):
@@ -123,7 +124,7 @@ def saveFilterModel(p_bestModelInfo, p_modelname, p_userno, p_workflowId, p_data
     # parameter 저장
     s_mlflow.logParams(s_mlflowInfo['run_id'], s_bestRunInfo.data.params)
     # config 저장
-    s_mlflow.logConfig(s_mlflowInfo['run_id'], s_bestConfig)
+    s_mlflow.logConfig(s_bestConfig, p_dataSource.o_storageManager.o_wpStorage)
     # 스케일러 저장
     s_mlflow.logScaler(s_bestScaler, p_dataSource.o_storageManager.o_wpStorage)
     # 모델 등록
@@ -142,7 +143,7 @@ def saveFilterModel(p_bestModelInfo, p_modelname, p_userno, p_workflowId, p_data
         'ARG_ID': s_bestModelMstr['ARG_ID'][0],
         'ARG_TYPE': s_bestModelMstr['ARG_TYPE'][0],
         'ACCURACY': s_bestModelMstr['ACCURACY'][0],
-        'REG_DATE': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'REG_DATE': datetime.now(pytz.timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S"),
         'MLFLOW_PATH': artifact_uri,
         'WF_ID': p_workflowId,
         'FRAMEWORK_TYPE': s_bestModelMstr['FRAMEWORK_TYPE'][0]
@@ -189,24 +190,26 @@ def saveCustomModel(p_customModelInfo, p_model, p_modelname, p_userno, p_wpStora
 
     # config 저장
     if p_customModelInfo['config'] != {}:
-        s_mlflow.logConfig(s_mlflowInfo['run_id'], p_customModelInfo['config'])
+        s_mlflow.logConfig(p_customModelInfo['config'], p_wpStorage)
 
     # 모델 등록
     s_model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
     # tag 저장
     p_customModelInfo['tags']['version'] = s_model_version
     p_customModelInfo['tags']['mlflow.runName'] = s_modelId
+    p_customModelInfo['tags']['endTime'] = datetime.now(pytz.timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S")
     s_mlflow.setTags(s_mlflowInfo['run_id'], p_customModelInfo['tags'])
     # mlflow 종료
     s_mlflow.endRun(s_mlflowInfo['run_id'])
-    artifact_uri = s_mlflowInfo['artifact_uri']  
+
+    s_modelPath = s_mlflow.mlflowModelPath  
 
     # 업데이트
     s_data = {
         'MODEL_IDX': s_model_version,
         'ARG_TYPE': p_customModelInfo['ARG_TYPE'],
-        'REG_DATE': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'MLFLOW_PATH': artifact_uri,
+        'REG_DATE': datetime.now(pytz.timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S"),
+        'MLFLOW_PATH': s_modelPath,
         'FRAMEWORK_TYPE': p_customModelInfo['frameWorkType']
     }
     s_dbMng.update('DP_MODEL_MSTR', s_data, s_where)
@@ -507,8 +510,248 @@ def getParamFromPytorchModel(p_model):
         "Non-trainable Params": non_trainable_params,
     }
 
+# =============== 샌드박스 보조 ===============
+import ast, sys, time, threading, importlib, io, signal
+
+# 제한값 (필요시 조정)
+_CLASS_TIME_LIMIT_S   = 1.5          # 클래스 코드 실행 시간 제한
+_CLASS_LINE_LIMIT     = 100_000      # 실행 라인 상한
+_PARAM_NUMEL_CAP      = 10_000_000   # 모델 파라미터 총합 상한(1천만개)
+_TENSOR_BYTES_CAP     = 256 * 1024 * 1024  # 텐서 1회 할당 바이트 상한(256MB)
+_TENSOR_NUMEL_CAP     = 25_000_000         # 텐서 1회 할당 요소 수 상한
+
+# 안전 빌트인
+import builtins as _blt
+_SAFE_BUILTINS = {k: getattr(_blt, k) for k in [
+    "abs","all","any","bool","dict","float","int","len","list","max","min",
+    "pow","range","round","sum","enumerate","zip","print",
+    # ✅ 클래스/상속에 필요한 빌트인
+    "__build_class__",   # ← class 문에 필수
+    "super",
+    "object",
+    # (편의상 안전한 것들 추가)
+    "isinstance","issubclass","property",
+    "str",          # <-- NameError 원인 해결
+        # (선택) 아래도 자주 쓰이면 같이 추가
+        "bytes","tuple","set"
+    ]}
+
+# 허용 AST
+_ALLOWED_AST = {
+    ast.Module, ast.Expr, ast.Assign, ast.AugAssign, ast.AnnAssign,
+    ast.Name, ast.Load, ast.Store, ast.Tuple, ast.List, ast.Dict, ast.Set,
+    ast.Constant, ast.BinOp, ast.UnaryOp, ast.BoolOp, ast.Compare, ast.IfExp,
+    ast.Call, ast.keyword, ast.Lambda, ast.FunctionDef, ast.arguments, ast.arg,
+    ast.Return, ast.For, ast.While, ast.If, ast.Break, ast.Continue, ast.Pass,
+    ast.Subscript, ast.Slice, ast.ListComp, ast.DictComp, ast.SetComp,
+    ast.GeneratorExp, ast.comprehension, ast.Attribute, ast.ClassDef,ast.Starred,
+    
+}
+
+# 금지 이름
+_FORBIDDEN_NAMES = {
+    "__import__","eval","exec","open","input","compile","globals","locals",
+    "os","sys","subprocess","socket","pathlib","shutil","importlib","builtins",
+    "type","getattr","setattr","delattr","memoryview","ctypes","pickle"
+}
+
+def _validate_and_sanitize_code(code: str):
+    """AST 점검 + import 문 제거(사용자 import는 전부 금지)."""
+    tree = ast.parse(code, mode="exec")
+
+    SAFE_DUNDERS = {"__init__"}  # 필요 시 {"__init__", "__call__"} 등으로 확장
+
+    for node in ast.walk(tree):
+         # 연산자 계열은 통과
+        if isinstance(node, (ast.operator, ast.boolop, ast.cmpop, ast.unaryop)):
+            continue
+        # 1) 허용된 AST 노드만 통과
+        if type(node) not in _ALLOWED_AST:
+            raise SyntaxError(f"Forbidden syntax: {type(node).__name__}")
+
+        # 2) 금지된 이름(모듈/함수 등) 사용 차단
+        if isinstance(node, ast.Name) and node.id in _FORBIDDEN_NAMES:
+            raise SyntaxError(f"Forbidden name: {node.id}")
+
+        # 3) 속성 접근 검사 (던더/특정 우회 경로 차단)
+        if isinstance(node, ast.Attribute):
+            # dunder( __xxx__ )는 기본 차단, 단 화이트리스트만 예외
+            if node.attr.startswith("__") and node.attr not in SAFE_DUNDERS:
+                SAFE_DUNDERS = {"__init__"}  # 필요시 "__call__" 등 추가
+                if node.attr not in SAFE_DUNDERS:
+                    raise SyntaxError(f"Dunder attribute access blocked: {node.attr}")
+            # numpy/pandas 우회 방지 등 특정 속성 차단 예시
+            if node.attr == "ctypeslib":
+                raise SyntaxError("ctypeslib access blocked")
+
+    # 4) import 구문 삭제 (사용자 import 전면 금지)
+    class _StripImports(ast.NodeTransformer):
+        def visit_Import(self, node): return None
+        def visit_ImportFrom(self, node): return None
+
+    tree = _StripImports().visit(tree)
+    ast.fix_missing_locations(tree)
+    codeobj = compile(tree, "<model-class>", "exec")
+    return codeobj
+
+
+# 감사훅(실행 구간 전체 적용)
+_SANDBOX_ACTIVE = False
+_ALLOWED_IMPORT_PREFIXES = ("torch",)  # torch만 허용(그 외 런타임 import 차단)
+
+def _audit(event, args):
+    if not _SANDBOX_ACTIVE:
+        return
+    # 파일
+    if event in ("open", "os.open", "os.remove", "os.unlink", "os.rename",
+                 "os.replace", "os.rmdir", "os.chdir"):
+        raise RuntimeError("filesystem access blocked")
+    # 프로세스
+    if event in ("subprocess.Popen","os.system","posix.spawn","fork"):
+        raise RuntimeError("process creation blocked")
+    # 네트워크
+    if event.startswith("socket.") or event in ("socket.getaddrinfo","socket.connect"):
+        raise RuntimeError("network blocked")
+    # CTypes
+    if event == "ctypes.dlopen":
+        raise RuntimeError("ctypes blocked")
+    # 런타임 import 제한
+    if event == "import":
+        mod = args[0]
+        if any(mod == p or mod.startswith(p + ".") for p in _ALLOWED_IMPORT_PREFIXES):
+            return
+        raise RuntimeError(f"import blocked: {mod}")
+
+try:
+    sys.addaudithook(_audit)
+except Exception:
+    pass
+
+# 시간/라인 제한 컨텍스트
+class _Budget:
+    def __init__(self, time_limit=_CLASS_TIME_LIMIT_S, line_limit=_CLASS_LINE_LIMIT):
+        self.deadline = time.monotonic() + time_limit
+        self.line_budget = line_limit
+        self._old_trace = None
+        self._use_signal = (threading.current_thread() is threading.main_thread()
+                            and hasattr(signal, "setitimer"))
+    def _trace(self, frame, event, arg):
+        if event == "line":
+            self.line_budget -= 1
+            if self.line_budget <= 0:
+                raise TimeoutError("line limit exceeded")
+            if time.monotonic() > self.deadline:
+                raise TimeoutError("time limit exceeded")
+        return self._trace
+    def _on_alarm(self, signum, frame):
+        raise TimeoutError("time limit exceeded")
+    def __enter__(self):
+        if self._use_signal:
+            signal.signal(signal.SIGALRM, self._on_alarm)
+            signal.setitimer(signal.ITIMER_REAL, _CLASS_TIME_LIMIT_S)
+        self._old_trace = sys.gettrace()
+        sys.settrace(self._trace)
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if self._use_signal:
+                signal.setitimer(signal.ITIMER_REAL, 0.0)
+        finally:
+            sys.settrace(self._old_trace)
+        return False
+
+# PyTorch 위험 API 패치
+def _patch_torch(exposed: dict):
+    try:
+        torch = exposed.get("torch") or importlib.import_module("torch")
+    except Exception:
+        return exposed
+
+    # CPU만 (GPU 쓰려면 이 줄을 삭제)
+    import os as _os
+    _os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
+
+    # 스레드 축소
+    try: torch.set_num_threads(1)
+    except Exception: pass
+
+    def _blocked(*a, **k): raise RuntimeError("blocked by sandbox")
+
+    # 파일 경로 로드/세이브 금지(파일객체만 허용)
+    try:
+        _orig_load = torch.load
+        def _safe_load(f, *a, **k):
+            if isinstance(f, (str, bytes)): raise RuntimeError("file load blocked")
+            return _orig_load(f, *a, **k)
+        torch.load = _safe_load
+    except Exception: pass
+    try:
+        _orig_save = torch.save
+        def _safe_save(obj, f, *a, **k):
+            if isinstance(f, (str, bytes)): raise RuntimeError("file save blocked")
+            return _orig_save(obj, f, *a, **k)
+        torch.save = _safe_save
+    except Exception: pass
+    # JIT/허브/확장/외부 라이브러리 차단
+    try: torch.jit.save = (lambda *a, **k: (_ for _ in ()).throw(RuntimeError("file save blocked")))
+    except Exception: pass
+    try: torch.jit.load = (lambda *a, **k: (_ for _ in ()).throw(RuntimeError("file load blocked")))
+    except Exception: pass
+    try:
+        import torch.hub as _hub
+        _hub.load = _blocked; _hub.list = _blocked; _hub.help = _blocked; _hub.set_dir = _blocked
+    except Exception: pass
+    try:
+        from torch.utils import cpp_extension as _ce
+        _ce.load = _blocked; _ce.load_inline = _blocked
+    except Exception: pass
+    try:
+        torch.classes.load_library = _blocked
+        torch.ops.load_library = _blocked
+    except Exception: pass
+
+    # 대형 텐서 생성 가드
+    _DT_SIZE = {
+        getattr(torch, "float32", None): 4, getattr(torch, "float64", None): 8,
+        getattr(torch, "float16", None): 2, getattr(torch, "bfloat16", None): 2,
+        getattr(torch, "int64", None): 8,   getattr(torch, "int32", None): 4,
+        getattr(torch, "int16", None): 2,   getattr(torch, "int8", None): 1,
+        getattr(torch, "uint8", None): 1,   getattr(torch, "bool", None): 1,
+        getattr(torch, "complex64", None): 8, getattr(torch, "complex128", None): 16,
+    }
+    def _calc_numel_and_bytes(shape, dtype):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list, torch.Size)):
+            dims = list(shape[0])
+        else:
+            dims = list(shape)
+        n = 1
+        for d in dims: n *= int(d)
+        dt = dtype if dtype is not None else getattr(torch, "get_default_dtype", lambda: torch.float32)()
+        bpp = _DT_SIZE.get(dt, 8)
+        return n, n * bpp
+    def _wrap_alloc(fn):
+        def _inner(*a, **k):
+            n, nb = _calc_numel_and_bytes(a, k.get("dtype"))
+            if n > _TENSOR_NUMEL_CAP or nb > _TENSOR_BYTES_CAP:
+                raise RuntimeError("tensor allocation too large")
+            return fn(*a, **k)
+        return _inner
+    for _name in ("empty","zeros","ones","full","rand","randn","randint"):
+        try: setattr(torch, _name, _wrap_alloc(getattr(torch, _name)))
+        except Exception: pass
+
+    exposed["torch"] = torch
+    return exposed
+
 
 def vaildateClassCode(p_code):
+
+    audit = checkCodeService.checkCode(p_code)   # ← src 문자열 그대로 전달
+    if audit.get("status") != "Success":
+        step = audit.get("step", "?")
+        reason = audit.get("reason", "알 수 없는 사유")
+        raise RuntimeError(f"[AUDIT FAIL] {step} :: {reason}")
+    
     import torch.nn as nn
     # 1. 문법 검사
     try:

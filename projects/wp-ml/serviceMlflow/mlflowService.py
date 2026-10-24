@@ -157,11 +157,9 @@ class mlFlowClient:
 
     def logConfig(self, p_config, p_wpStorage):
         config_path = os.path.join(self.mlflowModelPath, "config.json")
-        if o_apiType == 'COMMON':
-            with open(config_path, "w") as f:
-                json.dump(p_config, f, indent=2)
-        else:
-            p_wpStorage.o_sparkStorage.writeFile(config_path, p_config, 'json')
+        with open(config_path, "w") as f:
+            json.dump(p_config, f, indent=2)
+        
 
     def registerModel(self, p_runId, p_modelId):
         try:
@@ -274,14 +272,7 @@ class mlFlowClient:
         
         if p_modelType in ['rnn', 'cnn', 'lstm', 'tensorflow', 'dqn']:
             self.setTag(p_runId, 'params', p_model.summary())
-        
-        if p_modelType in ['recommend']:
-            s_params = {}
-            for s_key in p_model.__dict__:
-                if s_key in ["sim_options", "k", "min_k", "bsl_options", "n_x", "n_y"]:
-                    s_params[s_key] = p_model.__dict__[s_key]
-            # self.setTag(p_runId, 'params', p_model.__dict__)
-            self.setTag(p_runId, 'params', s_params)
+      
 
 def parseMlflowRegistry(p_data):
     """
