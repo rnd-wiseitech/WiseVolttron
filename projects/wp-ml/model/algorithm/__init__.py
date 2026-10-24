@@ -33,6 +33,8 @@ class WISE_BASE_ALGORITHM(ABC):
         self.argInfo = p_argInfo
         self._model = None
         self._optParams = {}
+        # 예측 시 재학습 필요 여부를 판단할 기준값. 학습 때 만들어 MLflow config 의 retrain_criteria 로 저장한다.
+        self.criteriaLog = {}
         # self.useParams = {}
 
     @abstractmethod
@@ -165,9 +167,12 @@ class WiseRegArgorithm(WISE_BASE_ALGORITHM):
         s_mape = s_tmpMtrc.mean_absolute_percentage_error() *100
 
         s_accuracy = s_r2_score
-                    
+
         if s_accuracy < 0 :
             s_accuracy = 0
+
+        # 재학습 판단 기준값 (아래에서 결과 표시용으로 1000건을 자르기 전에 전체 예측값으로 만든다)
+        self.criteriaLog = algorithmService.getRegRetrainCriteria(p_dataSet.y_predict)
 
         if len(p_dataSet.y_predict) > 1000:
             try:
@@ -233,10 +238,10 @@ class WiseRegArgorithm(WISE_BASE_ALGORITHM):
             s_mlflow.logParams(s_mlflowInfo['run_id'], self.useParams)
             config = {
                 'evaluation': self.evaluateLog,
-                'feature_importance': self.featureLog
+                'feature_importance': self.featureLog,
+                'retrain_criteria': self.criteriaLog
             }
             s_mlflow.logConfig(config, p_wpStorage)
-            
             model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
 
             # tag 저장
@@ -326,15 +331,25 @@ class WiseClassArgorithm(WISE_BASE_ALGORITHM):
             raise ex
 
     def onPredicting(self,p_dataSet:WiseDataSet, p_partition: ARG_PARTITION_ATT):
+        # predict_proba 를 지원하지 않는 모델(예: probability=False 인 SVC)은 확률 없이 진행한다
+        s_hasProba = hasattr(self.model, 'predict_proba')
+        p_dataSet.y_proba = None
         if p_partition.type =='t-holdout':
-            p_dataSet.y_predict = self.model.predict(p_dataSet.x_test)   
+            p_dataSet.y_predict = self.model.predict(p_dataSet.x_test)
+            if s_hasProba:
+                p_dataSet.y_proba = self.model.predict_proba(p_dataSet.x_test)
         else:
             s_cv = algorithmService.getCrossValidationPredict(p_partition, self.argInfo)
             p_dataSet.y_predict = cross_val_predict(self.model, p_dataSet.x_train, p_dataSet.y_train, cv=s_cv)
+            if s_hasProba:
+                p_dataSet.y_proba = cross_val_predict(self.model, p_dataSet.x_train, p_dataSet.y_train, cv=s_cv, method='predict_proba')
         print(p_dataSet.y_predict)
-    
+
 
     def onEvaluating(self, p_dataSet: WiseDataSet, p_encoder, p_modelname:str, p_targetCol:str):
+        # 재학습 판단 기준값 (클래스별 예측 확률 기반)
+        if getattr(p_dataSet, 'y_proba', None) is not None:
+            self.criteriaLog = algorithmService.getClassRetrainCriteria(p_dataSet.y_proba)
         s_targetEncoder = p_encoder[p_targetCol]
         s_accuary = accuracy_score(p_dataSet.y_test, p_dataSet.y_predict)
         s_precision, s_recall, s_fscore, s_support = precision_recall_fscore_support(p_dataSet.y_test, p_dataSet.y_predict, average=None)
@@ -397,10 +412,12 @@ class WiseClassArgorithm(WISE_BASE_ALGORITHM):
             s_mlflow.logParams(s_mlflowInfo['run_id'], self.useParams)
             config = {
                 'evaluation': self.evaluateLog,
-                'feature_importance': self.featureLog
+                'feature_importance': self.featureLog,
+                'retrain_criteria': self.criteriaLog
             }
             s_mlflow.logConfig(config, p_wpStorage)
             
+
             # 모델 등록
             model_version = s_mlflow.registerModel(s_mlflowInfo['run_id'], s_modelId)
 
@@ -517,6 +534,8 @@ class WiseClusterArgorithm(WISE_BASE_ALGORITHM):
         
         self.evaluateLog = {"result": s_svdOutput, "silhouette_coef": s_silhScore, 'cluster_center': s_cluster_center_data}
         self.featureLog = s_featureLog
+        # 재학습 판단 기준값 (군집 분포 + 실루엣)
+        self.criteriaLog = algorithmService.getClusterRetrainCriteria(np.asarray(p_dataSet.y_predict), str(self.o_argorithm), s_silhScore)
     
     def onSaving(self, p_x_data, p_saveModelInfo:WP_SAVE_INFO_ATT, p_wpStorage):
         s_dbMng = WpDataBaseManagement('meta')
@@ -565,7 +584,8 @@ class WiseClusterArgorithm(WISE_BASE_ALGORITHM):
             s_mlflow.logParams(s_mlflowInfo['run_id'], self.useParams)
             config = {
                 'evaluation': self.evaluateLog,
-                'feature_importance': self.featureLog
+                'feature_importance': self.featureLog,
+                'retrain_criteria': self.criteriaLog
             }
             s_mlflow.logConfig(config, p_wpStorage)
             
@@ -573,7 +593,7 @@ class WiseClusterArgorithm(WISE_BASE_ALGORITHM):
 
             model_name = type(self.model).__name__  # 모델 이름 자동 추출
             model_class = type(self.model)
-                        
+
             s_tags = {"mlflow.user": p_saveModelInfo.userno,
                     "model_name": model_name,  # 모델 클래스명 자동 설정
                     "model_class": model_class,

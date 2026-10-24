@@ -296,7 +296,7 @@ export function getPropertiesData(p_type: number, p_data?:any): WiseComType {
                 customYn: 'N',
                 checkRelearn: false,
                 confidence: 0.3,
-                threshold: 1.0,
+                threshold: 50,
                 argId:0
             };
             return new WpPredictModelData(s_initData as COM_PREDICT_MODEL_ATT);

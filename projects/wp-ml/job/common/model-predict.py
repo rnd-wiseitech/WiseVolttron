@@ -25,7 +25,8 @@ def execute(p_dataSource, **kwargs):
     s_userno = kwargs['userno']
     s_workflowId = kwargs['workflowId']
     s_checkRelearn = s_data.get('checkRelearn', False)
-    s_threshold = float(s_data.get('threshold', 1.0))
+    # 재학습 기준값: 학습 대비 변화율(%). 화면 입력 범위 1~100
+    s_threshold = float(s_data.get('threshold', 50))
     s_relearnValue = None
     s_argId = s_data.get('argId', '')
 
@@ -173,7 +174,9 @@ def execute(p_dataSource, **kwargs):
                 s_predict = s_model.predict(s_df)
 
         # 사이킷런 분류일 경우 proba구함
-        if any(flavor in s_model.metadata.flavors for flavor in ["sklearn"]) and s_modelType =='Classification':
+        s_predict_proba = None
+        if any(flavor in s_model.metadata.flavors for flavor in ["sklearn"]) and s_modelType =='Classification' \
+                and hasattr(s_model._model_impl, 'predict_proba'):
             s_predict_proba = s_model._model_impl.predict_proba(s_predictDf)
 
         # 라벨링 디코딩
@@ -183,9 +186,12 @@ def execute(p_dataSource, **kwargs):
         s_df['wp_predict'] = s_predict
 
 
-        if s_checkRelearn == True:
+        s_ref = s_config.get('retrain_criteria') if isinstance(s_config, dict) else None
+        if s_checkRelearn == True and not s_ref:
+            # 기준값 저장 기능 이전에 학습한 모델이나 사용자 모델은 판단하지 않는다
+            print('재학습 판단 기준값(retrain_criteria)이 없는 모델이라 재학습 판단을 건너뜁니다.')
+        elif s_checkRelearn == True:
             s_relearnValue = None
-            s_ref  = s_config['retrain_criteria']
             # 재학습 여부 판단
             if s_modelType == 'Regression':
                 s_y = np.asarray(s_predict).ravel()
@@ -193,9 +199,10 @@ def execute(p_dataSource, **kwargs):
                 if s_n > 300:
                     s_relearnValue = algorithmService.checkRegRetrain(s_ref, s_y, s_threshold, s_n)
                 print(s_relearnValue)
-            elif s_modelType == 'Classification':
+            elif s_modelType == 'Classification' and s_predict_proba is not None:
                 s_y = np.asarray(s_predict_proba, dtype=np.float32)
-                s_n = s_y.size
+                # 판단에 쓰는 건수는 확률 행렬의 원소 수가 아니라 행(예측 건) 수
+                s_n = s_y.shape[0]
                 if s_n > 300:
                     s_relearnValue = algorithmService.checkClassRetrain(s_ref, s_y, s_threshold, s_n)
                 print(s_relearnValue)
