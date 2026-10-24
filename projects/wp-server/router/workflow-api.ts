@@ -58,11 +58,11 @@ workflowRoute.post('/getWorkflowList',(req: Request, res: Response<WiseReturn>,n
     }
     else if(s_body.wfId) {
         let s_query = `
-          SELECT  * FROM WF_MSTR WHERE WF_ID=${s_body.wfId} AND DEL_YN = 'N'
+          SELECT  * FROM WF_MSTR WHERE WF_ID=? AND DEL_YN = 'N'
 
           `
 
-        s_metaDb.query(s_query, 'WF_MSTR').then(p_wfMstr => {
+        s_metaDb.query(s_query, 'WF_MSTR', undefined, undefined, [s_body.wfId]).then(p_wfMstr => {
             res.json(p_wfMstr);
         }).catch(p_err => {
             console.log(p_err);
@@ -562,43 +562,6 @@ workflowRoute.post('/viewtable',(req: Request, res: Response<WiseReturn>,next:Ne
   });
 });
 
-// 파이썬 코드 조회
-workflowRoute.post('/getPythonResult',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {
-    
-  let s_body = req.body;
-
-  if (s_body.params != undefined) {
-      s_body = s_body.params;
-  }
-
-  let s_params = {
-    action: "transform",
-    method: "python",
-    userno : req.decodedUser.USER_NO,
-    userId: req.decodedUser.USER_ID,
-    usermode: req.decodedUser.USER_MODE,
-    groupId: 'transform_python', // WPLAT-209 spark api 수정 반영
-    jobId : s_body.jobId,
-    location: "workflow",
-    data : {
-      usetable: `${req.decodedUser.USER_NO}_${s_body.usetable_groupId}_${s_body.usetable_jobId}`,
-      value: s_body.value,
-    }
-  };
-
-  let s_sparkApiMng = new WpSparkApiManager(global.WiseAppConfig);
-
-  s_sparkApiMng.onCallApi('/job',JSON.stringify(s_params)).then((p_result:any) => {
-    
-    res.json(p_result);
-
-  }).catch(p_err => {
-      console.log(p_err);
-      next(p_err);
-  });
-});
-
-
 // 사용자 파라미터 조회
 workflowRoute.post('/getUserParam',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {
     
@@ -685,10 +648,10 @@ workflowRoute.post('/getInputWorkflowList',(req: Request, res: Response<WiseRetu
     console.log("s_body : ", s_body);
     let s_metaDb = global.WiseMetaDB;
     let s_query = `
-    SELECT * FROM WF_COM_MSTR WHERE WF_ID=${s_body.workflowId}
+    SELECT * FROM WF_COM_MSTR WHERE WF_ID=?
     `;
     console.log("s_query : ", s_query);
-    s_metaDb.query(s_query, '', true).then(p_result => {
+    s_metaDb.query(s_query, '', true, undefined, [s_body.workflowId]).then(p_result => {
       console.log("p_result : ", p_result);
         res.json(p_result);
     }).catch(p_err => {

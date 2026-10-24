@@ -148,25 +148,27 @@ export class WiseMetaDB implements WP_META_DB{
         }
         return s_result;
     }
-    public async query(p_query: string, p_tableNm: string, p_option?: any, p_tran?: Transaction){
+    // p_params: 쿼리의 ? 자리에 바인딩할 값. 사용자 입력은 문자열로 이어 붙이지 말고 여기로 넘긴다.
+    public async query(p_query: string, p_tableNm: string, p_option?: any, p_tran?: Transaction, p_params?: any[]){
 
         let s_result:any;
+        let s_bind = typeof p_params == 'undefined' ? {} : { replacements: p_params };
 
         try {
             if (typeof p_tran == 'undefined'){
                 if (typeof p_option == 'undefined')
-                    s_result = await this.o_connection.query(p_query, { model: this.o_connection.model(p_tableNm) });
+                    s_result = await this.o_connection.query(p_query, { model: this.o_connection.model(p_tableNm), ...s_bind });
                 else if (p_option == 'update')
-                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.UPDATE });
+                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.UPDATE, ...s_bind });
                 else
-                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.SELECT });
+                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.SELECT, ...s_bind });
             } else {
                 if (typeof p_option == 'undefined')
-                    s_result = await this.o_connection.query(p_query, { model: this.o_connection.model(p_tableNm), transaction: p_tran });
+                    s_result = await this.o_connection.query(p_query, { model: this.o_connection.model(p_tableNm), transaction: p_tran, ...s_bind });
                 else if (p_option == 'update')
-                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.UPDATE, transaction: p_tran });
+                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.UPDATE, transaction: p_tran, ...s_bind });
                 else
-                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.SELECT, transaction: p_tran });
+                    s_result = await this.o_connection.query(p_query, { type: QueryTypes.SELECT, transaction: p_tran, ...s_bind });
             }
         } catch (p_error) {         
             throw new WpError({

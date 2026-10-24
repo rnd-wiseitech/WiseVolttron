@@ -78,15 +78,18 @@ export class WpScheduleManagement {
             if (this.o_userInfo.USER_MODE  != 'ADMIN') {
                 s_sql += ` AND A.REG_USER_NO = ${this.o_userInfo.USER_NO}`;
             }
+            let s_params: any[] = [];
             if (p_schId != '' && p_schId != undefined) {
-                s_sql += ` AND A.SCH_ID = ${p_schId}`;
+                s_sql += ` AND A.SCH_ID = ?`;
+                s_params.push(p_schId);
             }
             else if (p_schNm != '' && p_schNm != undefined) {
-                s_sql += ` AND A.SCH_NM = ${p_schNm}`;
+                s_sql += ` AND A.SCH_NM = ?`;
+                s_params.push(p_schNm);
             }
             s_sql += "  GROUP BY SCH_ID ORDER BY SCH_ID DESC";
 
-            s_metaDb.query(s_sql,'',true).then(p_result=>{
+            s_metaDb.query(s_sql,'',true, undefined, s_params).then(p_result=>{
                 resolve({isSuccess:true,result:p_result});
             }).catch((p_error) => {
                 reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));
@@ -129,15 +132,18 @@ export class WpScheduleManagement {
             if (this.o_userInfo.USER_MODE  != 'ADMIN') {
                 s_sql += ` AND A.REG_USER_NO = ${this.o_userInfo.USER_NO}`;
             }
+            let s_params: any[] = [];
             if (p_schId != '' && p_schId != undefined) {
-                s_sql += ` AND A.SCH_ID = ${p_schId}`;
+                s_sql += ` AND A.SCH_ID = ?`;
+                s_params.push(p_schId);
             }
             else if (p_schNm != '' && p_schNm != undefined) {
-                s_sql += ` AND A.SCH_NM = ${p_schNm}`;
+                s_sql += ` AND A.SCH_NM = ?`;
+                s_params.push(p_schNm);
             }
             s_sql += "  GROUP BY SCH_ID ORDER BY SCH_ID DESC";
 
-            s_metaDb.query(s_sql,'',true).then(p_result=>{
+            s_metaDb.query(s_sql,'',true, undefined, s_params).then(p_result=>{
                 resolve({isSuccess:true,result:p_result});
             }).catch((p_error) => {
                 reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));
@@ -300,18 +306,20 @@ export class WpScheduleManagement {
                 AND A.REG_USER_NO = ${this.o_userInfo.USER_NO}
                 GROUP BY A.SCH_ID `;
 
+            let s_params: any[] = [];
             if (p_modelNm != '' && p_modelNm != undefined) {
-                s_sql += " AND B.MODEL_NM like '%" + p_modelNm + "%'";
-                //sql += " WHERE B.MODEL_NM like '%" + searchWord + "%'";
+                s_sql += " AND B.MODEL_NM like CONCAT('%', ?, '%')";
+                s_params.push(p_modelNm);
             }
 
             if (p_modelId != '' && p_modelId != undefined) {
-                s_sql += " AND B.MODEL_ID = " + p_modelId;
+                s_sql += " AND B.MODEL_ID = ?";
+                s_params.push(p_modelId);
             }
 
             s_sql += " ORDER BY A.SCH_ID DESC ";
 
-            s_metaDb.query(s_sql,'',true).then(p_result=>{
+            s_metaDb.query(s_sql,'',true, undefined, s_params).then(p_result=>{
                 resolve({isSuccess:true,result:p_result});
             }).catch((p_error) => {
                 reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));
@@ -351,14 +359,15 @@ export class WpScheduleManagement {
                         FROM WK_SCH_LOG
                         WHERE 1 = 1 `;
 
+            let s_params: any[] = [];
             if (p_schId != '' && p_schId != undefined) {
-                s_sql += " AND SCH_ID = " + p_schId;
-                //sql += " WHERE B.MODEL_NM like '%" + searchWord + "%'";
+                s_sql += " AND SCH_ID = ?";
+                s_params.push(p_schId);
             }
 
             s_sql += ` ORDER BY LOG_ID DESC `;
 
-            s_metaDb.query(s_sql,'',true).then(p_schList=>{
+            s_metaDb.query(s_sql,'',true, undefined, s_params).then(p_schList=>{
                 resolve({isSuccess:true,result:p_schList});
             }).catch(p_error=>{reject(p_error)});
         })
@@ -377,13 +386,15 @@ export class WpScheduleManagement {
                         FROM WK_SCH_LOG
                         WHERE 1 = 1 `;
 
+            let s_params: any[] = [];
             if (p_schId != '' && p_schId != undefined) {
-                s_sql += " AND SCH_ID = " + p_schId;
+                s_sql += " AND SCH_ID = ?";
+                s_params.push(p_schId);
             }
 
             s_sql += ` ORDER BY LOG_ID DESC `;
 
-            s_metaDb.query(s_sql,'',true).then(p_schList=>{
+            s_metaDb.query(s_sql,'',true, undefined, s_params).then(p_schList=>{
                 resolve({isSuccess:true,result:p_schList});
             }).catch(p_error=>{reject(p_error)});
         })
@@ -404,14 +415,14 @@ export class WpScheduleManagement {
                                         LOG_DATASET_ID,
                                         ERROR_MSG
                                     FROM DP_SCH_LOG A, (SELECT @RNUM := 0) r
-                                    ${typeof p_schId == 'undefined'? '': `WHERE SCH_ID = ${p_schId}`}
+                                    ${typeof p_schId == 'undefined'? '': `WHERE SCH_ID = ?`}
                                     ORDER BY LOG_ID
                             ) C
                             INNER JOIN DP_SCH_CODE D ON C.STATUS = D.SCH_STATUS_CD
                             INNER JOIN DP_MODEL_DATASET_USE_MSTR E ON C.LOG_DATASET_ID = E.DATASET_ID
                             ORDER BY C.LOG_SEQ DESC`;
 
-            s_metaDb.query(s_sql,'',true).then(p_queryList=>{
+            s_metaDb.query(s_sql,'',true, undefined, typeof p_schId == 'undefined' ? [] : [p_schId]).then(p_queryList=>{
                 resolve({isSuccess:true,result:p_queryList});
             }).catch(p_error=>{reject(p_error)});
         })
@@ -580,7 +591,7 @@ export class WpScheduleManagement {
         let s_binLog = global.WiseBinLog;
         let s_metaDb = global.WiseMetaDB;
 
-        let s_status = await s_metaDb.query(`SELECT IFNULL(MAX(LOG_ID),0) AS LOG_ID, LOG_STATUS FROM WK_SCH_LOG WHERE SCH_ID=${p_schId}`, 'WK_SCH_LOG');
+        let s_status = await s_metaDb.query(`SELECT IFNULL(MAX(LOG_ID),0) AS LOG_ID, LOG_STATUS FROM WK_SCH_LOG WHERE SCH_ID=?`, 'WK_SCH_LOG', undefined, undefined, [p_schId]);
         // 기존 수집 작업이 실행 상태 아니면 실행
         if (s_status[0]['LOG_STATUS'] != 20) {
             let s_logId = s_status[0]['LOG_ID'] + 1;

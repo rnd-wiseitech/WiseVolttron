@@ -105,9 +105,9 @@ modelRoute.post('/satifiedInfo',(req: Request, res: Response,next:NextFunction) 
                         RTRIM(VAR_MAJOR_YN) AS VAR_MAJOR_YN, 
                         RTRIM(VAR_IMPORT) AS VAR_IMPORT, 
                         VAR_PRE AS CLEANDATA 
-                    FROM DP_VAR_MSTR WHERE MODEL_ID = '${s_body.modelId}' and MODEL_IDX = '${s_body.modelIdx}'`;
-    
-    s_metaDb.query(s_query,'DP_VAR_MSTR').then(p_result=>{
+                    FROM DP_VAR_MSTR WHERE MODEL_ID = ? and MODEL_IDX = ?`;
+
+    s_metaDb.query(s_query,'DP_VAR_MSTR', undefined, undefined, [s_body.modelId, s_body.modelIdx]).then(p_result=>{
         
         res.json(p_result);
         

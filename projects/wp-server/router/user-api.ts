@@ -236,10 +236,10 @@ userRoute.post('/chkLowCompt',(req: Request, res: Response<any>,next:NextFunctio
     let sNodeInfo = s_body.nodeInfo;
     let s_metaDb = global.WiseMetaDB;
 
-    let s_query = `SELECT GROUP_ID AS 'key', 'GROUP' AS 'type' FROM DP_GRP_MSTR WHERE P_GROUP_ID = ${sNodeInfo.group_id} AND DEL_YN = 'N' UNION ALL
-    SELECT A.USER_NO AS 'key', 'USER' AS 'type' FROM DP_USER_MSTR A INNER JOIN DP_USER_PROFILE B ON A.USER_NO=B.USER_NO WHERE A.GRP_ID = ${sNodeInfo.group_id} AND A.DEL_YN='N'`;
+    let s_query = `SELECT GROUP_ID AS 'key', 'GROUP' AS 'type' FROM DP_GRP_MSTR WHERE P_GROUP_ID = ? AND DEL_YN = 'N' UNION ALL
+    SELECT A.USER_NO AS 'key', 'USER' AS 'type' FROM DP_USER_MSTR A INNER JOIN DP_USER_PROFILE B ON A.USER_NO=B.USER_NO WHERE A.GRP_ID = ? AND A.DEL_YN='N'`;
 
-    s_metaDb.query(s_query,'',false).then(p_result=>{
+    s_metaDb.query(s_query,'',false, undefined, [sNodeInfo.group_id, sNodeInfo.group_id]).then(p_result=>{
 
         res.json({ success: true, result: p_result });
     }).catch(p_error=>{
@@ -407,17 +407,20 @@ userRoute.post('/getUmTreeInfo',(req: Request, res: Response<any>,next:NextFunct
     let s_metaDb = global.WiseMetaDB;
 
     let s_query = ``;
+    let s_params: any[] = [];
 
     if (s_body.nodeInfo.type == 'user') {
         let s_userNo = s_body.nodeInfo.key.split('user_')[1];
-        s_query = `SELECT A.USER_NO AS 'user_no', A.USER_ID AS 'user_id' , A.USER_NAME AS 'user_name' , A.PASSWD AS 'password' , B.USER_MODE AS 'user_mode' , C.GROUP_NAME AS 'group_name', C.GROUP_ID AS 'group_id' 
-            FROM DP_USER_MSTR A INNER JOIN DP_USER_PROFILE B ON A.USER_NO = B.USER_NO LEFT OUTER JOIN DP_GRP_MSTR C ON A.GRP_ID=C.GROUP_ID WHERE A.DEL_YN='N' AND A.USER_NO = ${s_userNo} `;
+        s_query = `SELECT A.USER_NO AS 'user_no', A.USER_ID AS 'user_id' , A.USER_NAME AS 'user_name' , A.PASSWD AS 'password' , B.USER_MODE AS 'user_mode' , C.GROUP_NAME AS 'group_name', C.GROUP_ID AS 'group_id'
+            FROM DP_USER_MSTR A INNER JOIN DP_USER_PROFILE B ON A.USER_NO = B.USER_NO LEFT OUTER JOIN DP_GRP_MSTR C ON A.GRP_ID=C.GROUP_ID WHERE A.DEL_YN='N' AND A.USER_NO = ? `;
+        s_params = [s_userNo];
     } else {
-        s_query = `SELECT A.GROUP_ID AS 'group_id', A.GROUP_NAME AS 'group_name', 
-        A.GROUP_DESC AS 'group_desc' FROM DP_GRP_MSTR A WHERE A.DEL_YN='N' AND A.GROUP_ID = ${s_body.nodeInfo.key} `
+        s_query = `SELECT A.GROUP_ID AS 'group_id', A.GROUP_NAME AS 'group_name',
+        A.GROUP_DESC AS 'group_desc' FROM DP_GRP_MSTR A WHERE A.DEL_YN='N' AND A.GROUP_ID = ? `
+        s_params = [s_body.nodeInfo.key];
     }
 
-    s_metaDb.query(s_query,'',false).then(p_result=>{
+    s_metaDb.query(s_query,'',false, undefined, s_params).then(p_result=>{
 
         res.json(p_result[0]);
     }).catch(p_error=>{

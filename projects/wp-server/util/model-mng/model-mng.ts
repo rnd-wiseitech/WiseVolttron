@@ -1072,11 +1072,9 @@ export class WpModelManagement {
     */
     getWkModelResult(pAnalComIdList: string[], pModelIdDataList: Array<{ MODEL_ID: number, MODEL_IDX: number }>) {
         return new Promise<WiseReturn>((resolve, reject) => {
-            let s_comIdString = `("${pAnalComIdList.join('","')}")`;
-            // let s_sql = ''
             // 1. COM_ID 기준으로 조회한 모델 결과(COM_ID에서 가장 큰 MODEL_ID의 최신 모델)
             let s_sql = `
-                SELECT * FROM DP_MODEL_RESULT WHERE UUID IN  ${s_comIdString}`;
+                SELECT * FROM DP_MODEL_RESULT WHERE UUID IN (?)`;
 
             // 2. MODEL_ID, MODEL_IDX 기준으로 조회한 모델 결과
             // let s_modelIdString = pModelIdDataList.map((sModelData) => `(${sModelData.MODEL_ID}, ${sModelData.MODEL_IDX})`)
@@ -1095,14 +1093,14 @@ export class WpModelManagement {
             // }
              
             let s_metaDb = global.WiseMetaDB;
-            s_metaDb.query(s_sql, '', true).then(p_result => {
+            s_metaDb.query(s_sql, '', true, undefined, [pAnalComIdList]).then(p_result => {
                 resolve({ isSuccess: true, result: p_result });
             }).catch((p_error) => {
                 reject(new WpError({ httpCode: WpHttpCode.ANALYTIC_MODEL_ERR, message: p_error }));
             });
         });
     }
-   
+
     /** __[플랫폼 워크플로우 조회 조건 사용]__ 분석 컴포넌트 ID를 기준으로 모델 파라미터 조회
     * @example
     * ```
@@ -1116,27 +1114,27 @@ export class WpModelManagement {
     */
     getWkModelParams(pAnalComIdList: string[], pModelIdDataList: Array<{ MODEL_ID: number, MODEL_IDX: number }>) {
         return new Promise<WiseReturn>((resolve, reject) => {
-            let sAnalComIdListString = `("${pAnalComIdList.join('","')}")`;
+            let s_params: any[] = [pAnalComIdList];
             // 1. COM_UUID 기준으로 조회한 모델 파라미터
             let sComIdQuery = `
-                SELECT MODEL_ID, MAX(MODEL_IDX) as MODEL_IDX FROM 
+                SELECT MODEL_ID, MAX(MODEL_IDX) as MODEL_IDX FROM
 
                 ( SELECT * FROM DP_MODEL_WORKFLOW_USE_MSTR
                     WHERE MODEL_ID IN (
                         SELECT MAX(MODEL_ID) AS MODEL_ID FROM DP_MODEL_WORKFLOW_USE_MSTR
-                        WHERE COM_UUID IN ${sAnalComIdListString}
+                        WHERE COM_UUID IN (?)
                     GROUP BY COM_UUID
                 )) T1
                 GROUP BY MODEL_ID`;
             // 2. MODEL_ID, MODEL_IDX 기준으로 조회한 모델 결과
             let unionQuery = '';
             if (pModelIdDataList.length > 0) {
-                let sModelIdString: unknown = pModelIdDataList.map((sModelData) => `(${sModelData.MODEL_ID}, ${sModelData.MODEL_IDX})`)
-                let sModelFindOption = '(' + ''.concat(sModelIdString as string) + ')';
-                unionQuery = `UNION 
-                SELECT MODEL_ID, MODEL_NM, MODEL_EVAL_TYPE, MODEL_FEATURE_TYPE, MODEL_PART_OPTION, MODEL_ARG_PARAM, MODEL_OPTIMIZER_YN, REG_DATE 
+                // 배열의 배열을 넘기면 (a, b), (c, d) 형태로 바인딩된다
+                s_params.push(pModelIdDataList.map((sModelData) => [sModelData.MODEL_ID, sModelData.MODEL_IDX]));
+                unionQuery = `UNION
+                SELECT MODEL_ID, MODEL_NM, MODEL_EVAL_TYPE, MODEL_FEATURE_TYPE, MODEL_PART_OPTION, MODEL_ARG_PARAM, MODEL_OPTIMIZER_YN, REG_DATE
                 FROM DP_MODEL_MSTR AS T2
-                WHERE (MODEL_ID, MODEL_IDX) IN ${sModelFindOption}`;
+                WHERE (MODEL_ID, MODEL_IDX) IN (?)`;
             }
 
             let s_metaDb = global.WiseMetaDB;
@@ -1144,7 +1142,7 @@ export class WpModelManagement {
                 FROM DP_MODEL_MSTR WHERE (MODEL_ID, MODEL_IDX) IN (${sComIdQuery})
                 ${unionQuery}`;
 
-            s_metaDb.query(s_sql, '', true).then(p_result => {
+            s_metaDb.query(s_sql, '', true, undefined, s_params).then(p_result => {
                 resolve({ isSuccess: true, result: p_result });
             }).catch((p_error) => {
                 reject(new WpError({ httpCode: WpHttpCode.ANALYTIC_MODEL_ERR, message: p_error }));
@@ -1332,8 +1330,8 @@ export class WpModelManagement {
                         if (p_overwrite) {
                             s_modelId = p_param['MODEL_ID'];
                             let s_query = `SELECT MODEL_ID, MAX(MODEL_IDX) AS MODEL_IDX FROM DP_MODEL_MSTR 
-                        WHERE MODEL_ID=${s_modelId}`;
-                            let s_dpModelMstrResult = await s_metaDb.query(s_query, "", true, pT);
+                        WHERE MODEL_ID=?`;
+                            let s_dpModelMstrResult = await s_metaDb.query(s_query, "", true, pT, [s_modelId]);
 
                             s_modelIdx = s_dpModelMstrResult[0].MODEL_IDX + 1;
 
@@ -1513,13 +1511,13 @@ export class WpModelManagement {
                 INNER JOIN DP_MODEL_MSTR B
                 ON A.name = B.MODEL_ID
                 WHERE
-                NAME = ${p_modelId}
+                NAME = ?
                 AND status = 'READY'
                 ORDER BY MODEL_IDX DESC
             `;
 
-            
-            s_metaDb.query(s_query, 'DP_MODEL_MSTR').then((p_result) => {
+
+            s_metaDb.query(s_query, 'DP_MODEL_MSTR', undefined, undefined, [p_modelId]).then((p_result) => {
                 resolve({isSuccess:true,result:p_result});
             }).catch((p_error) => {
                 reject(new WpError({httpCode:WpHttpCode.ANALYTIC_MODEL_ERR,message:p_error}));

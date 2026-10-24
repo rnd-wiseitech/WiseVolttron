@@ -13,6 +13,11 @@ const moment = require('moment');
 
 export const dataMngRoute = express.Router();
 
+// 접속정보(DS_MSTR)는 등록한 사용자만 쓰고 고칠 수 있다. 관리자는 전체를 다룬다.
+const ownDsWhere = (p_user: any, p_where: any) => {
+    return p_user.USER_MODE == 'ADMIN' ? p_where : { ...p_where, REG_USER_NO: p_user.USER_NO };
+};
+
 // #205 mssql, mysql
 dataMngRoute.post('/TableSearch',(req: Request, res: Response<WiseReturn>,next:NextFunction) => {    
     let s_body = req.body;
@@ -34,7 +39,9 @@ dataMngRoute.post('/TableSearch',(req: Request, res: Response<WiseReturn>,next:N
         s_remoteFilePath += '/' + s_body.path;
     s_remoteFilePath += "/" + s_tableNm + ".csv"
 
-    s_metaDbMng.select('DS_MSTR',[],{ DS_ID: s_body.DsId }).then(async (p_dsInfo:any)=>{
+    s_metaDbMng.select('DS_MSTR',[],ownDsWhere(req.decodedUser, { DS_ID: s_body.DsId })).then(async (p_dsInfo:any)=>{
+            if (p_dsInfo.length == 0)
+                throw new WpError({httpCode:WpHttpCode.UNAUTHORIZED,message:'접속 정보에 대한 권한이 없습니다.'});
             let ip = p_dsInfo[0].IP
             let port = p_dsInfo[0].PORT
             let user = p_dsInfo[0].USER_ID;
@@ -117,7 +124,7 @@ dataMngRoute.post('/searchColmnHistory',(req: Request, res: Response,next:NextFu
             inner join DP_USER_MSTR f on d.REG_USER_NO = f.USER_NO
         where 
             a.WF_TYPE ='save'
-            and json_extract(b.WF_DATA, '$.wp-data') like '%${s_body.colNm}%'
+            and json_extract(b.WF_DATA, '$.wp-data') like CONCAT('%', ?, '%')
             and c.OUTPUT_YN = 'Y'
             and a.DEL_YN = 'N'
             and d.DEL_YN = 'N'
@@ -126,7 +133,7 @@ dataMngRoute.post('/searchColmnHistory',(req: Request, res: Response,next:NextFu
             // (25.4.22) s_comIds는 아래 두 조건을 대체함
             // and not b.COM_TYPE like 'I_%'
             // and not b.COM_TYPE like 'O_%'
-    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT }).then(p_selectData=>{
+    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT, replacements: [s_body.colNm] }).then(p_selectData=>{
         res.json(p_selectData);
     }).catch(function (pErr) {
         next(pErr);
@@ -168,8 +175,9 @@ dataMngRoute.post('/updateDsMstr',(req: Request, res: Response,next:NextFunction
             UPD_DT:moment().format('YYYY-MM-DD HH:mm:ss'),
             DEL_YN:'Y'
         };
-    s_metaDbMng.update('DS_MSTR',s_dsDataParam,{ DS_ID: s_dsData.ds_id }).then((p_result:any)=>{
-        if(p_result.length > 0)
+    s_metaDbMng.update('DS_MSTR',s_dsDataParam,ownDsWhere(req.decodedUser, { DS_ID: s_dsData.ds_id })).then((p_result:any)=>{
+        // update 결과는 [변경된 행 수] 이다. 남의 접속정보면 0 이 된다.
+        if(p_result[0] > 0)
             res.json({ success: true, result: p_result });
         else
             throw new WpError({httpCode:WpHttpCode.INTERNAL_SERVER_ERROR,message:'삭제실패.'});
@@ -349,7 +357,9 @@ dataMngRoute.post('/dsViewTblMstr',async(req: Request, res: Response,next:NextFu
     let s_metaDb = global.WiseMetaDB;
 
     
-    s_metaDb.select('DS_MSTR',[],{ DS_ID : s_dsId, DEL_YN:'N' }).then(async p_result=>{
+    s_metaDb.select('DS_MSTR',[],ownDsWhere(req.decodedUser, { DS_ID : s_dsId, DEL_YN:'N' })).then(async p_result=>{
+        if (p_result.length == 0)
+            throw new WpError({httpCode:WpHttpCode.UNAUTHORIZED,message:'접속 정보에 대한 권한이 없습니다.'});
 
         let s_dbMng = new DatabaseManagement(p_result[0]);
         await s_dbMng.onInit();
@@ -377,11 +387,11 @@ dataMngRoute.post('/getPipelist',(req: Request, res: Response,next:NextFunction)
     let s_query =` SELECT MAX(A.WF_ID), A.*
                     FROM WF_MSTR A
                     INNER JOIN WF_USE_DATASET B ON A.WF_ID = B.WF_ID
-                    WHERE A.REG_USER = '${s_body.datasetInfo.REG_USER_NO}' 
-                    AND B.DS_VIEW_ID= '${s_body.datasetInfo.DS_VIEW_ID}' 
+                    WHERE A.REG_USER = ?
+                    AND B.DS_VIEW_ID= ?
                     AND B.OUTPUT_YN = 'Y' order by A.REG_DT DESC`;
 
-    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT }).then(p_result=>{
+    s_metaDbMng.getConnection().query(s_query,{ type: QueryTypes.SELECT, replacements: [s_body.datasetInfo.REG_USER_NO, s_body.datasetInfo.DS_VIEW_ID] }).then(p_result=>{
         let s_result:any[]= [];
         p_result.forEach( (p_flowData:Object) => {
             if (Object.values(p_flowData).some(x => (x !== null && x !== ''))) // 워크플로우 데이터 값이 다 null 값인지 확인
