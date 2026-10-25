@@ -216,7 +216,7 @@ storageRoute.post("/upload", async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Token missing" });
       }
 
-      let s_modelURL = null;
+      let s_modelURL: string | null = null;
       let s_isAborted = false; // 요청 취소 상태 플래그
 
       req.decodedUser = await verifyToken(token);
@@ -233,6 +233,9 @@ storageRoute.post("/upload", async (req, res) => {
       if (s_filePath == 'undefined') {
         s_filePath = '/';
       }
+      if (onChkPath(s_filePath)) {
+        return res.status(400).json({ error: "파일 경로가 올바르지않습니다." });
+      }
       // 어드민이면서 개인경로가 아닌 경우에는 받아온 패스 그대로
       if(sUserMode == 'ADMIN' && s_personalPath == 'N') {
         s_filePath = '/' + s_filePath;
@@ -246,15 +249,26 @@ storageRoute.post("/upload", async (req, res) => {
       const bb = busboy({ headers: req.headers });
       bb.on("field", (fieldname, val) => {
         if (fieldname === "modelURL") {
-            pythonUrl = val + '/upload';
-            console.log("📦 받은 모델 URL:", pythonUrl);
+            s_modelURL = val;
         }
       });
-  
-      bb.on("file", (fieldname, file, info) => {
+
+      bb.on("file", async (fieldname, file, info) => {
         let  { filename, mimeType } = info;
         // busyboy 인코딩은 라틴어라 이를 utf-8로 변환
         filename = iconv.decode(Buffer.from(filename, "binary"), "utf-8");
+        if (onChkPath(filename)) {
+            file.resume();
+            return res.status(400).json({ error: "파일 이름이 올바르지않습니다." });
+        }
+        // 모델 예측 업로드: 클라이언트가 준 주소는 메타DB에 등록된 배포 주소일 때만 쓴다
+        if (s_modelURL != null) {
+            if (!(await isRegisteredDeployUrl(s_modelURL))) {
+                file.resume();
+                return res.status(403).json({ error: "등록되지 않은 모델 배포 주소입니다." });
+            }
+            pythonUrl = s_modelURL + '/upload';
+        }
         filename = encodeURIComponent(filename);
         // Python API 요청 옵션
         const url = new URL(pythonUrl);
@@ -476,10 +490,10 @@ storageRoute.post('/remove', async (req: Request, res: Response<any>, next: Next
         "isDirectory":s_body.isDirectory
     };
 
-    // if (onChkPath(s_path)) {
-    //     next(new WpError({ httpCode: WpHttpCode.HADOOP_DATA_ERR, message: '파일 경로가 올바르지않습니다.' }));
-    // }
-    // else {
+    let s_paths = Array.isArray(s_body.path) ? s_body.path : [s_body.path];
+    if (s_paths.some((p_path: any) => onChkPath(String(p_path)))) {
+        return next(new WpError({ httpCode: WpHttpCode.HADOOP_DATA_ERR, message: '파일 경로가 올바르지않습니다.' }));
+    }
     try {
         let s_result = await s_storageMng.onDeleteFile(s_param, true,s_body.isDirectory);
 
@@ -490,7 +504,6 @@ storageRoute.post('/remove', async (req: Request, res: Response<any>, next: Next
     } catch (p_error) {
         next(p_error);
     }
-    // }
 });
 
 storageRoute.post('/moveTo', async (req: Request, res: Response<any>, next: NextFunction) => {
@@ -724,12 +737,30 @@ storageRoute.get('/getApiData/:USER_NO/:VIEW_ID/:STARTROW/:ENDROW', async (req: 
         next(error);
     }
 });
+// 잘못된 경로면 true. 빈 값과 함께 .. 경로 조각, 널 문자를 막아 저장소 밖으로 나가지 못하게 한다.
 function onChkPath(p_path: string) {
-    let flag = false;
     if (!p_path || typeof p_path !== 'string') {
-        flag = true;
+        return true;
     }
-    return flag;
+    let s_path = p_path;
+    try {
+        s_path = decodeURIComponent(p_path);
+    } catch (p_err) {
+        return true;
+    }
+    if (s_path.includes('\0')) {
+        return true;
+    }
+    return s_path.split(/[\\/]/).some(p_seg => p_seg == '..');
+}
+
+// 모델 배포 주소는 클라이언트가 보낸 값을 그대로 호출하지 않고, 메타DB에 등록된 배포 주소일 때만 쓴다.
+async function isRegisteredDeployUrl(p_url: string) {
+    if (!p_url || typeof p_url !== 'string') {
+        return false;
+    }
+    let s_model = await global.WiseMetaDB.select('DP_MODEL_MSTR', ['MODEL_ID'], { DEPLOY_URL: p_url, DEL_YN: 'N' });
+    return s_model.length > 0;
 }
 
 
@@ -780,7 +811,7 @@ storageRoute.post('/getDownloadZipUrl', async (req: Request, res: Response<any>,
             s_filename = req.body.filename
         }
         let s_option = '';
-        if(req.body.filename) {
+        if(req.body.option) {
             s_option = req.body.option
         }
         const s_url = `${req.protocol}://${req.get('host')}/hdfs/downloadZipFile?filePath=${encodeURIComponent(s_filePath)}&filename=${encodeURIComponent(s_filename)}&option=${encodeURIComponent(s_option)}&token=${encodeURIComponent(token)}`;
@@ -793,6 +824,9 @@ storageRoute.post('/getDownloadZipUrl', async (req: Request, res: Response<any>,
 storageRoute.post('/getArtifactExist', async (req: Request, res: Response<any>, next: NextFunction) => {
     try {
         const s_filePath = req.body.path;
+        if (onChkPath(s_filePath)) {
+            return next(new WpError({ httpCode: WpHttpCode.HADOOP_DATA_ERR, message: '파일 경로가 올바르지않습니다.' }));
+        }
         let s_storageMng = new WiseStorageManager(req.decodedUser, global.WiseStorage);
         let s_result = await s_storageMng.onArtifactExist(s_filePath)
         res.json({ success: s_result, message: 'Exist' });
@@ -804,7 +838,9 @@ storageRoute.post('/getArtifactExist', async (req: Request, res: Response<any>, 
 storageRoute.post('/downloadPredict', async (req: Request, res: Response,  next: NextFunction) => {
   const { modelURL, filelist } = req.body;
 
-//   try {
+    if (!(await isRegisteredDeployUrl(modelURL))) {
+        return next(new WpError({ httpCode: WpHttpCode.UNAUTHORIZED, message: '등록되지 않은 모델 배포 주소입니다.' }));
+    }
     const targetUrl = new URL('/predict_file', modelURL); // modelURL + /predict_file
     const postData = JSON.stringify({ filelist });
 
