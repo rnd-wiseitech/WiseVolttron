@@ -76,7 +76,7 @@ def connectRDBMS(p_dbtype, p_ip, p_port, p_user, p_passwd, p_dbname, p_owner='',
             print("init oracle error error : ", e)
             pass
             
-        s_engine = create_engine(f'oracle+cx_oracle://{p_user}:{s_encoded_passwd}@{p_ip}:{p_port}/?service_name={p_dbname}', arraysize=100000, max_identifier_length=30)
+        s_engine = create_engine(f'oracle+cx_oracle://{p_user}:{s_encoded_passwd}@{p_ip}:{p_port}/?service_name={p_dbname}', arraysize=100000, max_identifier_length=30, coerce_to_decimal=False)
 
         s_conn = s_engine.connect().execution_options(stream_results=True)
 
@@ -298,16 +298,10 @@ def fromDatabaseTable(p_data, p_status):
             if p_status == 'Temp':
                 s_query += ' LIMIT 10'
 
-        s_chunks = []
-        s_init = True
-        for chunk in pd.read_sql(s_query, s_conn, chunksize = 1000000):
-            if s_init == True:
-                s_df = chunk
-                s_init = False
-            else:
-                s_df = pd.concat([s_df, chunk], ignore_index=True)
+        # chunk 를 모았다가 한 번에 합친다 (매번 concat 하면 누적 복사로 느려진다)
+        s_chunks = [chunk for chunk in pd.read_sql(s_query, s_conn, chunksize = 1000000)]
+        s_df = pd.concat(s_chunks, ignore_index=True) if s_chunks else pd.DataFrame()
         del s_chunks
-        del chunk
     except Exception as e:
         raise e
     finally:
@@ -336,16 +330,10 @@ def fromDatabaseQuery(p_data):
             s_conn.close()
     
     else: 
-        s_chunks = []
-        s_init = True
-        for chunk in pd.read_sql(p_data['query'], s_conn, chunksize = 1000000):
-            if s_init == True:
-                s_df = chunk
-                s_init = False
-            else:
-                s_df = pd.concat([s_df, chunk], ignore_index=True)
+        # chunk 를 모았다가 한 번에 합친다 (매번 concat 하면 누적 복사로 느려진다)
+        s_chunks = [chunk for chunk in pd.read_sql(p_data['query'], s_conn, chunksize = 1000000)]
+        s_df = pd.concat(s_chunks, ignore_index=True) if s_chunks else pd.DataFrame()
         del s_chunks
-        del chunk
         s_conn.close()
 
     return s_df
@@ -563,4 +551,30 @@ def uploadFromTable(p_data, p_dataSource):
 
         del chunk
     s_conn.close()
+    return True
+
+
+# DB 입력 컴포넌트의 쿼리 모드는 조회만 허용한다. (외부 의존성 없이 주석·문자열을 걷어낸 뒤 단어 단위로 검사)
+# REPLACE 는 조회용 문자열 함수와 이름이 같아 넣지 않는다
+_FORBIDDEN_SQL_KEYWORDS = ['INSERT', 'UPDATE', 'DELETE', 'MERGE', 'DROP', 'ALTER', 'CREATE', 'TRUNCATE', 'RENAME',
+                           'GRANT', 'REVOKE', 'EXEC', 'EXECUTE', 'CALL', 'LOCK', 'UNLOCK', 'INTO', 'OUTFILE', 'DUMPFILE']
+
+def validateSafeQuery(p_query):
+    '''안전한 조회(SELECT / WITH ... SELECT) 문장 하나면 True'''
+    if not p_query or not p_query.strip():
+        return False
+    s_sql = re.sub(r'/\*.*?\*/', ' ', p_query, flags=re.S)        # 블록 주석
+    s_sql = re.sub(r'--[^\n]*', ' ', s_sql)                         # 한 줄 주석
+    s_sql = re.sub(r"'(?:''|[^'])*'", "''", s_sql)                   # 문자열 값
+    s_sql = re.sub(r'"(?:""|[^"])*"', '""', s_sql)                   # 따옴표 식별자
+    s_sql = s_sql.strip().rstrip(';').strip()
+    # 여러 문장 금지
+    if ';' in s_sql:
+        return False
+    s_upper = s_sql.upper()
+    if not re.match(r'^\(?\s*(SELECT|WITH)\b', s_upper):
+        return False
+    for s_keyword in _FORBIDDEN_SQL_KEYWORDS:
+        if re.search(r'\b' + s_keyword + r'\b', s_upper):
+            return False
     return True

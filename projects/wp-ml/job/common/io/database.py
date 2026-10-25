@@ -25,6 +25,9 @@ def getData(p_data, p_status):
     else:
         s_query = parse.unquote(base64.b64decode(p_data['query']).decode('utf-8'))
         s_query = s_query.strip()
+        # 입력 컴포넌트는 조회만 허용한다
+        if not databaseService.validateSafeQuery(s_query):
+            raise Exception('데이터 조회는 SELECT 문 하나만 사용할 수 있습니다.')
         p_data['query'] = s_query
 
         s_df = databaseService.fromDatabaseQuery(p_data)
