@@ -14,6 +14,8 @@ from config.wp import getConfig
 from .wpType import WpStorage
 import pyarrow.parquet as pq
 import pyarrow as pa
+import pyarrow.csv as pc
+import zlib
 from io import BytesIO
 import zipfile
 from urllib.parse import urlparse, unquote
@@ -541,16 +543,24 @@ class localStorage(WpStorage):
                     # ✅ 전체 read 제거: 경로를 직접 넘겨 스트리밍
                     parquet_file = pq.ParquetFile(file_path)
 
-                    for batch in parquet_file.iter_batches():
-                        df = batch.to_pandas()
+                    for batch in parquet_file.iter_batches(batch_size=50000):
+                        # 행 단위 문자열 조립 대신 pyarrow C++ CSV 라이터로 배치를 통째로 변환한다
+                        # (값에 쉼표·따옴표가 있어도 CSV 규칙대로 감싸진다)
+                        table = pa.Table.from_batches([batch])
+                        out_buffer = pa.BufferOutputStream()
+                        pc.write_csv(
+                            table,
+                            out_buffer,
+                            write_options=pc.WriteOptions(include_header=not is_header_written)
+                        )
+                        chunk = out_buffer.getvalue().to_pybytes()
 
                         if not is_header_written:
-                            # 필요 시 BOM: yield '\ufeff'
-                            yield ','.join(map(str, df.columns)) + '\n'
+                            # 엑셀에서 한글이 깨지지 않도록 첫 조각에 UTF-8 BOM
+                            chunk = b'\xef\xbb\xbf' + chunk
                             is_header_written = True
 
-                        for row in df.itertuples(index=False, name=None):
-                            yield ','.join('' if v is None else str(v) for v in row) + '\n'
+                        yield chunk
                 yield from process_parquet(p_path)
                 return   
 
@@ -561,7 +571,7 @@ class localStorage(WpStorage):
                     일반 텍스트 파일을 읽어서 스트리밍
                     """
                     with open(file_path, 'rb') as reader:
-                        while chunk := reader.read(1024):
+                        while chunk := reader.read(1024 * 1024):  # 1MB
                             yield chunk
                                 
                 yield from process_text(p_path)
@@ -595,7 +605,7 @@ class localStorage(WpStorage):
                     :param file_path: 파일 경로
                     """
                     with open(file_path, 'rb') as reader:
-                        while chunk := reader.read(1024):
+                        while chunk := reader.read(1024 * 1024):  # 1MB
                             yield chunk
                 yield from process_common(p_path)
             print('LOCAL 파일 읽기 종료')
@@ -631,10 +641,19 @@ class localStorage(WpStorage):
 
                     def file_data_generator(path=full_path):
                         with open(path, 'rb') as f:
-                            while chunk := f.read(8192):
+                            while chunk := f.read(chunk_size):
                                 yield chunk
 
-                    yield (relative_path, modified_time, permissions, ZIP_64, file_data_generator())
+                    # 이미지 데이터셋·모델 아티팩트는 이미 압축된 데이터라 deflate 이득이 없고 처리량만 떨어진다.
+                    # 크기·CRC 를 미리 계산해 넘기면 무압축이면서도 파일 전체를 메모리에 올리지 않는다.
+                    s_crc32 = 0
+                    with open(full_path, 'rb') as f:
+                        while chunk := f.read(chunk_size):
+                            s_crc32 = zlib.crc32(chunk, s_crc32)
+
+                    yield (relative_path, modified_time, permissions,
+                           NO_COMPRESSION_64(os.path.getsize(full_path), s_crc32),
+                           file_data_generator())
 
         return stream_zip(file_generator())
 

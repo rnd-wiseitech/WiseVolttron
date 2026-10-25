@@ -811,7 +811,7 @@ storageRoute.post('/getDownloadZipUrl', async (req: Request, res: Response<any>,
             s_filename = req.body.filename
         }
         let s_option = '';
-        if(req.body.filename) {
+        if(req.body.option) {
             s_option = req.body.option
         }
         const s_url = `${req.protocol}://${req.get('host')}/hdfs/downloadZipFile?filePath=${encodeURIComponent(s_filePath)}&filename=${encodeURIComponent(s_filename)}&option=${encodeURIComponent(s_option)}&token=${encodeURIComponent(token)}`;

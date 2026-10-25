@@ -167,6 +167,13 @@ let s_server = app.listen(port, async () => {
   }
 });
 
+// 대용량 파일 업/다운로드. 안 두면 Node 기본 requestTimeout(300s)에 걸려 5분 넘는 전송이 끊긴다.
+// headersTimeout 까지 0 으로 두면 slowloris 방어가 사라지므로 따로 둔다.
+s_server.requestTimeout = 0;
+s_server.headersTimeout = 120 * 1000;
+s_server.keepAliveTimeout = 65 * 1000;
+s_server.timeout = 0;
+
 global.WiseSocketServer = new WiseSocket(s_server,["http://localhost:4200"]);
 global.WiseSocketServer.start();
 
