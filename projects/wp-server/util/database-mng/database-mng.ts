@@ -6,6 +6,7 @@ import { MysqlDatabaseManagement } from './MysqlDatabase';
 import { OracleDatabaseManagement } from './OracleDatabase';
 import { SequelizeDatabaseManagement } from './SequelizeDatabase';
 import { PostgreDatabaseManagement } from './PostgreDatabase';
+import { WpError, WpHttpCode } from '../../exception/WpError';
 // 티베로 사용시 주석해제 시작
 // import { TiberoDatabaseManagement } from './TiberoDatabase';
 // 티베로 사용시 주석해제 끝
@@ -59,10 +60,14 @@ export class DatabaseManagement implements WP_META_DB{
         //     this.o_dbMng = new TiberoDatabaseManagement(p_config);
         //     // 티베로 사용시 주석해제 끝
         // }
-        
+
     }
     // oracle 연결을 위해 추가
-    public async onInit() { 
+    public async onInit() {
+        // 지원하지 않는 DBMS 면 o_dbMng 가 없어 "undefined 의 onInit" 같은 알 수 없는 오류가 났다
+        if (!this.o_dbMng) {
+            throw new WpError({ httpCode: WpHttpCode.INTERNAL_SERVER_ERROR, message: '지원하지 않는 데이터베이스 종류입니다.' });
+        }
         await this.o_dbMng.onInit();
     }
     getConnection():Sequelize{
