@@ -108,7 +108,8 @@ export class WpTypeComponent extends WpComponent {
         } 
     }
     public setSchema(pSchema: WpComData) {
-        this.oSchema = pSchema;
+        // setSchema 이후 oSchema 를 직접 수정하므로, 상위 컴포넌트와 공유하는 pSchema 원본이 바뀌지 않게 깊은 복사
+        this.oSchema = JSON.parse(JSON.stringify(pSchema));
         let sTmpSchema = [];
         let sFormTypeList = this.oFormData[0].fvalue.filter((sForm: any) => sForm.name === 'type')[0].fvalue;
         for (let sCom of this.oSchema.schema) {

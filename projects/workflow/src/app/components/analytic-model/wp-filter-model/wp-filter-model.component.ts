@@ -112,7 +112,8 @@ export class WpFilterModelComponent extends WpComponent {
     }
 
     public setSchema(pSchema: WpComData) {
-        this.oSchema = pSchema;
+        // setSchema 이후 oSchema 를 직접 수정하므로, 상위 컴포넌트와 공유하는 pSchema 원본이 바뀌지 않게 깊은 복사
+        this.oSchema = JSON.parse(JSON.stringify(pSchema));
         this.oSchema.schema = [];
         this.oComViewerSvc.selectData(this.oSchema);
         // form에 비교 대상 모델들 표시

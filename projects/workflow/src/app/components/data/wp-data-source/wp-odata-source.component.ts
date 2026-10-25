@@ -167,7 +167,8 @@ export class WpODataSourceComponent extends WpComponent {
     }
     // #22 출력 컴포넌트 이후 다른 연결 가능하도록 수정
     public setSchema(pSchema: WpComData) {
-        this.oSchema = pSchema;
+        // setSchema 이후 oSchema 를 직접 수정하므로, 상위 컴포넌트와 공유하는 pSchema 원본이 바뀌지 않게 깊은 복사
+        this.oSchema = JSON.parse(JSON.stringify(pSchema));
         let sTmpSchema = [];
         for(let sCom of this.oSchema.schema){
             sTmpSchema.push(sCom.name);
