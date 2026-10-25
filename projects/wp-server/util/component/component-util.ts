@@ -180,7 +180,9 @@ export function getPropertiesData(p_type: number, p_data?:any): WiseComType {
                 column: '',
                 indexColumn: '',
                 value: '',
-                date_column: ''
+                date_column: '',
+                stride: '0',
+                nanhandle: 'none'
             };
             return new WpWindowData(s_initData as COM_WINDOW_ATT);
 

@@ -146,6 +146,10 @@ export interface COM_WINDOW_ATT extends WkCommonData {
     value: string;
     /** workflow ui param */
     date_column: string;
+    /** 윈도우 이동 간격 (0 이면 모든 행) */
+    stride: string;
+    /** 결측값 처리: none / remove / fill */
+    nanhandle: string;
 }
 export interface COM_TYPE_ATT extends WkCommonData {
     column: string;

@@ -493,7 +493,8 @@ export class WpComponentViewerComponent implements OnInit, OnChanges, OnDestroy 
   // #25 그룹화 컴포넌트에서 변수 범위 검증, #26 시계열 컴포넌트 검증
   onKeyUp(pEvent: KeyboardEvent, pName: string, pTabIdx?: number) {
     // #12 input Validation
-    if ((this.oType == COM_ID['T-NULL'] && pName == 'value') ||
+    if ((this.oType == COM_ID['T-WINDOW'] && (pName == 'value' || pName == 'stride')) ||
+      (this.oType == COM_ID['T-NULL'] && pName == 'value') ||
       (this.oType == COM_ID['T-OUTLIER'] && pName == 'value') ||
       (this.oType == COM_ID['T-DATE'] && pName == 'derivedColumn') ||
       (this.oType == COM_ID['O-DATASOURCE'] && pName == 'new_filename') ||

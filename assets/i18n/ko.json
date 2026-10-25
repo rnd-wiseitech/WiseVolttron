@@ -212,10 +212,7 @@
     "Regression": "회귀",
     "Clustering": "군집",
     "Classification": "분류",
-    "Recommend": "추천",
-    "Reinfocement": "강화학습",
     "IMG-CLASS": "이미지 분류",
-    "IMG-LABEL": "객체 인식",
     "POSE-ESTIM-ANIMAL": "동물 행동",
     "POSE-ESTIM-HUMAN": "인간 행동",
     "TEXT-ANALYTIC": "텍스트",
@@ -542,7 +539,6 @@
       "Result": "예측 결과",
       "Compare": "실제-예측 결과 비교",
       "Confusion": "분류 결과 평가",
-      "Recommend": "추천 유사도 분석 결과",
       "Association": "연관 분석 결과",
       "Labeling": "군집 결과",
       "Btn": {
@@ -1200,7 +1196,9 @@
         "info113": "할당 위치",
         "info114": "칼럼 할당",
         "info115": "이미지 파일 선택",
-        "info116": "이미지 파일 리스트"
+        "info116": "이미지 파일 리스트",
+        "info117": "윈도우 이동 간격",
+        "info118": "결측값 처리"
       },
       "BUTTON": {
         "button1": "스토리지 열기",

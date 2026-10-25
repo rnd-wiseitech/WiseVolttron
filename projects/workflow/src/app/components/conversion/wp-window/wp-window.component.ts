@@ -53,6 +53,16 @@ export class WpWindowComponent extends WpComponent {
         callbak:this.onColChange.bind(this)
     },
     {
+        vname:pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info118"),
+        name:'nanhandle',
+        value:'',
+        type:'select',
+        fvalue:['none', 'remove', 'fill'],
+        visible:true,
+        edit:true,
+        callbak:null
+    },
+    {
         vname:pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info47"),
         name:'value',
         value:'',
@@ -61,7 +71,24 @@ export class WpWindowComponent extends WpComponent {
         visible:true,
         edit:true,
         callbak:null
+    },
+    {
+        vname:pTransSvc.instant("WPP_WORKFLOW.COMPONENT.INFO.info117"),
+        name:'stride',
+        value:'',
+        type:'text',
+        fvalue:'',
+        visible:true,
+        edit:true,
+        callbak:null
     }]);
+    // 옵션 추가 전에 저장된 워크플로는 값이 없으므로 기본값을 채운다
+    if (this.oWpData.stride == undefined || this.oWpData.stride === '') {
+        this.oWpData.stride = '0';
+    }
+    if (this.oWpData.nanhandle == undefined || this.oWpData.nanhandle === '') {
+        this.oWpData.nanhandle = 'none';
+    }
     }
     public setColList(pList:string[]){
         this.oFormData.map(e=>{
@@ -101,16 +128,30 @@ export class WpWindowComponent extends WpComponent {
             // pEvent.target.value = null;
         }
     }
-    // #26 시계열 컴포넌트 변수 검증(윈도우 사이즈) integer
+    // #26 시계열 컴포넌트 변수 검증(윈도우 사이즈, 윈도우 이동 간격) integer
     onKeyUp(pEvent:any, pName:string){
-        let sWindowSize = pEvent.srcElement.value; // 입력 값
+        let sValue = pEvent.srcElement.value; // 입력 값
+        let sMsgName = pName == 'stride' ? '윈도우 이동 간격' : '윈도우 사이즈';
         // 숫자 유효성 확인
-        let sIsValidFloat = this.isValidNumber(sWindowSize,'integer');
+        let sIsValidFloat = this.isValidNumber(sValue,'integer');
         if (!sIsValidFloat.isValid){
-            this.oComViewerSvc.showMsg(`윈도우 사이즈에 유효한 숫자('integer')를 입력하세요`,false);
+            this.oComViewerSvc.showMsg(`${sMsgName}에 유효한 숫자('integer')를 입력하세요`,false);
             // oWpData, input text 수정
-            this.oWpData.value = sIsValidFloat.result;
+            if (pName == 'stride') {
+                this.oWpData.stride = sIsValidFloat.result;
+            } else {
+                this.oWpData.value = sIsValidFloat.result;
+            }
             pEvent.srcElement.value = sIsValidFloat.result;
+        }
+        // 이동 간격은 윈도우 사이즈보다 클 수 없다
+        else if ((pName == 'value' && this.oWpData.stride !== '' && Number(sValue) < Number(this.oWpData.stride)) ||
+                 (pName == 'stride' && this.oWpData.value !== '' && Number(sValue) > Number(this.oWpData.value))) {
+            this.oWpData.stride = '0';
+            if (pName == 'stride') {
+                pEvent.srcElement.value = '0';
+            }
+            this.oComViewerSvc.showMsg(`윈도우 이동 간격은 윈도우 사이즈보다 큰 수를 사용할 수 없습니다.`,false);
         }
     }
 }

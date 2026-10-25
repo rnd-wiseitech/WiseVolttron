@@ -63,7 +63,10 @@ export class WpWindowData extends WpComponentProperty {
                 usetable: p_userInfo.USER_NO + '_' + p_groupId + '_' + p_parentId[0],
                 indexColumn: this.o_data.indexColumn,
                 column: this.o_data.column,
-                value: this.o_data.value
+                value: this.o_data.value,
+                // 옵션 추가 전에 저장된 워크플로는 값이 없으므로 기본값으로 보낸다
+                stride: this.o_data.stride || '0',
+                nanhandle: this.o_data.nanhandle || 'none'
             }
         }
 

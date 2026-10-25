@@ -1172,7 +1172,9 @@
         "info111": "Select Prompt",
         "info112": "Allocate Dynamic Var",
         "info113": "Allocation Site",
-        "info114": "Allocate Columns"
+        "info114": "Allocate Columns",
+        "info117": "Window Stride",
+        "info118": "Missing Value Handling"
       },
       "BUTTON": {
         "button1": "Open Storage",
