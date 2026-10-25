@@ -16,42 +16,16 @@ export const createToken = (payload:object) => {
   });
 };
 
-export const createTempToken = (payload:object)  => {
-  const jwtOption:SignOptions = { expiresIn: '1h' };
-
-  return new Promise((resolve, reject) => {
-    jwt.sign(payload, 'wise1012', jwtOption, (error, token:any) => {
-      if (error) reject({status:401,instance:error});
-      console.log(token);
-      resolve(CryptoJS.AES.encrypt(token, 'wise1012').toString());
-    });
-  });
-};
-export const createUploadToken = (payload:object) => {
-  const jwtOption:SignOptions = { expiresIn: '9999 years' };
-
-  return new Promise((resolve, reject) => {
-    jwt.sign(payload, 'wise1012', jwtOption, (error, token:any) => {
-      if (error) reject({status:401,instance:error});
-      console.log(token);
-      resolve(CryptoJS.AES.encrypt(token, 'wise1012').toString());
-    });
-  });
-};
-
 // JWT 토큰 검증
 export const verifyToken = (token:any)  => {
   return new Promise<WP_SESSION_USER>((resolve, reject) => {
     try {
-      if(typeof token == 'object'){
-        if(token.name == 'wiseitech')
-        {
-          let s_User:WP_SESSION_USER = {
-            USER_NO:token.userNo
-          };
-
-          resolve(s_User);
-        }
+      // 쿼리스트링(?token[name]=...)으로 객체가 들어올 수 있으므로 문자열 토큰만 받는다
+      if(typeof token != 'string' || token == ''){
+        reject(new WpError({
+          httpCode: WpHttpCode.UNAUTHORIZED,
+          message: '유효하지 않은 토큰입니다.',
+        }));
       }
       else{
         let chiperByte = CryptoJS.AES.decrypt(token, 'wise1012');

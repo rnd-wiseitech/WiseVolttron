@@ -53,6 +53,16 @@ app.use(cors(
   s_corsOptions
 ));
 
+// 토큰 없이 부르는 경로. req.url 부분 일치로 판정하면 쿼리 문자열만 붙여도 인증을 건너뛰므로 req.path 로 정확히 맞춘다.
+const PUBLIC_PATHS = new Set([
+  '/auth/login',
+  '/userMng/auth', '/userMng/check', '/userMng/userCheck', '/userMng/pwdEmail',
+  '/hdfs/upload',
+]);
+// 경로 매개변수가 붙는 공개 API (데이터셋 행 API)
+const PUBLIC_PREFIXES = ['/hdfs/getApiData/'];
+const isPublicPath = (p_path: string) => PUBLIC_PATHS.has(p_path) || PUBLIC_PREFIXES.some(p_prefix => p_path.startsWith(p_prefix));
+
 app.use((req: Request, res: Response, next: NextFunction) => {
     // res.header("Access-Control-Allow-Origin", req.header('Origin'));
     res.header("Access-Control-Allow-Credentials", "true");
@@ -63,9 +73,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     let s_token:any = req.query.token || req.headers.authorization;
 
     // console.log(req.url)
-    if(req.url == '/userMng/auth' || req.url == '/userMng/check' || req.url == '/userMng/pwdEmail' || req.url == '/userMng/userCheck' 
-      || req.url == '/auth/login'|| req.url == '/hdfs/upload' || req.url.includes('hdfs/getApiData') || req.url == '/auth/createToken' 
-      || req.url == '/dbservice/re/copySampleDataset' || req.url.includes('/api/analyze-structured'))
+    if (isPublicPath(req.path))
       next();
     else{
       verifyToken(s_token).then(decodedToken => {

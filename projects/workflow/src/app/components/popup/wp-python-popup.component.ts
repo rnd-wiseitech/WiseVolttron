@@ -60,6 +60,40 @@ export class WpPythonPopupComponent implements OnInit, OnDestroy {
   h_codeResult = '';
   h_popup: any = null;
 
+  h_pytorchClassTemplateCode = `
+"""
+✅ 주의사항:
+1. 반드시 nn.Module을 상속받아 모델 클래스를 작성하세요.
+2. 클래스 이름은 자유롭게 지정 가능하지만,
+   업로드 시 '클래스명 입력' 칸에 동일한 이름을 입력해야 합니다.
+3. __init__() 함수 안에서 필요한 레이어를 정의하세요.
+4. forward(self, x) 함수 안에서 연산 과정을 정의하세요.
+5. 입력/출력 형태는 학습 시 사용했던 모델과 동일해야 합니다.
+6. 마지막에 's_model = 클래스명()' 으로 인스턴스를 생성해주세요.
+
+✅ TIP:
+ - torch.nn 모듈의 모든 기능을 사용할 수 있습니다.
+ - forward() 함수 내부에서 자유롭게 연산하세요.
+ - 학습 때 저장한 state_dict 파일과 이 모델의 구조가 반드시 일치해야 합니다.
+"""
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+# 👇 커스텀 모델 클래스 템플릿:
+class MyModel(nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.fc1 = nn.Linear(10, 50)
+        self.fc2 = nn.Linear(50, 2)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+s_model = MyModel()
+`;
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: { schema: any, code: string, usetable: string, result: { [index: string]: any }, jobId: string, excuteFlag: boolean, popupType?: any, param?: any },
     public dialogRef: MatDialogRef<WpPythonPopupComponent>,
     private cWpPythonSvc: WpPythonService,
@@ -73,8 +107,15 @@ export class WpPythonPopupComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.h_popup = this.data.popupType ?? null;
-    let sCodeResultElem = document.getElementById('code-result');
-    sCodeResultElem.style.display = 'none';
+    if (this.h_popup == 'pytorch-class') {
+      this.h_query.code = this.h_pytorchClassTemplateCode;
+      // 파이썬 컴포넌트 영역 숨김
+      let sDefaultElem = document.getElementById('default_python');
+      sDefaultElem.style.display = 'none';
+    } else {
+      let sCodeResultElem = document.getElementById('code-result');
+      sCodeResultElem.style.display = 'none';
+    }
     this.drawGrid(this.data.schema, this.h_popup);
 
     // 결과 영역 처음에는 숨김
@@ -192,7 +233,7 @@ export class WpPythonPopupComponent implements OnInit, OnDestroy {
               'CUSTOM_YN': this.data.param.CUSTOM_YN,
               'FRAMEWORK_TYPE': this.data.param.FRAMEWORK_TYPE
             }
-          } else if(this.h_popup='pytorch-class') {
+          } else if(this.h_popup=='pytorch-class') {
             s_param = {
               'method': 'CHECK-CLASS',
               'location': 'workflow',
